@@ -1,4 +1,10 @@
 export interface Program {
+  sourceId: string;
+  rawName: string;
+  awardedTitle: string;
+  knowledgeArea: string;
+  nameOrigin: "SOURCE_NAME" | "AWARDED_TITLE" | "UNAVAILABLE";
+  reviewRequired: boolean;
   code: string;
   institutionCode: string;
   institutionName: string;

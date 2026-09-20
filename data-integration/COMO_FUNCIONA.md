@@ -4,7 +4,7 @@
 
 Este servicio consulta información pública oficial de instituciones y programas de educación superior en Colombia, transforma los nombres de las columnas externas a propiedades sencillas y devuelve JSON para EduPlan.
 
-No almacena información. Otro integrante podrá consumir posteriormente este JSON para construir la integración con PostgreSQL.
+No almacena información. El backend Spring Boot consume este JSON y persiste los catálogos en PostgreSQL. La configuración y las limitaciones están en el [README principal](../README.md).
 
 ## 2. Flujo general
 
@@ -31,9 +31,9 @@ Columnas utilizadas: `c_digo_instituci_n`, `nombre_instituci_n`, `sector`, `car_
 - Página: <https://www.datos.gov.co/d/upr9-nkiz>
 - API JSON: <https://www.datos.gov.co/resource/upr9-nkiz.json>
 
-Columnas utilizadas: `codigoprograma`, `codigoinstitucion`, `nombreinstitucion`, `nombreprograma`, `nombrenivelacademico`, `nombrenivelformacion`, `nombremetodologia`, `cantidadperiodos`, `nombreperiodicidad`, `nombredepartprograma`, `nombremunicipioprograma` y `nombreestadoprograma`.
+Columnas utilizadas: `:id` (como `source_row_id`), `codigoprograma`, `codigoinstitucion`, `nombreinstitucion`, `nombreprograma`, `nombretituloobtenido`, `nombrenbc`, `nombrenivelacademico`, `nombrenivelformacion`, `nombremetodologia`, `cantidadperiodos`, `nombreperiodicidad`, `nombredepartprograma`, `nombremunicipioprograma` y `nombreestadoprograma`.
 
-La fuente oficial presenta inconsistencias en algunas filas de programas. Por ejemplo, algunos valores de `nombreprograma` no parecen corresponder al nombre esperado. Este servicio conserva lo publicado por la fuente y no inventa ni corrige datos sin respaldo oficial.
+La fuente presenta inconsistencias en nombres y códigos de programas. Se conservan los valores publicados en `rawName` y `code`. Si el nombre coincide con el departamento/municipio o está vacío/NA, `name` usa el título otorgado, `nameOrigin=AWARDED_TITLE` y `reviewRequired=true`. Si no hay título, el nombre indica que está pendiente. Esta regla no certifica los demás nombres. `sourceId` combina el dataset con `:id`: distingue filas publicadas, pero no certifica códigos SNIES ni carreras únicas.
 
 ## 5. Qué hace cada archivo
 
@@ -121,9 +121,15 @@ La consulta `GET /api/programs/:code` devuelve un objeto con `data` y `returned`
 ```json
 {
   "code": "5",
+  "sourceId": "upr9-nkiz:row-ejemplo",
+  "rawName": "Antioquia",
+  "awardedTitle": "PSICOLOGO",
+  "knowledgeArea": "Psicología",
+  "nameOrigin": "AWARDED_TITLE",
+  "reviewRequired": true,
   "institutionCode": "1201",
   "institutionName": "UNIVERSIDAD DE ANTIOQUIA",
-  "name": "Antioquia",
+  "name": "PSICOLOGO",
   "academicLevel": "Pregrado",
   "educationLevel": "Universitaria",
   "modality": "Presencial",
@@ -135,7 +141,7 @@ La consulta `GET /api/programs/:code` devuelve un objeto con `data` y `returned`
 }
 ```
 
-El valor de `name` anterior refleja literalmente una fila actual del dataset oficial y evidencia la limitación de calidad mencionada.
+El identificador del ejemplo es ilustrativo. `name` es el título otorgado de la fuente, no un nombre oficial de carrera verificado. El nombre original sigue disponible en `rawName`.
 
 ## 10. Ejemplo paso por paso
 
@@ -151,3 +157,19 @@ Para `GET /api/programs?municipality=bogota&page=2&limit=10`:
 ## 11. Qué no hace este servicio
 
 No implementa PostgreSQL, ORM, tablas, migraciones, usuarios, login, favoritos, recomendaciones, imágenes, Google Places, Wikimedia, Redis, Docker, autenticación, cron jobs ni sincronización automática. Tampoco modifica frontend, backend o database.
+
+## 12. Persistencia en EduPlan
+
+Este servicio continúa sin conectarse directamente a PostgreSQL. Esa separación es intencional: Spring Boot consume sus endpoints y controla las transacciones, las relaciones y la actualización idempotente de los registros.
+
+Con ambos servicios activos, la sincronización se inicia en el backend con:
+
+```text
+POST http://localhost:8080/api/admin/data-sync
+```
+
+La URL de este servicio puede configurarse en el backend mediante `DATA_INTEGRATION_BASE_URL`.
+
+La petición requiere el encabezado `X-Sync-Token`, cuyo valor se configura en el backend con
+`DATA_SYNC_ADMIN_TOKEN`. Consulte el [README principal](../README.md) para migraciones,
+credenciales, reportes de omisiones y tratamiento de fallos parciales.

@@ -3,6 +3,9 @@ import type { Program, ProgramFilters } from "../models/program.js";
 import { fetchJson } from "../utils/http.js";
 
 interface ProgramSourceRow {
+  source_row_id?: string;
+  nombretituloobtenido?: string;
+  nombrenbc?: string;
   codigoprograma?: string;
   codigoinstitucion?: string;
   nombreinstitucion?: string;
@@ -18,6 +21,9 @@ interface ProgramSourceRow {
 }
 
 const SELECT_FIELDS = [
+  ":id as source_row_id",
+  "nombretituloobtenido",
+  "nombrenbc",
   "codigoprograma",
   "codigoinstitucion",
   "nombreinstitucion",
@@ -57,12 +63,32 @@ function containsText(field: string, value: string): string {
     .join(" OR ");
 }
 
-function transformProgram(row: ProgramSourceRow): Program {
+export function transformProgram(row: ProgramSourceRow): Program {
+  if (!row.source_row_id?.trim()) {
+    throw new Error("La fuente no devolvió el identificador de fila");
+  }
+  const rawName = row.nombreprograma?.trim() ?? "";
+  const awardedTitle = row.nombretituloobtenido?.trim() ?? "";
+  const comparable = (value?: string) => (value ?? "").normalize("NFKD")
+    .replace(/\p{M}/gu, "").trim().toUpperCase();
+  const missing = (value: string) => ["", "NA", "N/A"].includes(comparable(value));
+  const suspicious = missing(rawName)
+    || [row.nombredepartprograma, row.nombremunicipioprograma]
+      .some(value => comparable(value) === comparable(rawName));
+  const nameOrigin = !suspicious ? "SOURCE_NAME"
+    : !missing(awardedTitle) ? "AWARDED_TITLE" : "UNAVAILABLE";
   return {
+    sourceId: `upr9-nkiz:${row.source_row_id.trim()}`,
+    rawName,
+    awardedTitle,
+    knowledgeArea: row.nombrenbc ?? "",
+    nameOrigin,
+    reviewRequired: suspicious,
     code: row.codigoprograma ?? "",
     institutionCode: row.codigoinstitucion ?? "",
     institutionName: row.nombreinstitucion ?? "",
-    name: row.nombreprograma ?? "",
+    name: nameOrigin === "SOURCE_NAME" ? rawName
+      : nameOrigin === "AWARDED_TITLE" ? awardedTitle : "Programa pendiente de verificación",
     academicLevel: row.nombrenivelacademico ?? "",
     educationLevel: row.nombrenivelformacion ?? "",
     modality: row.nombremetodologia ?? "",
@@ -96,7 +122,7 @@ export async function getPrograms(filters: ProgramFilters): Promise<Program[]> {
   url.searchParams.set("$select", SELECT_FIELDS);
   url.searchParams.set("$limit", String(filters.limit));
   url.searchParams.set("$offset", String((filters.page - 1) * filters.limit));
-  url.searchParams.set("$order", "codigoprograma");
+  url.searchParams.set("$order", ":id");
   if (conditions.length > 0) {
     url.searchParams.set("$where", conditions.join(" AND "));
   }
@@ -110,6 +136,7 @@ export async function getProgramsByCode(code: string): Promise<Program[]> {
   url.searchParams.set("$select", SELECT_FIELDS);
   url.searchParams.set("$where", `codigoprograma = '${escapeSoql(code)}'`);
   url.searchParams.set("$limit", "50000");
+  url.searchParams.set("$order", ":id");
 
   const rows = await fetchJson<ProgramSourceRow[]>(url);
   return rows.map(transformProgram);
