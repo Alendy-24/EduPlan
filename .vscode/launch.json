@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "EduPlan Backend (Docker PostgreSQL)",
+      "request": "launch",
+      "mainClass": "com.eduplan.BackendApplication",
+      "projectName": "backend",
+      "cwd": "${workspaceFolder}/backend/src",
+      "envFile": "${workspaceFolder}/docker/backend.env"
+    }
+  ]
+}

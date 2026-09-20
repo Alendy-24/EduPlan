@@ -12,6 +12,11 @@ La API TypeScript consulta Datos Abiertos; no tiene credenciales ni acceso a la 
 Requisitos: JDK 21 (con `JAVA_HOME` configurado), Node.js 22 o superior y PostgreSQL 14 o superior.
 Los comandos parten de la raíz de EduPlan salvo que se indique lo contrario.
 
+Para usar una base aislada en Docker desde WSL, seguir
+[`docker/README.md`](docker/README.md). Esa configuración usa el puerto `5433`
+para no interferir con PostgreSQL nativo en `5432` y mantiene las credenciales
+locales fuera de Git.
+
 En una terminal, iniciar la API:
 
 ```powershell
