@@ -125,7 +125,7 @@ async function getModalitiesByInstitution(codes: string[]): Promise<Map<string, 
   return modalities;
 }
 
-export async function getInstitutions(filters: InstitutionFilters): Promise<Institution[]> {
+export async function getInstitutions(filters: InstitutionFilters, lookahead = false): Promise<Institution[]> {
   const url = new URL(SOURCES.institutions.resourceUrl);
   const conditions: string[] = [];
   const programInstitutionCodes = await getMatchingInstitutionCodes(filters);
@@ -146,7 +146,7 @@ export async function getInstitutions(filters: InstitutionFilters): Promise<Inst
   }
 
   url.searchParams.set("$select", SELECT_FIELDS);
-  url.searchParams.set("$limit", String(filters.limit));
+  url.searchParams.set("$limit", String(filters.limit + (lookahead ? 1 : 0)));
   url.searchParams.set("$offset", String((filters.page - 1) * filters.limit));
   url.searchParams.set("$order", "c_digo_instituci_n,:id");
   if (conditions.length > 0) {

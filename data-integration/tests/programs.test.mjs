@@ -1,5 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { get as httpGet } from "node:http";
+import { app } from "../dist/app.js";
 import { transformProgram, getPrograms } from "../dist/services/programs.service.js";
 import { getInstitutions } from "../dist/services/institutions.service.js";
 
@@ -123,4 +125,43 @@ test("institution catalog does not query programs unless modalities are requeste
   const institutions = await getInstitutions({page: 1, limit: 12});
   assert.equal(requests, 1);
   assert.equal(institutions[0].modalities, undefined);
+});
+
+test("institution endpoint returns hasMore without exposing the lookahead row", async t => {
+  const limits = [];
+  t.mock.method(globalThis, "fetch", async url => {
+    limits.push([url.searchParams.get("$limit"), url.searchParams.get("$offset")]);
+    const offset = Number(url.searchParams.get("$offset"));
+    const count = offset === 0 ? 13 : offset === 12 ? 12 : 1;
+    return new Response(JSON.stringify(Array.from({length: count}, (_, index) => ({
+      c_digo_instituci_n: String(offset + index + 1),
+      nombre_instituci_n: `Institución ${offset + index + 1}`,
+    }))));
+  });
+
+  const server = app.listen(0);
+  t.after(() => server.close());
+  async function page(number) {
+    return new Promise((resolve, reject) => {
+      httpGet(`http://127.0.0.1:${server.address().port}/api/institutions?page=${number}&limit=12`, response => {
+        let body = "";
+        response.setEncoding("utf8");
+        response.on("data", chunk => { body += chunk; });
+        response.on("end", () => resolve(JSON.parse(body)));
+        response.on("error", reject);
+      }).on("error", reject);
+    });
+  }
+
+  const first = await page(1);
+  assert.equal(first.returned, 12);
+  assert.equal(first.data.length, 12);
+  assert.equal(first.hasMore, true);
+  const second = await page(2);
+  assert.equal(second.returned, 12);
+  assert.equal(second.hasMore, false);
+  const third = await page(3);
+  assert.equal(third.returned, 1);
+  assert.equal(third.hasMore, false);
+  assert.deepEqual(limits, [["13", "0"], ["13", "12"], ["13", "24"]]);
 });

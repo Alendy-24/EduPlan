@@ -13,7 +13,7 @@ institutionsRouter.get("/", async (request, response) => {
   }
 
   try {
-    const data = await getInstitutions({
+    const rows = await getInstitutions({
       name: typeof request.query.name === "string" ? request.query.name : undefined,
       municipality:
         typeof request.query.municipality === "string" ? request.query.municipality : undefined,
@@ -25,9 +25,11 @@ institutionsRouter.get("/", async (request, response) => {
           ? request.query.academicCharacter : undefined,
       includeModalities: request.query.includeModalities === "true",
       ...pagination,
-    });
+    }, true);
+    const hasMore = rows.length > pagination.limit;
+    const data = rows.slice(0, pagination.limit);
 
-    return response.json({ data, ...pagination, returned: data.length });
+    return response.json({ data, ...pagination, returned: data.length, hasMore });
   } catch {
     return response.status(502).json({
       error: true,

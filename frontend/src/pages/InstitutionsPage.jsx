@@ -56,7 +56,15 @@ function InstitutionsPage() {
         setError("");
         getInstitutions(JSON.parse(criteriaKey), page, controller.signal)
             .then(({ institutions: fetched, hasMore: more }) => {
-                setInstitutions((current) => page === 1 ? fetched : [...current, ...fetched]);
+                setInstitutions((current) => {
+                    if (page === 1) return fetched;
+                    const seen = new Set(current.map((institution) => institution.code));
+                    return [...current, ...fetched.filter((institution) => {
+                        if (seen.has(institution.code)) return false;
+                        seen.add(institution.code);
+                        return true;
+                    })];
+                });
                 setHasMore(more);
                 setLoading(false);
             })
@@ -108,13 +116,13 @@ function InstitutionsPage() {
                 </form>
 
                 <div className="institutions-match-banner">
-                    <strong>Encuentra las instituciones que más se adecuan a tus necesidades</strong>
+                    <strong>Explora instituciones según tus criterios de búsqueda</strong>
                     <button
                         className="btn-primary institutions-match-button"
                         type="button"
                         onClick={() => document.getElementById("institution-results")?.scrollIntoView({ behavior: "smooth" })}
                     >
-                        Encuentra mis coincidencias!
+                        Ver resultados
                     </button>
                 </div>
 
