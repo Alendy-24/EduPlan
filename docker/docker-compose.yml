@@ -1,0 +1,23 @@
+name: eduplan
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: eduplan-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-eduplan_db}
+      POSTGRES_USER: ${POSTGRES_USER:-eduplan}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - eduplan_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-eduplan} -d ${POSTGRES_DB:-eduplan_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  eduplan_postgres_data:

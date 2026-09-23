@@ -1,0 +1,5 @@
+.tools/
+.env
+*.log
+docker/.env
+docker/backend.env
