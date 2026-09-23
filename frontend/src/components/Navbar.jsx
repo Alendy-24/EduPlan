@@ -1,4 +1,4 @@
-import logoEduplan from "../assets/images/logo-eduplan.jpg";
+import logoEduplan from "../assets/Images/logo-eduplan.jpg";
 
 function Navbar() {
     return (
