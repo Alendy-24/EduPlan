@@ -24,3 +24,5 @@ jobs:
         working-directory: data-integration
       - run: bash mvnw -B -ntp test
         working-directory: backend/src
+        env:
+          JWT_SECRET: Y2ktdGVzdC1qd3Qtc2VjcmV0LXNob3VsZC1iZS1sb25nLWVub3VnaC0zMi1ieXRlcw==

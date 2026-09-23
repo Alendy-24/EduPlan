@@ -7,6 +7,19 @@ Official repository for EduPlan for IT Project from Pontificia Universidad Javer
 Spring Boot consume el JSON de `data-integration` y persiste instituciones y programas en PostgreSQL.
 La API TypeScript consulta Datos Abiertos; no tiene credenciales ni acceso a la base.
 
+### Búsqueda de instituciones en el frontend
+
+Con `data-integration` activo en el puerto `3001`, ejecutar desde `frontend/`:
+
+```powershell
+npm.cmd ci
+npm.cmd run dev
+```
+
+Abrir `http://localhost:5173/#/instituciones`. Sin configurar `VITE_DATA_INTEGRATION_URL`, Vite redirige solo `/api/institutions` a `http://127.0.0.1:3001` durante el desarrollo. La página consulta los catálogos públicos del MEN; no usa datos simulados.
+
+Para desplegar frontend y data-integration en orígenes distintos, definir `VITE_DATA_INTEGRATION_URL=https://data.example.org` **al ejecutar `npm.cmd run build`** del frontend (sin `/api` al final). El build consultará `https://data.example.org/api/institutions`. En data-integration, configurar `FRONTEND_ORIGIN=https://app.example.org` para permitir ese origen exacto mediante CORS. Estos dominios son ejemplos, no direcciones de EduPlan. Si `VITE_DATA_INTEGRATION_URL` está vacía, el frontend usa `/api/institutions` en su propio origen y el despliegue debe dirigir **solo esa ruta** a data-integration; otras rutas `/api`, como `/api/admin/data-sync`, corresponden al backend principal. Los valores de `VITE_` quedan incluidos en el build y deben ajustarse antes de construirlo.
+
 ### Preparación y ejecución local
 
 Requisitos: JDK 21 (con `JAVA_HOME` configurado), Node.js 22 o superior y PostgreSQL 14 o superior.

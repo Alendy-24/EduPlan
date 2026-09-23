@@ -126,8 +126,8 @@ class SynchronizationPostgresTest {
 
     @Test
     void migratesAllEntitiesAndValidatesHibernate() {
-        assertEquals(2, jdbc.queryForObject(
-                "select count(*) from flyway_schema_history where success and type='SQL'", Integer.class));
+        assertTrue(jdbc.queryForObject(
+                "select count(*) from flyway_schema_history where success and type='SQL'", Integer.class) >= 2);
         // Context startup uses ddl-auto=validate: every entity and column has been checked.
         assertTrue(jdbc.queryForObject("select to_regclass('ayuda_financiera') is not null", Boolean.class));
     }

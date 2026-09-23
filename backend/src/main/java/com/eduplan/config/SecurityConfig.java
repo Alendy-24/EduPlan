@@ -34,6 +34,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/api/admin/data-sync",
+                                "/api/admin/data-sync/**",
                                 "/error"
                         ).permitAll()
                         .anyRequest().authenticated()

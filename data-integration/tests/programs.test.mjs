@@ -1,5 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { get as httpGet } from "node:http";
+import { app } from "../dist/app.js";
 import { transformProgram, getPrograms } from "../dist/services/programs.service.js";
 import { getInstitutions } from "../dist/services/institutions.service.js";
 
@@ -64,4 +66,102 @@ test("institution pagination includes a unique tie breaker", async t => {
     return new Response("[]");
   });
   assert.deepEqual(await getInstitutions({page: 1, limit: 100}), []);
+});
+
+test("institution filters combine official program and institution data", async t => {
+  const requests = [];
+  t.mock.method(globalThis, "fetch", async url => {
+    requests.push(url);
+    if (url.pathname.includes("upr9-nkiz") && url.searchParams.get("$group") === "codigoinstitucion") {
+      return new Response(JSON.stringify([{codigoinstitucion: "1101"}]));
+    }
+    if (url.pathname.includes("upr9-nkiz")) {
+      return new Response(JSON.stringify([{
+        codigoinstitucion: "1101", nombremetodologia: "Presencial",
+      }]));
+    }
+    return new Response(JSON.stringify([{
+      c_digo_instituci_n: "1101", nombre_instituci_n: "UNIVERSIDAD NACIONAL DE COLOMBIA",
+      municipio_domicilio: "Bogotá, D.C.", sector: "Oficial",
+    }]));
+  });
+
+  const institutions = await getInstitutions({
+    name: "nacional", municipality: "bogota", program: "sistemas",
+    modality: "Presencial", sector: "Oficial", academicCharacter: "Universidad",
+    includeModalities: true, page: 2, limit: 12,
+  });
+  assert.equal(requests.length, 3);
+  assert.match(requests[0].searchParams.get("$where"), /nombreprograma/);
+  assert.match(requests[0].searchParams.get("$where"), /nombreestadoprograma = 'Activo'/);
+  assert.match(requests[0].searchParams.get("$where"), /nombremetodologia\) = 'PRESENCIAL'/);
+  assert.match(requests[1].searchParams.get("$where"), /c_digo_instituci_n in\('1101'\)/);
+  assert.match(requests[1].searchParams.get("$where"), /municipio_domicilio/);
+  assert.match(requests[1].searchParams.get("$where"), /upper\(sector\) = 'OFICIAL'/);
+  assert.match(requests[1].searchParams.get("$where"), /upper\(car_cter_acad_mico\) = 'UNIVERSIDAD'/);
+  assert.equal(requests[1].searchParams.get("$offset"), "12");
+  assert.match(requests[2].searchParams.get("$where"), /nombreestadoprograma = 'Activo'/);
+  assert.deepEqual(institutions[0].modalities, ["Presencial"]);
+});
+
+test("institution search returns no results when no programs meet the filters", async t => {
+  let requests = 0;
+  t.mock.method(globalThis, "fetch", async () => {
+    requests += 1;
+    return new Response("[]");
+  });
+  assert.deepEqual(await getInstitutions({program: "inexistente", page: 1, limit: 12}), []);
+  assert.equal(requests, 1);
+});
+
+test("institution catalog does not query programs unless modalities are requested", async t => {
+  let requests = 0;
+  t.mock.method(globalThis, "fetch", async () => {
+    requests += 1;
+    return new Response(JSON.stringify([{
+      c_digo_instituci_n: "1101", nombre_instituci_n: "UNIVERSIDAD NACIONAL DE COLOMBIA",
+    }]));
+  });
+  const institutions = await getInstitutions({page: 1, limit: 12});
+  assert.equal(requests, 1);
+  assert.equal(institutions[0].modalities, undefined);
+});
+
+test("institution endpoint returns hasMore without exposing the lookahead row", async t => {
+  const limits = [];
+  t.mock.method(globalThis, "fetch", async url => {
+    limits.push([url.searchParams.get("$limit"), url.searchParams.get("$offset")]);
+    const offset = Number(url.searchParams.get("$offset"));
+    const count = offset === 0 ? 13 : offset === 12 ? 12 : 1;
+    return new Response(JSON.stringify(Array.from({length: count}, (_, index) => ({
+      c_digo_instituci_n: String(offset + index + 1),
+      nombre_instituci_n: `Institución ${offset + index + 1}`,
+    }))));
+  });
+
+  const server = app.listen(0);
+  t.after(() => server.close());
+  async function page(number) {
+    return new Promise((resolve, reject) => {
+      httpGet(`http://127.0.0.1:${server.address().port}/api/institutions?page=${number}&limit=12`, response => {
+        let body = "";
+        response.setEncoding("utf8");
+        response.on("data", chunk => { body += chunk; });
+        response.on("end", () => resolve(JSON.parse(body)));
+        response.on("error", reject);
+      }).on("error", reject);
+    });
+  }
+
+  const first = await page(1);
+  assert.equal(first.returned, 12);
+  assert.equal(first.data.length, 12);
+  assert.equal(first.hasMore, true);
+  const second = await page(2);
+  assert.equal(second.returned, 12);
+  assert.equal(second.hasMore, false);
+  const third = await page(3);
+  assert.equal(third.returned, 1);
+  assert.equal(third.hasMore, false);
+  assert.deepEqual(limits, [["13", "0"], ["13", "12"], ["13", "24"]]);
 });

@@ -4,7 +4,6 @@ import "./App.css";
 
 function App() {
     return (
-        // enrutamiento para moverse de pagina en pagina
         <BrowserRouter>
             <AppRoutes />
         </BrowserRouter>
