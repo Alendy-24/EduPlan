@@ -15,7 +15,7 @@ public class Cuenta {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id_cuenta")
-  private Long id_cuenta;
+  private Long idCuenta;
 
   @Column(name = "correo", length = 120)
   private String correo;
@@ -24,22 +24,22 @@ public class Cuenta {
   @Column(name = "telefono", length = 30)
   private String telefono;
 
-  @Column(name = "contraseña", nullable = false, length = 255)
+  @Column(name = "contrasena", nullable = false, length = 255)
   private String contrasena;
 
   @Column(name = "estado", nullable = false)
   private boolean estado;
 
   @Column(name = "fecha_registro", nullable = false, updatable = false)
-  private LocalDateTime fecha_registro;
+  private LocalDateTime fechaRegistro;
 
   @OneToOne(mappedBy = "cuenta", cascade = CascadeType.ALL)
   private Estudiante estudiante;
 
   @PrePersist
   protected void onCreate(){
-    if(fecha_registro == null) {
-      fecha_registro = LocalDateTime.now();
+    if(fechaRegistro == null) {
+      fechaRegistro = LocalDateTime.now();
     }
   }
 }

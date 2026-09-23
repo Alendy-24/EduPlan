@@ -107,7 +107,7 @@ public class AuthService {
 
     private AuthResponse createResponse(Cuenta cuenta, String identifier) {
         CuentaPrincipal principal = new CuentaPrincipal(
-                cuenta.getId_cuenta(),
+                cuenta.getIdCuenta(),
                 identifier
         );
 
@@ -117,7 +117,7 @@ public class AuthService {
                 token,
                 "Bearer",
                 jwtService.getExpirationMs(),
-                cuenta.getId_cuenta(),
+                cuenta.getIdCuenta(),
                 cuenta.getCorreo(),
                 cuenta.getTelefono()
         );
