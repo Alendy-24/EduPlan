@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 function FeatureCard({ icon, title, description, href }) {
     const content = <>
         <div className="feature-icon">
@@ -11,7 +13,7 @@ function FeatureCard({ icon, title, description, href }) {
     </>;
 
     if (href) {
-        return <a className="feature-card" href={href}>{content}</a>;
+        return <Link className="feature-card" to={href}>{content}</Link>;
     }
 
     return (

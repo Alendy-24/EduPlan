@@ -1,20 +1,22 @@
 import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logoEduplan from "../assets/Images/logo-eduplan.jpg";
 
-function Navbar({ currentPage }) {
+function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    function closeMenu() {
+        setMenuOpen(false);
+    }
 
     return (
         <header className="navbar">
-
-            <a className="navbar-logo" href="#/" onClick={() => setMenuOpen(false)}>
-                <img
-                    src={logoEduplan}
-                    alt="Logo de EduPlan"
-                />
-
+            <Link className="navbar-logo" to="/" onClick={closeMenu}>
+                <img src={logoEduplan} alt="Logo de EduPlan" />
                 <span>EduPlan</span>
-            </a>
+            </Link>
 
             <button
                 className="navbar-menu-toggle"
@@ -27,7 +29,13 @@ function Navbar({ currentPage }) {
             </button>
 
             <nav id="navbar-links" className={`navbar-links${menuOpen ? " is-open" : ""}`}>
-                <a href="#/instituciones" aria-current={currentPage === "instituciones" ? "page" : undefined} onClick={() => setMenuOpen(false)}>Instituciones</a>
+                <Link
+                    to="/instituciones"
+                    aria-current={location.pathname === "/instituciones" ? "page" : undefined}
+                    onClick={closeMenu}
+                >
+                    Instituciones
+                </Link>
                 <a href="#">Programas</a>
                 <a href="#">Becas</a>
                 <a href="#">Guías</a>
@@ -35,17 +43,13 @@ function Navbar({ currentPage }) {
             </nav>
 
             <div className="navbar-actions">
-
-                <button className="btn-signin">
+                <button className="btn-signin" type="button">
                     Sign in
                 </button>
-
-                <button className="btn-register">
+                <button className="btn-register" type="button" onClick={() => navigate("/register")}>
                     Regístrate
                 </button>
-
             </div>
-
         </header>
     );
 }

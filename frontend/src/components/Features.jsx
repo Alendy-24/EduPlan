@@ -19,7 +19,7 @@ function Features() {
             icon: instituciones,
             title: "Ver instituciones",
             description: "Conoce universidades e instituciones",
-            href: "#/instituciones"
+            href: "/instituciones"
         },
         {
             icon: becas,
