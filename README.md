@@ -7,6 +7,17 @@ Official repository for EduPlan for IT Project from Pontificia Universidad Javer
 Spring Boot consume el JSON de `data-integration` y persiste instituciones y programas en PostgreSQL.
 La API TypeScript consulta Datos Abiertos; no tiene credenciales ni acceso a la base.
 
+### Búsqueda de instituciones en el frontend
+
+Con `data-integration` activo en el puerto `3001`, ejecutar desde `frontend/`:
+
+```powershell
+npm.cmd ci
+npm.cmd run dev
+```
+
+Abrir `http://localhost:5173/#/instituciones`. Vite redirige `/api` al servicio de integración durante el desarrollo. La página consulta los catálogos públicos del MEN; no usa datos simulados. En producción se debe dirigir `/api` al mismo servicio mediante el servidor web o proxy del despliegue.
+
 ### Preparación y ejecución local
 
 Requisitos: JDK 21 (con `JAVA_HOME` configurado), Node.js 22 o superior y PostgreSQL 14 o superior.

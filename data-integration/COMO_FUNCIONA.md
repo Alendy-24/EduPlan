@@ -81,6 +81,7 @@ GET http://localhost:3001/api/institutions
 GET http://localhost:3001/api/institutions/1101
 GET http://localhost:3001/api/institutions?municipality=bogota
 GET http://localhost:3001/api/institutions?name=nacional&page=1&limit=20
+GET http://localhost:3001/api/institutions?name=javeriana&municipality=bogota&program=sistemas&modality=Presencial&sector=Privado&includeModalities=true
 ```
 
 ### Programas
@@ -96,6 +97,8 @@ GET http://localhost:3001/api/programs?page=1&limit=20
 ```
 
 `page` comienza en 1. `limit` acepta valores entre 1 y 100. La API convierte estos valores a `$limit` y `$offset` de Socrata.
+
+La lista de instituciones también acepta `program`, `modality`, `sector` y `academicCharacter`. Los dos primeros cruzan los códigos publicados por los catálogos de programas e instituciones y consideran solo programas con estado `Activo`; los filtros se combinan. `includeModalities=true` agrega las modalidades de esos programas activos a cada resultado. Se solicita solo desde el frontend para no añadir consultas al flujo de sincronización del backend. Presupuesto, campus y enfoque institucional no están en estos catálogos.
 
 La consulta `GET /api/programs/:code` devuelve un objeto con `data` y `returned`, porque el dataset oficial puede contener varios registros para el mismo código de programa.
 

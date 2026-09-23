@@ -17,6 +17,13 @@ institutionsRouter.get("/", async (request, response) => {
       name: typeof request.query.name === "string" ? request.query.name : undefined,
       municipality:
         typeof request.query.municipality === "string" ? request.query.municipality : undefined,
+      modality: typeof request.query.modality === "string" ? request.query.modality : undefined,
+      program: typeof request.query.program === "string" ? request.query.program : undefined,
+      sector: typeof request.query.sector === "string" ? request.query.sector : undefined,
+      academicCharacter:
+        typeof request.query.academicCharacter === "string"
+          ? request.query.academicCharacter : undefined,
+      includeModalities: request.query.includeModalities === "true",
       ...pagination,
     });
 

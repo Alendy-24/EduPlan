@@ -1,20 +1,33 @@
-import logoEduplan from "../assets/images/logo-eduplan.jpg";
+import { useState } from "react";
+import logoEduplan from "../assets/Images/logo-eduplan.jpg";
 
-function Navbar() {
+function Navbar({ currentPage }) {
+    const [menuOpen, setMenuOpen] = useState(false);
+
     return (
         <header className="navbar">
 
-            <div className="navbar-logo">
+            <a className="navbar-logo" href="#/" onClick={() => setMenuOpen(false)}>
                 <img
                     src={logoEduplan}
                     alt="Logo de EduPlan"
                 />
 
                 <span>EduPlan</span>
-            </div>
+            </a>
 
-            <nav className="navbar-links">
-                <a href="#">Instituciones</a>
+            <button
+                className="navbar-menu-toggle"
+                type="button"
+                aria-controls="navbar-links"
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen((open) => !open)}
+            >
+                Menú
+            </button>
+
+            <nav id="navbar-links" className={`navbar-links${menuOpen ? " is-open" : ""}`}>
+                <a href="#/instituciones" aria-current={currentPage === "instituciones" ? "page" : undefined} onClick={() => setMenuOpen(false)}>Instituciones</a>
                 <a href="#">Programas</a>
                 <a href="#">Becas</a>
                 <a href="#">Guías</a>

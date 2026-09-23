@@ -18,7 +18,8 @@ function Features() {
         {
             icon: instituciones,
             title: "Ver instituciones",
-            description: "Conoce universidades e instituciones"
+            description: "Conoce universidades e instituciones",
+            href: "#/instituciones"
         },
         {
             icon: becas,
@@ -57,6 +58,7 @@ function Features() {
                         icon={feature.icon}
                         title={feature.title}
                         description={feature.description}
+                        href={feature.href}
                     />
                 ))}
 

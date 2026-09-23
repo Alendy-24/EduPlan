@@ -58,6 +58,7 @@ button {
     font-weight: 700;
 
     color: #102653;
+    text-decoration: none;
 }
 
 .navbar-logo img {
@@ -92,6 +93,15 @@ button {
 
 .navbar-links a:hover {
     color: #2862ed;
+}
+
+.navbar-links a[aria-current="page"] {
+    color: #2862ed;
+    font-weight: 700;
+}
+
+.navbar-menu-toggle {
+    display: none;
 }
 
 
@@ -345,6 +355,9 @@ button {
     transition:
         transform 0.2s,
         box-shadow 0.2s;
+
+    color: inherit;
+    text-decoration: none;
 }
 
 .feature-card:hover {
@@ -626,10 +639,41 @@ button {
 
     .navbar {
         padding: 0 20px;
+        height: auto;
+        min-height: 62px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .navbar-menu-toggle {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 12px;
+        border: 1px solid #a7c5ff;
+        border-radius: 6px;
+        background: white;
+        color: #102653;
+        font-size: 12px;
+        font-weight: 700;
     }
 
     .navbar-links {
         display: none;
+        order: 3;
+        flex-basis: 100%;
+        padding: 4px 0 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .navbar-links.is-open {
+        display: flex;
+    }
+
+    .navbar-actions {
+        margin-left: auto;
+        order: 2;
     }
 
     .hero {
