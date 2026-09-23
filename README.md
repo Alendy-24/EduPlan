@@ -1,4 +1,4 @@
-<img width="848" height="646" alt="image" src="https://github.com/user-attachments/assets/ce126fa6-e629-4d9a-914d-b98f0d985973" /># EduPlan
+# EduPlan
 
 ## Integrantes
 - Salomé Ávila
