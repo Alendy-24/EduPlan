@@ -1,6 +1,8 @@
-import logoEduplan from "../assets/Images/logo-eduplan.jpg";
+import logoEduplan from "../assets/images/logo-eduplan.jpg";
+import { useNavigate } from "react-router-dom";
 
 function Navbar() {
+     const navigate = useNavigate();
     return (
         <header className="navbar">
 
@@ -27,7 +29,8 @@ function Navbar() {
                     Sign in
                 </button>
 
-                <button className="btn-register">
+                <button className="btn-register"
+                    onClick={() => navigate("/register")} >
                     Regístrate
                 </button>
 
