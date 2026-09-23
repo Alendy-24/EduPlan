@@ -1,19 +1,13 @@
-import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import Features from "./components/Features";
-import Process from "./components/Process";
-import Footer from "./components/Footer";
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./routes/Routes";
 import "./App.css";
 
 function App() {
     return (
-        <div className="app">
-            <Navbar />
-            <Hero />
-            <Features />
-            <Process />
-            <Footer />
-        </div>
+        // enrutamiento para moverse de pagina en pagina
+        <BrowserRouter>
+            <AppRoutes />
+        </BrowserRouter>
     );
 }
 
