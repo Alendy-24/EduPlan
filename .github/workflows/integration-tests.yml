@@ -24,3 +24,5 @@ jobs:
         working-directory: data-integration
       - run: bash mvnw -B -ntp test
         working-directory: backend/src
+        env:
+          JWT_SECRET: ci-test-secret-at-least-32-characters-long
