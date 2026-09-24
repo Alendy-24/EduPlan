@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import logoEduplan from "../assets/Images/logo-eduplan.jpg";
+import logoEduplan from "../assets/Images/EduPlanLogo 1.svg";
 
 function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -14,7 +14,7 @@ function Navbar() {
     return (
         <header className="navbar">
             <Link className="navbar-logo" to="/" onClick={closeMenu}>
-                <img src={logoEduplan} alt="Logo de EduPlan" />
+                <img src={logoEduplan} alt="Logo de EduPlan"/>
                 <span>EduPlan</span>
             </Link>
 
@@ -43,7 +43,7 @@ function Navbar() {
             </nav>
 
             <div className="navbar-actions">
-                <button className="btn-signin" type="button">
+                <button className="btn-signin" type="button" onClick={() => navigate("/signin")}>
                     Sign in
                 </button>
                 <button className="btn-register" type="button" onClick={() => navigate("/register")}>

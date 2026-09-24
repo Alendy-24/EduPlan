@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Landing from "../pages/landing";
 import Register from "../pages/register";
+import SignIn from "../pages/signin";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import InstitutionsPage from "../pages/InstitutionsPage";
@@ -20,6 +21,7 @@ function AppRoutes() {
         <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/signin" element={<SignIn />} />
             <Route path="/instituciones" element={<InstitutionsRoute />} />
         </Routes>
     );
