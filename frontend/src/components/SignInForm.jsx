@@ -1,45 +1,31 @@
 import { useState } from "react";
 
 function RegisterForm() {
-    const [nombre, setNombre] = useState("");
     const [correo, setCorreo] = useState("");
     const [contrasena, setContrasena] = useState("");
     const [mostrarContrasena, setMostrarContrasena] = useState(false);
 
     const manejarEnvio = (e) => {
         e.preventDefault();
-        console.log({ nombre, correo, contrasena });
+        console.log({ correo, contrasena });
         // Aquí después va la llamada al backend de Spring Boot
     };
 
     return (
         <div className="register-card">
             <div className="register-header">
-                <h1>Registrate</h1>
-                <p>Empieza a planear tu futuro academico.</p>
+                <h1>Iniciar sesión</h1>
+                <p>Ingresa para hacer seguimiento a tus oportunidades</p>
             </div>
 
             <form onSubmit={manejarEnvio}>
                 <div className="register-field">
-                    <label>Nombres y apellidos</label>
-                    <div className="register-input">
-                        <span className="icon-placeholder">✉</span>
-                        <input
-                            type="text"
-                            placeholder="Nombre de usuario"
-                            value={nombre}
-                            onChange={(e) => setNombre(e.target.value)}
-                        />
-                    </div>
-                </div>
-
-                <div className="register-field">
-                    <label>Correo o nombre de usuario</label>
+                    <label>Correo o telefono</label>
                     <div className="register-input">
                         <span className="icon-placeholder">✉</span>
                         <input
                             type="email"
-                            placeholder="tu.correo@ejemplo.com o usuario"
+                            placeholder="tu.correo@ejemplo.com o telefono"
                             value={correo}
                             onChange={(e) => setCorreo(e.target.value)}
                         />
@@ -67,7 +53,7 @@ function RegisterForm() {
                 </div>
 
                 <button type="submit" className="btn-primary btn-block">
-                    Crear Cuenta
+                    Iniciar sesión
                 </button>
             </form>
 
@@ -85,7 +71,7 @@ function RegisterForm() {
             </button>
 
             <p className="register-login-row">
-                ¿Ya tienes una cuenta? <a href="/signin">Iniciar Sesión</a>
+                ¿No tienes una cuenta? <a href="/register">Registrate</a>
             </p>
         </div>
     );
