@@ -1,0 +1,2 @@
+import { useState } from 'react';
+export default function BookmarkButton({id,label='Guardar'}){const key=`eduplan-saved-${id}`;const [saved,setSaved]=useState(()=>localStorage.getItem(key)==='true');function toggle(){const next=!saved;setSaved(next);localStorage.setItem(key,String(next))}return <button type="button" className="save-button" aria-pressed={saved} aria-label={`${saved?'Quitar de guardados':'Guardar'} ${label}`} onClick={toggle}>{saved?'✓ Guardado':'Guardar'}</button>}

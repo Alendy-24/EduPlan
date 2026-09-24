@@ -1,4 +1,5 @@
 .tools/
+node_modules/
 .env
 *.log
 docker/.env

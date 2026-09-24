@@ -1,0 +1,3 @@
+import { Link } from 'react-router-dom';
+import BookmarkButton from './BookmarkButton';
+export default function ProgramCard({program}){return <article className="list-item surface"><img src={program.image} alt="Espacio de estudio" loading="lazy"/><div><h3>{program.name}</h3><p>{program.description}</p><div className="metadata"><span>{program.level}</span><span>{program.city}</span><span>{program.duration}</span><span>{program.modality}</span></div></div><div className="list-actions"><BookmarkButton id={`program-${program.id}`} label={program.name}/><Link className="btn btn-secondary" to={`/programas/${program.id}`}>Ver programa →</Link></div></article>}

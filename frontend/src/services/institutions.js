@@ -18,3 +18,12 @@ export async function getInstitutions(filters, page, signal) {
 
     return { institutions: payload.data, hasMore: payload.hasMore };
 }
+
+export async function getInstitutionByCode(code, signal) {
+    if (!/^\d+$/.test(String(code))) throw new Error('Código de institución inválido');
+    const response = await fetch(`${baseUrl}/api/institutions/${encodeURIComponent(code)}`, { signal });
+    if (!response.ok) throw new Error('No fue posible consultar el detalle de la institución');
+    const institution = await response.json();
+    if (!institution || typeof institution.name !== 'string') throw new Error('Detalle de institución no válido');
+    return institution;
+}

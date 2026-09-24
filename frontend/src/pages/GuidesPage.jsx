@@ -1,0 +1,4 @@
+import { Link } from 'react-router-dom';
+import './pages.css';
+const guides=[['Elegir un área de estudio','Empieza por tus intereses y las actividades que te gustaría aprender.','/perfil'],['Comparar programas','Revisa plan de estudios, modalidad, costos y ubicación.','/comparar'],['Preparar una postulación','Confirma requisitos y fechas en la fuente oficial antes de enviar documentos.','/becas']];
+export default function GuidesPage(){return <main className="page"><div className="container"><div className="page-intro"><span className="eyebrow">Orientación</span><h1>Guías para decidir mejor</h1><p className="lead">Preguntas y pasos prácticos para explorar la educación superior.</p></div><div className="guides-grid">{guides.map(([title,description,href])=><article className="guide-card surface" key={title}><h2>{title}</h2><p>{description}</p><Link className="text-link" to={href}>Explorar →</Link></article>)}</div></div></main>}
