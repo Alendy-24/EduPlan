@@ -300,6 +300,21 @@ p {
   color:var(--muted);
   font-size:13px
 }
+.chat-button {
+  position: absolute;
+  background-color: white;
+  width: 80px;
+  height: 80px;
+  display: inline-grid;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+}
+.chat-button img{
+  max-width: 100%;
+  display: block;
+  margin: auto;
+}
 .footer-inner {
   display:flex;
   justify-content:space-between;
@@ -335,8 +350,8 @@ p {
   padding:76px 0 128px
 }
 .hero-content h1 {
-  font-size:clamp(38px,4.1vw,62px);
-  max-width:600px;
+  font-size:clamp(38px,6.1vw,62px) !important;
+  max-width:800px;
   margin:10px 0 16px
 }
 .hero-content p {
@@ -668,16 +683,41 @@ p {
     flex-direction:column
   }
 }
+.footer-content {
+  display:flex;
+  flex-direction:column;
+  gap:6px
+}
+
+.footer-content p{
+  font-width: 16px;
+  font-weight: 600;
+}
 .photo-credit {
   font-size:11px;
   margin-top:10px;
-  color:var(--muted)
+  color:var(--sky)
 }
 .quick-icon img {
   width:24px;
   height:24px;
   object-fit:contain
 }
+.contact-button {
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:var(--sky);
+  color:var(--navy);
+  border-radius:99px;
+  padding:10px 16px;
+  font-size:14px;
+}
+
 @media(max-width:540px) {
   .hero-search .tabs {
     gap:0

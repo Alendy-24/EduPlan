@@ -216,3 +216,79 @@
     flex-direction: column;
   }
 }
+
+/*Cuadros landing page*/
+.cuadros-link {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px;
+}
+
+.cuadro {
+  flex: 1 1 calc(33.333% - 14px);  /* 3 columnas */
+  min-width: 280px;                /* si no cabe, baja a 2 o 1 columna */
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  background-color: #4771ef55;
+  color: var(--navy);
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.cuadro:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(63, 81, 216, 0.35);
+}
+
+/* Cuadro claro del icono */
+.cuadro-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background-color: #fff;
+  border-radius: 4px;
+}
+
+.cuadro-icon img {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+
+/* Texto */
+.cuadro strong {
+  display: block;
+  font-size: 18px;
+  font-weight: 400;
+  margin-bottom: 4px;
+}
+
+.cuadro small {
+  display: block;
+  font-size: 14px;
+  line-height: 1.4;
+  opacity: 0.95;
+}
+
+.hero-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.hero-btns button{
+  border-color: transparent !important;
+  background-color: var(--navy) !important;
+  font-size: 17px;
+  margin-top: 30px;
+}

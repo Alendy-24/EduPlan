@@ -5,32 +5,46 @@ import institutionIcon from "../assets/Images/instituciones.svg";
 import programIcon from "../assets/Images/explorar-programas.svg";
 import scholarshipIcon from "../assets/Images/becas.svg";
 import guideIcon from "../assets/Images/guia.svg";
+import PerfilamientoIcon from "../assets/Images/perfilamiento.svg";
+import OrientacionIcon from "../assets/Images/orientacion.svg";
 import { featuredOpportunities } from "../data/mock/catalog";
 
 const categories = [
     [
-        "Instituciones",
+        "Ver instituciones",
         "/instituciones",
         institutionIcon,
-        "Explora universidades e instituciones en Colombia.",
+        "Conoce universidades e instituciones en Colombia.",
     ],
     [
-        "Programas",
+        "Explorar programas",
         "/programas",
         programIcon,
         "Encuentra áreas de estudio según tus intereses.",
     ],
     [
-        "Becas",
+        "Becas y financiación",
         "/becas",
         scholarshipIcon,
         "Conoce opciones de apoyo y financiación.",
     ],
     [
-        "Guías y orientación",
+        "Guías y recursos",
         "/guias",
         guideIcon,
-        "Prepara tu siguiente decisión académica.",
+        "Informáte con contenido relevante para tu camino académico.",
+    ],
+    [
+        "Perfilamiento",
+        "/",
+        PerfilamientoIcon,
+        "Encuentra las oportunidades que mejor se ajusten a tu perfil.",
+    ],
+    [
+        "Orientación personzalizada",
+        "/",
+        OrientacionIcon,
+        "Recibe asesoría de expertos en educación superior.",
     ],
 ];
 const searchTypes = [
@@ -85,14 +99,21 @@ export default function Landing() {
                     <span className="eyebrow">
                         Tu futuro, con más información
                     </span>
-                    <h1>Decide qué estudiar con confianza.</h1>
+                    <h1>Construye tu futuro.</h1>
                     <p>
-                        Explora instituciones, programas y oportunidades en
-                        Colombia para elegir la opción que se adapta a ti.
+                        Te guiamos en tu camino a la educación superior.
                     </p>
+                    <div className="hero-btns">
+                        <button className="btn btn-primary" onClick={() => navigate("/login")}>
+                            Encuentra mi oportunidad
+                        </button>
+                    </div>
                 </div>
             </section>
-            <div className="container">
+          
+           <div className="container">
+
+        {/* 
                 <form className="hero-search" role="search" onSubmit={search}>
                     <div
                         className="tabs"
@@ -136,8 +157,8 @@ export default function Landing() {
                                 <option value="">Toda Colombia</option>
                                 <option>Bogotá</option>
                                 <option>Medellín</option>
-                                <option>Cali</option>
-                            </select>
+                            </select>                                <option>Cali</option>
+
                         </label>
                         <label className="field">
                             <span className="sr-only">
@@ -177,15 +198,15 @@ export default function Landing() {
                         </label>
                         <button className="btn btn-primary">Buscar</button>
                     </div>
-                </form>
-                <div className="quick-links">
+                </form> */}
+                <div className="cuadros-link">
                     {categories.map(([title, path, icon, description]) => (
-                        <Link className="quick-link" to={path} key={path}>
-                            <span className="quick-icon" aria-hidden="true">
+                        <Link className="cuadro" to={path} key={title}>
+                            <span className="cuadro-icon" aria-hidden="true">
                                 <img src={icon} alt="" />
                             </span>
                             <span>
-                                <strong>{title}</strong>
+                                <b>{title}</b>
                                 <small>{description}</small>
                             </span>
                         </Link>
