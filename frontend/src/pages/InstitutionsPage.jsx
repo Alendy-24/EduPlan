@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import InstitutionCard from "../components/InstitutionCard";
 import { getInstitutions } from "../services/institutions";
-import "./InstitutionsPage.css";
 
 const MODALITIES = ["Presencial", "A distancia", "Virtual", "Presencial-Virtual"];
 const SECTORS = ["Oficial", "Privado"];

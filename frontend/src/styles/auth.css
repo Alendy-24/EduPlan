@@ -1,0 +1,287 @@
+/* ============================= */
+/* AUTH: inicio de sesión y registro */
+/* ============================= */
+
+
+/* ============================= */
+/* LOGIN (clases auth-*) */
+/* ============================= */
+
+.auth-main {
+  min-height: calc(100vh - 72px);
+  display: grid;
+  place-items: center;
+  padding: 55px 24px;
+  background: var(--grad-page);
+  /* Si prefieres la foto de antes, reemplaza la línea de arriba por:
+     background: linear-gradient(rgba(18,43,64,.16), rgba(18,43,64,.16)),
+                 url('../assets/Images/estudiantess.avif') center/cover;
+     (ojo: la ruta lleva ../ porque este archivo está dentro de /css) */
+}
+
+.auth-card {
+  width: min(520px, 100%);
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 48px;
+  box-shadow: var(--shadow-panel);
+}
+
+.auth-card h1 {
+  text-align: center;
+  font-size: 32px;
+  margin: 0 0 8px;
+}
+
+.auth-card > .subtle {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.auth-form {
+  display: grid;
+  gap: 17px;
+}
+
+/* Campos del login con el mismo look que los del registro */
+.auth-form .field input {
+  min-height: 52px;
+  border-radius: 10px;
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+}
+
+.auth-form .field input:focus {
+  background: #fff;
+}
+
+.auth-form .btn {
+  width: 100%;
+  margin-top: 5px;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #9ca3af;
+  font-size: 12px;
+  margin: 25px 0;
+}
+
+.auth-divider:before,
+.auth-divider:after {
+  content: '';
+  height: 1px;
+  background: #e5e7eb;
+  flex: 1;
+}
+
+.social-buttons {
+  display: grid;
+  gap: 9px;
+}
+
+.social-buttons button {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background 0.18s;
+}
+
+.social-buttons button:hover {
+  background: #f9fafb;
+}
+
+.auth-foot {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  margin: 22px 0 0;
+}
+
+.auth-foot a {
+  color: var(--blue);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-feedback {
+  font-size: 13px;
+  margin: 0;
+  color: var(--blue-dark);
+}
+
+
+/* ============================= */
+/* REGISTRO (clases register-*) */
+/* Estilos copiados de Figma */
+/* ============================= */
+
+.register-page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.register-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, #eef2ff, #f0f7ff, white);
+  padding: 40px 20px;
+}
+
+.register-card {
+  width: 520px;
+  max-width: 100%;
+  background: white;
+  border-radius: 20px;
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.register-header h1 {
+  color: #0b1f46;
+  font-size: 40px;
+  font-weight: 700;
+}
+
+.register-header p {
+  color: #596581;
+  font-size: 15px;
+  margin-top: 8px;
+}
+
+.register-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.register-field label {
+  color: #0b1f46;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.register-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 14px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.register-input input {
+  border: none;
+  background: transparent;
+  outline: none;
+  flex: 1;
+  font-size: 14px;
+  color: #0b1f46;
+}
+
+.register-input input::placeholder {
+  color: #9ca3af;
+}
+
+.icon-placeholder {
+  font-size: 16px;
+  line-height: 1;
+  /* Reemplazar por <img> con SVG real más adelante */
+}
+
+.icon-eye-btn {
+  background: none;
+  border: none;
+  margin-left: auto;
+  cursor: pointer;
+}
+
+.btn-block {
+  width: 100%;
+  height: 52px;
+  border-radius: 10px;
+}
+
+.register-separator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.register-separator span {
+  flex: 1;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.register-separator p {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.btn-social {
+  width: 100%;
+  height: 50px;
+  border-radius: 10px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.register-login-row {
+  text-align: center;
+  font-size: 14px;
+  color: #596581;
+}
+
+.register-login-row a {
+  color: #1d4ed8;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+
+/* ============================= */
+/* RESPONSIVE */
+/* ============================= */
+
+@media (max-width: 540px) {
+  .auth-card {
+    padding: 29px 23px;
+  }
+
+  .register-card {
+    padding: 32px 22px;
+  }
+
+  .register-header h1 {
+    font-size: 32px;
+  }
+}

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DemoNotice from '../components/DemoNotice';
 import { programs } from '../data/mock/catalog';
-import './pages.css';
 
 const initialPrograms=programs.slice(0,3);
 const rows=[['Institución',p=>p.institution],['Programa',p=>p.name],['Ciudad',p=>p.city],['Duración',p=>p.duration],['Modalidad',p=>p.modality],['Costo',()=> 'Por confirmar con la institución'],['Enfoque',p=>p.description]];
