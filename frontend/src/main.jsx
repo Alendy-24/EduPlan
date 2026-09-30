@@ -17,6 +17,7 @@ import './styles/dashboard.css'
 import './styles/perfil.css'
 import './styles/instituciones.css'
 import './styles/product.css'
+import './styles/authenticated.css'
 
 import App from './App.jsx'
 
