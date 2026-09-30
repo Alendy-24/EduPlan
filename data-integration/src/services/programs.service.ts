@@ -10,6 +10,8 @@ interface ProgramSourceRow {
   source_row_id?: string;
   nombretituloobtenido?: string;
   nombrenbc?: string;
+  nombreareaconocimiento?: string;
+  cantidadcreditos?: string;
   codigoprograma?: string;
   codigoinstitucion?: string;
   nombreinstitucion?: string;
@@ -28,6 +30,8 @@ const SELECT_FIELDS = [
   ":id as source_row_id",
   "nombretituloobtenido",
   "nombrenbc",
+  "nombreareaconocimiento",
+  "cantidadcreditos",
   "codigoprograma",
   "codigoinstitucion",
   "nombreinstitucion",
@@ -68,6 +72,8 @@ export function transformProgram(row: ProgramSourceRow): Program {
     rawName,
     awardedTitle,
     knowledgeArea: row.nombrenbc ?? "",
+    broadKnowledgeArea: row.nombreareaconocimiento ?? "",
+    credits: row.cantidadcreditos ?? "",
     nameOrigin,
     reviewRequired: !official,
     nameSource: official?.source,
@@ -197,4 +203,9 @@ export async function getProgramsByCode(code: string): Promise<Program[]> {
 
   const rows = await fetchJson<ProgramSourceRow[]>(url);
   return enrichInstitutions(rows.map(transformProgram));
+}
+
+// Shared bounded, five-minute catalog cache: no catalog transfer to the browser.
+export async function getRecommendationCatalog(): Promise<Program[]> {
+  return getProgramCatalog<ProgramSourceRow>(SELECT_FIELDS, transformProgram);
 }

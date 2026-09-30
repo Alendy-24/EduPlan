@@ -1,6 +1,7 @@
 import express from "express";
 import { institutionsRouter } from "./routes/institutions.routes.js";
 import { programsRouter } from "./routes/programs.routes.js";
+import { recommendationsRouter } from './routes/recommendations.routes.js';
 
 export const app = express();
 const frontendOrigin = process.env.FRONTEND_ORIGIN?.trim();
@@ -23,3 +24,4 @@ app.get("/health", (_request, response) => {
 
 app.use("/api/institutions", institutionsRouter);
 app.use("/api/programs", programsRouter);
+app.use('/api/recommendations', recommendationsRouter);

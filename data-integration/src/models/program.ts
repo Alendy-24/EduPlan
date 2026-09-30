@@ -4,6 +4,8 @@ export interface Program {
   rawName: string;
   awardedTitle: string;
   knowledgeArea: string;
+  broadKnowledgeArea?: string;
+  credits?: string;
   nameOrigin: "SNIES_NAME" | "UNAVAILABLE";
   nameSource?: string;
   nameSourceField?: string;
