@@ -1,11 +1,18 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import DemoNotice from '../components/DemoNotice';
-import { programs } from '../data/mock/catalog';
-
-const initialPrograms=programs.slice(0,3);
-const rows=[['Institución',p=>p.institution],['Programa',p=>p.name],['Ciudad',p=>p.city],['Duración',p=>p.duration],['Modalidad',p=>p.modality],['Costo',()=> 'Por confirmar con la institución'],['Enfoque',p=>p.description]];
-export default function ComparePage(){
-  const [comparison,setComparison]=useState(initialPrograms);
-  return <main className="page"><div className="container"><Link className="back-link" to="/programas">← Volver a programas</Link><div className="page-intro"><h1>Comparar programas</h1><p className="lead">Revisa la información de cada opción lado a lado.</p></div><DemoNotice/><div className="results-line"><strong>{comparison.length} programas en la comparación</strong><div style={{display:'flex',gap:8}}><button className="btn btn-secondary" type="button" onClick={()=>setComparison(initialPrograms)}>Restablecer</button><button className="btn btn-secondary" type="button" onClick={()=>setComparison([])} disabled={!comparison.length}>Limpiar comparación</button></div></div>{comparison.length?<div className="compare-wrap" role="region" aria-label="Comparación de programas" tabIndex={0}><table className="compare-table"><thead><tr><th scope="col">Criterio</th>{comparison.map(p=><td key={p.id}><img src={p.image} alt="Espacio de estudio de referencia"/><strong>{p.name}</strong><small>{p.institution}</small><button className="text-link" style={{display:'block',marginTop:8,border:0,background:'none',padding:0}} type="button" onClick={()=>setComparison(items=>items.filter(item=>item.id!==p.id))}>Quitar</button></td>)}</tr></thead><tbody>{rows.map(([label,get])=><tr key={label}><th scope="row">{label}</th>{comparison.map(p=><td key={p.id}>{get(p)}</td>)}</tr>)}<tr><th scope="row">Ver más</th>{comparison.map(p=><td key={p.id}><Link className="btn btn-primary" to={`/programas/${p.id}`}>Ver programa</Link></td>)}</tr></tbody></table></div>:<div className="empty-state surface"><h2>Comparación vacía</h2><p>Restablece los programas de ejemplo o vuelve al listado.</p><button className="btn btn-primary" type="button" onClick={()=>setComparison(initialPrograms)}>Restablecer programas</button></div>}</div></main>;
+import PageHeader from '../components/PageHeader';
+import { useExploration } from '../contexts/ExplorationContext';
+import { programHref } from '../utils/programs';
+const rows = [['Institución',p=>p.institution],['Programa',p=>p.name],['Nivel',p=>p.level],['Ciudad',p=>p.city],['Duración publicada',p=>p.duration],['Modalidad',p=>p.modality],['Estado publicado',p=>p.status],['Costo',()=>null],['Enfoque',()=>null]];
+const value = v => v || 'No disponible en este catálogo';
+export default function ComparePage() {
+  const { comparison, toggleCompare, clearComparison, persistent } = useExploration();
+  return <main className="page"><div className="container"><Link className="back-link" to="/programas">← Volver a programas</Link><PageHeader title="Comparar programas">Revisa hasta tres opciones. La comparación organiza información; la decisión es tuya.</PageHeader>
+    <p className="notice">Selección guardada en este dispositivo. Los resúmenes pueden estar desactualizados: abre cada programa para consultar la fuente actual. {comparison.some(p=>p.provenance==='demo') && 'La selección incluye datos ficticios de demostración.'}</p>
+    {!persistent && <p role="status">La selección permanecerá solo durante esta visita.</p>}
+    <div className="results-line"><strong>{comparison.length} de 3 programas</strong><button className="btn btn-secondary" type="button" onClick={clearComparison} disabled={!comparison.length}>Limpiar comparación</button></div>
+    {comparison.length ? <><div className="comparison-selection">{comparison.map(p=><div key={p.id}><strong>{p.name}</strong><button className="text-link plain-button" type="button" aria-label={`Quitar ${p.name} de comparación`} onClick={()=>toggleCompare(p)}>Quitar</button></div>)}</div>
+    <div className="compare-wrap compare-desktop"><table className="compare-table"><caption className="sr-only">Comparación de programas seleccionados</caption><thead><tr><th scope="col">Criterio</th>{comparison.map(p=><th scope="col" key={p.id}>{p.name}</th>)}</tr></thead><tbody>{rows.map(([label,get])=><tr key={label}><th scope="row">{label}</th>{comparison.map(p=><td key={p.id}>{value(get(p))}</td>)}</tr>)}</tbody></table></div>
+    <div className="compare-mobile">{rows.map(([label,get])=><section className="comparison-criterion" key={label}><h2>{label}</h2><dl>{comparison.map(p=><div key={p.id}><dt>{p.name}</dt><dd>{value(get(p))}</dd></div>)}</dl></section>)}</div>
+    <div className="comparison-selection">{comparison.map(p=><Link className="btn btn-primary" key={p.id} to={programHref(p)}>Ver {p.name}</Link>)}</div></> : <div className="empty-state"><h2>Aún no has elegido programas</h2><p>Añádelos desde el catálogo o el detalle de cada programa.</p><Link className="btn btn-primary" to="/programas">Explorar programas</Link></div>}
+  </div></main>;
 }

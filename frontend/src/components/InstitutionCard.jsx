@@ -1,26 +1,7 @@
 import { Link } from "react-router-dom";
 import institutionIcon from "../assets/Images/instituciones.svg";
 
-function websiteUrl(value) {
-    if (!value?.trim()) return null;
-    const candidate = value.trim();
-    if (candidate.includes("@") || /\s/.test(candidate)) return null;
-    try {
-        const url = new URL(
-            /^https?:\/\//i.test(candidate)
-                ? candidate
-                : `https://${candidate}`,
-        );
-        return ["http:", "https:"].includes(url.protocol) &&
-            url.hostname.includes(".") &&
-            !url.username &&
-            !url.password
-            ? url.href
-            : null;
-    } catch {
-        return null;
-    }
-}
+import { websiteUrl } from "../utils/website";
 export default function InstitutionCard({ institution }) {
     const location = [institution.municipality, institution.department]
         .filter(Boolean)

@@ -1,165 +1,35 @@
-import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import BookmarkButton from "../components/BookmarkButton";
-import DemoNotice from "../components/DemoNotice";
-import { demoInstitution, programs } from "../data/mock/catalog";
-const tabs = [
-    "Descripción",
-    "Plan de estudios",
-    "Admisión",
-    "Costos",
-    "Perfil profesional",
-];
+import { useEffect, useState } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
+import BookmarkButton from '../components/BookmarkButton';
+import CompareButton from '../components/CompareButton';
+import AsyncState from '../components/AsyncState';
+import SectionTabs from '../components/SectionTabs';
+import { getProgramsByCode } from '../services/programs';
+import { programHref, programItem } from '../utils/programs';
+import { programs as demos, demoInstitution } from '../data/mock/catalog';
+const tabs = ['Descripción','Plan de estudios','Admisión','Costos','Perfil profesional'];
 export default function ProgramDetailPage() {
-    const { programId } = useParams();
-    const [tab, setTab] = useState("Descripción");
-    const program = programs.find((p) => p.id === programId);
-    if (!program)
-        return (
-            <main className="page container">
-                <h1>Programa no encontrado</h1>
-                <Link to="/programas">Ver programas</Link>
-            </main>
-        );
-    return (
-        <main className="page">
-            <div className="container">
-                <Link className="back-link" to="/programas">
-                    ← Volver a programas
-                </Link>
-                <DemoNotice />
-                <section className="program-hero">
-                    <img
-                        src={program.image}
-                        alt="Espacio de estudio de referencia"
-                    />
-                    <div>
-                        <span className="eyebrow">{program.institution}</span>
-                        <h1>{program.name}</h1>
-                        <p>{program.description}</p>
-                        <div className="metadata">
-                            <span>{program.level}</span>
-                            <span>{program.city}</span>
-                            <span>{program.duration}</span>
-                            <span>{program.modality}</span>
-                        </div>
-                        <div style={{ marginTop: 20 }}>
-                            <BookmarkButton
-                                id={`program-${program.id}`}
-                                label={program.name}
-                            />
-                        </div>
-                    </div>
-                </section>
-                <div
-                    className="tabs detail-tabs"
-                    role="tablist"
-                    aria-label="Secciones del programa"
-                >
-                    {tabs.map((item) => (
-                        <button
-                            className="tab"
-                            role="tab"
-                            aria-selected={tab === item}
-                            type="button"
-                            key={item}
-                            onClick={() => setTab(item)}
-                        >
-                            {item}
-                        </button>
-                    ))}
-                </div>
-                <div className="detail-grid">
-                    <section className="detail-copy">
-                        <h2>
-                            {tab === "Descripción" ? "Sobre el programa" : tab}
-                        </h2>
-                        {tab === "Descripción" ? (
-                            <>
-                                <p>
-                                    {program.description} Usa esta vista para
-                                    organizar la información que querrás
-                                    confirmar con la institución.
-                                </p>
-                                <div className="facts surface">
-                                    <div className="fact-row">
-                                        <span>Nivel</span>
-                                        <strong>{program.level}</strong>
-                                    </div>
-                                    <div className="fact-row">
-                                        <span>Duración</span>
-                                        <strong>{program.duration}</strong>
-                                    </div>
-                                    <div className="fact-row">
-                                        <span>Modalidad</span>
-                                        <strong>{program.modality}</strong>
-                                    </div>
-                                    <div className="fact-row">
-                                        <span>Ciudad</span>
-                                        <strong>{program.city}</strong>
-                                    </div>
-                                </div>
-                                <h2 style={{ marginTop: 30 }}>
-                                    Áreas relacionadas
-                                </h2>
-                                <span className="pill">{program.area}</span>
-                            </>
-                        ) : (
-                            <>
-                                <p>
-                                    Este apartado está preparado para mostrar
-                                    información verificada de{" "}
-                                    {tab.toLocaleLowerCase("es")} cuando se
-                                    conecte la oferta académica real.
-                                </p>
-                                <ul className="info-list">
-                                    <li>
-                                        Consulta el plan vigente y los
-                                        requisitos oficiales.
-                                    </li>
-                                    <li>
-                                        Confirma fechas, costos y modalidad con
-                                        la institución.
-                                    </li>
-                                </ul>
-                            </>
-                        )}
-                    </section>
-                    <aside>
-                        <div className="facts surface">
-                            <h2>{demoInstitution.name}</h2>
-                            <p className="subtle">
-                                Institución de referencia para esta vista.
-                            </p>
-                            <div className="fact-row">
-                                <span>Ciudad</span>
-                                <strong>{demoInstitution.city}</strong>
-                            </div>
-                            <div className="fact-row">
-                                <span>Sector</span>
-                                <strong>{demoInstitution.sector}</strong>
-                            </div>
-                            <Link
-                                className="text-link"
-                                to={`/instituciones/${demoInstitution.id}`}
-                            >
-                                Ver perfil de la institución →
-                            </Link>
-                        </div>
-                        <div className="cta-panel" style={{ marginTop: 16 }}>
-                            <h3>¿Te interesa este programa?</h3>
-                            <p>
-                                Guárdalo para tenerlo a mano mientras exploras
-                                otras opciones.
-                            </p>
-                            <BookmarkButton
-                                id={`program-${program.id}-aside`}
-                                label={program.name}
-                            />
-                        </div>
-                    </aside>
-                </div>
-            </div>
-        </main>
-    );
+  const { programId } = useParams(); const [params] = useSearchParams();
+  const [result, setResult] = useState({ code: '', rows: [] });
+  const [loading, setLoading] = useState(true), [error, setError] = useState(''), [retry,setRetry] = useState(0), [tab,setTab] = useState(tabs[0]);
+  const demo = demos.find(p => p.id === programId);
+  const rows = demo ? [{ ...demo, provenance: 'demo' }] : result.code === programId ? result.rows : [];
+  const recordId = params.get('registro');
+  const program = recordId ? rows.find(p => p.sourceId === recordId) : rows.length === 1 ? rows[0] : null;
+  useEffect(() => {
+    setTab(tabs[0]); setError('');
+    if (demo) { setLoading(false); return; }
+    const controller = new AbortController(); setLoading(true);
+    getProgramsByCode(programId,controller.signal).then(values => { if (!controller.signal.aborted) { setResult({ code: programId, rows: values }); setLoading(false); } }).catch(reason => { if (!controller.signal.aborted) { setError(reason.message); setLoading(false); } });
+    return () => controller.abort();
+  }, [programId,retry,demo]);
+  return <main className="page"><div className="container"><Link className="back-link" to="/programas">← Volver a programas</Link>
+    <AsyncState loading={loading} error={error} onRetry={() => setRetry(v=>v+1)} />
+    {!loading && !error && !program && <section><h1>{recordId ? 'Registro no disponible' : rows.length ? 'Selecciona un registro del programa' : 'Programa no encontrado'}</h1><p>{recordId ? 'La fila solicitada no aparece en el catálogo. No hemos elegido otra en su lugar.' : 'Un mismo código puede identificar varias filas publicadas. Elige la ubicación y modalidad que deseas consultar.'}</p><div className="listing">{rows.map(p => <Link className="surface record-option" to={programHref(p)} key={p.id}><strong>{p.name}</strong><span>{p.institution} · {p.city} · {p.modality} · {p.status || 'Estado no disponible'}</span></Link>)}</div></section>}
+    {!loading && !error && program && <>
+      <p className="notice">{demo ? 'Datos ficticios de demostración. No representan una oferta académica verificada.' : 'Información del catálogo público del Ministerio de Educación. Confirma vigencia y requisitos con la institución.'}</p>
+      <section className={`program-hero${program.image ? '' : ' program-no-image'}`}>{program.image && <img src={program.image} alt="Espacio de estudio de referencia" />}<div><p className="eyebrow">{program.institution}</p><h1>{program.name}</h1><p>{demo ? program.description : `Estado publicado: ${program.status || 'No disponible'}`}</p>{program.reviewRequired && <p className="provenance-note">{program.nameOrigin === 'AWARDED_TITLE' ? 'Se muestra el título otorgado porque el nombre publicado requiere revisión.' : 'El nombre publicado requiere verificación.'}</p>}<div className="detail-actions"><BookmarkButton id={`program-${program.id}`} label={program.name} item={programItem(program)} /><CompareButton program={program} /><Link className="text-link" to="/comparar">Ver comparación</Link></div></div></section>
+      <SectionTabs items={tabs} value={tab} onChange={setTab} label="Secciones del programa"><div className="detail-grid"><section className="detail-copy"><h2>{tab}</h2>{tab === 'Descripción' ? <><dl className="facts surface">{[['Nivel académico',program.level],['Nivel de formación',program.educationLevel],['Ciudad',program.city],['Modalidad',program.modality],['Duración publicada',program.duration],['Título otorgado',program.awardedTitle],['Área de conocimiento',program.area],['Jornada',null]].map(([label,value]) => <div className="fact-row" key={label}><dt>{label}</dt><dd>{value || 'No disponible en este catálogo'}</dd></div>)}</dl>{!demo && <p>La fuente no incluye una descripción académica detallada. No completamos ese campo con información de ejemplo.</p>}</> : <p>No disponible en este catálogo. Consulta {tab.toLocaleLowerCase('es')} directamente con la institución.</p>}</section><aside className="facts surface"><h2>{program.institution}</h2><Link className="text-link" to={`/instituciones/${encodeURIComponent(demo ? demoInstitution.id : program.institutionCode)}`}>Ver institución →</Link><p className="subtle">El catálogo no incluye un enlace oficial específico de este programa.</p><BookmarkButton id={`program-${program.id}`} label={program.name} item={programItem(program)} /></aside></div></SectionTabs>
+    </>}
+  </div></main>;
 }

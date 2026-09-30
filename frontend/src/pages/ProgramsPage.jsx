@@ -1,186 +1,65 @@
-import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import DemoNotice from "../components/DemoNotice";
-import ProgramCard from "../components/ProgramCard";
-import { demoInstitution, programs } from "../data/mock/catalog";
-
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
+import ProgramCard from '../components/ProgramCard';
+import PageHeader from '../components/PageHeader';
+import AsyncState from '../components/AsyncState';
+import { getPrograms, PROGRAM_PAGE_SIZE } from '../services/programs';
+import { getInstitutionByCode } from '../services/institutions';
+import { mergePrograms } from '../utils/programs';
+import { demoInstitution, programs as demos } from '../data/mock/catalog';
 export default function ProgramsPage({ institutionOnly = false }) {
-    const { institutionId } = useParams();
-    const [query, setQuery] = useState(
-        () => new URLSearchParams(window.location.search).get("q") || "",
-    );
-    const [city, setCity] = useState(
-        () => new URLSearchParams(window.location.search).get("city") || "",
-    );
-    const [level, setLevel] = useState(
-        () =>
-            new URLSearchParams(window.location.search).get("level") || "Todos",
-    );
-    const [area, setArea] = useState("");
-    const [modality, setModality] = useState("");
-    const [order, setOrder] = useState("asc");
-    const isDemo = institutionId === demoInstitution.id;
-    const filtered = useMemo(
-        () =>
-            programs
-                .filter(
-                    (p) =>
-                        (level === "Todos" || p.level === level) &&
-                        (!city || p.city === city) &&
-                        (!area || p.area === area) &&
-                        (!modality || p.modality === modality) &&
-                        `${p.name} ${p.description} ${p.area}`
-                            .toLocaleLowerCase("es")
-                            .includes(query.toLocaleLowerCase("es")),
-                )
-                .sort((a, b) =>
-                    order === "asc"
-                        ? a.name.localeCompare(b.name, "es")
-                        : b.name.localeCompare(a.name, "es"),
-                ),
-        [query, city, level, area, modality, order],
-    );
-
-    return (
-        <main className="page">
-            <div className="container">
-                {institutionOnly && (
-                    <Link
-                        className="back-link"
-                        to={`/instituciones/${institutionId}`}
-                    >
-                        ← Volver a la institución
-                    </Link>
-                )}
-                <div className="page-intro">
-                    <span className="eyebrow">Explora tus opciones</span>
-                    <h1>Programas académicos</h1>
-                    <p className="lead">
-                        {institutionOnly
-                            ? `Explora la vista de programas de ${isDemo ? demoInstitution.name : "esta institución"}.`
-                            : "Busca áreas de estudio y conoce qué preguntas hacer antes de elegir."}
-                    </p>
-                </div>
-                <DemoNotice />
-                {institutionOnly && !isDemo ? (
-                    <div className="empty-state surface">
-                        <h2>Programas aún no disponibles</h2>
-                        <p>
-                            La lista de programas de esta institución todavía no
-                            está conectada a datos reales.
-                        </p>
-                        <Link className="btn btn-secondary" to="/programas">
-                            Ver la vista de ejemplo
-                        </Link>
-                    </div>
-                ) : (
-                    <>
-                        <div className="filter-bar">
-                            <label className="field">
-                                Buscar programas
-                                <input
-                                    type="search"
-                                    placeholder="Nombre, tema o área"
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                />
-                            </label>
-                            <label className="field">
-                                Ciudad
-                                <select
-                                    value={city}
-                                    onChange={(e) => setCity(e.target.value)}
-                                >
-                                    <option value="">Todas</option>
-                                    <option>Bogotá</option>
-                                    <option>Medellín</option>
-                                    <option>Cali</option>
-                                </select>
-                            </label>
-                            <label className="field">
-                                Área
-                                <select
-                                    value={area}
-                                    onChange={(e) => setArea(e.target.value)}
-                                >
-                                    <option value="">Todas las áreas</option>
-                                    {[
-                                        ...new Set(programs.map((p) => p.area)),
-                                    ].map((v) => (
-                                        <option key={v}>{v}</option>
-                                    ))}
-                                </select>
-                            </label>
-                            <label className="field">
-                                Modalidad
-                                <select
-                                    value={modality}
-                                    onChange={(e) =>
-                                        setModality(e.target.value)
-                                    }
-                                >
-                                    <option value="">Todas</option>
-                                    {[
-                                        ...new Set(
-                                            programs.map((p) => p.modality),
-                                        ),
-                                    ].map((v) => (
-                                        <option key={v}>{v}</option>
-                                    ))}
-                                </select>
-                            </label>
-                            <label className="field">
-                                Ordenar
-                                <select
-                                    value={order}
-                                    onChange={(e) => setOrder(e.target.value)}
-                                >
-                                    <option value="asc">Nombre A–Z</option>
-                                    <option value="desc">Nombre Z–A</option>
-                                </select>
-                            </label>
-                        </div>
-                        <div
-                            className="category-tabs"
-                            aria-label="Nivel de estudio"
-                        >
-                            {["Todos", "Pregrado", "Posgrado"].map((v) => (
-                                <button
-                                    key={v}
-                                    type="button"
-                                    aria-pressed={level === v}
-                                    onClick={() => setLevel(v)}
-                                >
-                                    {v}
-                                </button>
-                            ))}
-                        </div>
-                        <div className="results-line">
-                            <strong>
-                                {filtered.length}{" "}
-                                {filtered.length === 1
-                                    ? "programa"
-                                    : "programas"}{" "}
-                                en esta vista
-                            </strong>
-                            <Link className="text-link" to="/comparar">
-                                Comparar opciones →
-                            </Link>
-                        </div>
-                        <div className="listing">
-                            {filtered.map((p) => (
-                                <ProgramCard key={p.id} program={p} />
-                            ))}
-                        </div>
-                        {filtered.length === 0 && (
-                            <div className="empty-state surface">
-                                <h2>Sin coincidencias</h2>
-                                <p>Prueba otro término o ajusta los filtros.</p>
-                            </div>
-                        )}
-                    </>
-                )}
-            </div>
-        </main>
-    );
+  const { institutionId } = useParams();
+  const [params, setParams] = useSearchParams();
+  const query = params.get('q') || '', city = params.get('city') || '', modality = params.get('modality') || '';
+  const area = params.get('area') || '', level = params.get('level') || '', order = params.get('order') || 'source';
+  const demo = institutionOnly && institutionId === demoInstitution.id;
+  const [catalog, setCatalog] = useState({ key: '', programs: [], page: 1, hasMore: true });
+  const [loading, setLoading] = useState(true), [error, setError] = useState(''), [retry, setRetry] = useState(0);
+  const [institution, setInstitution] = useState(null);
+  const criteria = JSON.stringify({ name: query, municipality: city, modality, institutionCode: institutionOnly ? institutionId : '' });
+  const page = catalog.key === criteria ? catalog.page : 1;
+  const records = demo ? demos.map(p => ({ ...p, provenance: 'demo' })) : catalog.key === criteria ? catalog.programs : [];
+  const hasMore = !demo && (catalog.key === criteria ? catalog.hasMore : true);
+  function update(key, value) { setParams(current => { const next = new URLSearchParams(current); if (value) next.set(key, value); else next.delete(key); return next; }, { replace: true }); }
+  useEffect(() => {
+    if (!institutionOnly || demo) { setInstitution(demo ? demoInstitution : null); return; }
+    const controller = new AbortController(); setInstitution(null);
+    getInstitutionByCode(institutionId, controller.signal).then(setInstitution).catch(() => {});
+    return () => controller.abort();
+  }, [institutionId, institutionOnly, demo]);
+  useEffect(() => {
+    if (demo) { setLoading(false); setError(''); return; }
+    const controller = new AbortController();
+    setLoading(true); setError('');
+    const timer = setTimeout(() => {
+      getPrograms(JSON.parse(criteria), page, controller.signal).then(incoming => {
+        if (controller.signal.aborted) return;
+        setCatalog(current => ({ key: criteria, programs: mergePrograms(page === 1 || current.key !== criteria ? [] : current.programs, incoming), page, hasMore: incoming.length === PROGRAM_PAGE_SIZE }));
+        setLoading(false);
+      }).catch(reason => { if (!controller.signal.aborted) { setError(reason.message); setLoading(false); } });
+    }, 350);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [criteria, page, retry, demo]);
+  const filtered = useMemo(() => records.filter(p => (!area || p.area === area) && (!level || p.level === level) && (!demo || (!query || p.name.toLocaleLowerCase('es').includes(query.toLocaleLowerCase('es'))) && (!city || p.city === city) && (!modality || p.modality === modality))).sort((a,b) => order === 'asc' ? a.name.localeCompare(b.name,'es') : order === 'desc' ? b.name.localeCompare(a.name,'es') : 0), [records, area, level, order, demo, query, city, modality]);
+  return <main className="page"><div className="container">
+    {institutionOnly && <Link className="back-link" to={`/instituciones/${encodeURIComponent(institutionId)}`}>← Volver a la institución</Link>}
+    <PageHeader title={institutionOnly ? `Programas de ${institution?.name || 'esta institución'}` : 'Programas académicos'}>Explora la información publicada y compara las opciones que te interesan.</PageHeader>
+    <p className="notice">{demo ? 'Demostración con datos ficticios. No representa una oferta académica verificada.' : 'Catálogo público del Ministerio de Educación. El estado y la información publicados deben confirmarse con la institución.'}</p>
+    <div className="filter-bar program-filters">
+      <label className="field">Buscar programas<input type="search" value={query} onChange={e => update('q',e.target.value)} placeholder="Nombre, título o área de conocimiento" /></label>
+      <label className="field">Ciudad o municipio<input type="search" value={city} onChange={e => update('city',e.target.value)} placeholder="Por ejemplo, Bogotá" /></label>
+      <label className="field">Modalidad<select value={modality} onChange={e => update('modality',e.target.value)}><option value="">Todas</option>{['Presencial','Virtual','A distancia','Presencial-Virtual'].map(v => <option key={v}>{v}</option>)}</select></label>
+    </div>
+    <div className="filter-bar local-filters">
+      <label className="field">Área de los resultados cargados<select value={area} onChange={e => update('area',e.target.value)}><option value="">Todas</option>{[...new Set([...records.map(p => p.area).filter(Boolean), ...(area ? [area] : [])])].sort().map(v => <option key={v}>{v}</option>)}</select></label>
+      <label className="field">Nivel de los resultados cargados<select value={level} onChange={e => update('level',e.target.value)}><option value="">Todos</option>{[...new Set([...records.map(p => p.level), ...(level ? [level] : [])])].sort().map(v => <option key={v}>{v}</option>)}</select></label>
+      <label className="field">Orden de resultados cargados<select value={order} onChange={e => update('order',e.target.value)}><option value="source">Orden del catálogo</option><option value="asc">Nombre A–Z</option><option value="desc">Nombre Z–A</option></select></label>
+      <button className="btn btn-secondary" type="button" disabled={!params.size} onClick={() => setParams({})}>Limpiar filtros</button>
+    </div>
+    <p className="subtle">Área, nivel y orden se aplican a las opciones cargadas; no al catálogo completo.</p>
+    <div className="results-line"><strong>{filtered.length} coincidencias en {records.length} registros cargados</strong><Link to="/comparar">Abrir comparador →</Link></div>
+    <div className="listing">{filtered.map(p => <ProgramCard key={p.id} program={p} />)}</div>
+    <AsyncState loading={loading} error={error} onRetry={() => setRetry(v => v+1)} empty={!filtered.length}><p>{hasMore ? 'No hay coincidencias entre las opciones cargadas. Puedes cargar más o cambiar los filtros.' : 'Prueba otra búsqueda o cambia los filtros.'}</p></AsyncState>
+    {hasMore && !loading && !error && <button className="btn btn-secondary load-more" type="button" onClick={() => { setLoading(true); setCatalog(current => ({ ...current, page: current.page + 1 })); }}>Cargar más programas</button>}
+  </div></main>;
 }

@@ -1,5 +1,7 @@
 ﻿import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
+import SectionTabs from "../components/SectionTabs";
+import { websiteUrl as safeWebsite } from "../utils/website";
 import BookmarkButton from "../components/BookmarkButton";
 import DemoNotice from "../components/DemoNotice";
 import {
@@ -16,22 +18,6 @@ const tabs = [
     "Becas",
     "Vida estudiantil",
 ];
-function safeWebsite(value) {
-    if (!value?.trim()) return null;
-    try {
-        const url = new URL(
-            /^https?:\/\//i.test(value) ? value : `https://${value}`,
-        );
-        return ["http:", "https:"].includes(url.protocol) &&
-            url.hostname.includes(".") &&
-            !url.username &&
-            !url.password
-            ? url.href
-            : null;
-    } catch {
-        return null;
-    }
-}
 export default function InstitutionDetailPage() {
     const { institutionId } = useParams();
     const { state } = useLocation();
@@ -41,12 +27,17 @@ export default function InstitutionDetailPage() {
     );
     const [loading, setLoading] = useState(!demo && !state?.institution);
     const [error, setError] = useState("");
+    const [shareMessage, setShareMessage] = useState("");
     const [tab, setTab] = useState("Información");
     useEffect(() => {
+        setError(""); setTab("Información"); setShareMessage("");
+        const initial = demo ? demoInstitution : state?.institution?.code === institutionId ? state.institution : null;
+        setInstitution(initial); setLoading(!demo && !initial);
         if (demo) return;
         const controller = new AbortController();
         getInstitutionByCode(institutionId, controller.signal)
             .then((value) => {
+                if (controller.signal.aborted) return;
                 setInstitution((current) =>
                     current?.code === value.code
                         ? { ...current, ...value }
@@ -54,8 +45,8 @@ export default function InstitutionDetailPage() {
                 );
                 setError("");
             })
-            .catch((reason) => {
-                if (reason.name !== "AbortError")
+            .catch(() => {
+                if (!controller.signal.aborted)
                     setError(
                         "No pudimos cargar los datos actualizados de esta institución.",
                     );
@@ -64,7 +55,7 @@ export default function InstitutionDetailPage() {
                 if (!controller.signal.aborted) setLoading(false);
             });
         return () => controller.abort();
-    }, [institutionId, demo]);
+    }, [institutionId, demo, state]);
     if (loading && !institution)
         return (
             <main className="page container">
@@ -95,8 +86,9 @@ export default function InstitutionDetailPage() {
             ? institution.character
             : institution.academicCharacter,
         website = safeWebsite(institution.website);
-    function share() {
-        navigator.clipboard?.writeText(window.location.href);
+    async function share() {
+        try { await navigator.clipboard.writeText(window.location.href); setShareMessage("Enlace copiado."); }
+        catch { setShareMessage("No pudimos copiar el enlace. Puedes copiar la dirección del navegador."); }
     }
     return (
         <main>
@@ -149,6 +141,7 @@ export default function InstitutionDetailPage() {
                         )}
                     </div>
                 </div>
+                {shareMessage && <p role="status">{shareMessage}</p>}
                 {error && (
                     <p
                         className="notice"
@@ -164,24 +157,7 @@ export default function InstitutionDetailPage() {
                         <DemoNotice />
                     </div>
                 )}
-                <div
-                    className="tabs detail-tabs"
-                    role="tablist"
-                    aria-label="Información de institución"
-                >
-                    {tabs.map((item) => (
-                        <button
-                            key={item}
-                            type="button"
-                            className="tab"
-                            role="tab"
-                            aria-selected={tab === item}
-                            onClick={() => setTab(item)}
-                        >
-                            {item}
-                        </button>
-                    ))}
-                </div>
+                <SectionTabs items={tabs} value={tab} onChange={setTab} label="Información de institución">
                 {tab === "Información" ? (
                     <>
                         <div className="detail-grid">
@@ -271,15 +247,15 @@ export default function InstitutionDetailPage() {
                             <h2>{tab}</h2>
                             <p>
                                 {tab === "Programas"
-                                    ? "Esta sección mostrará la oferta académica cuando se conecte el servicio de programas."
+                                    ? "Explora los registros de programas asociados a esta institución en el catálogo público."
                                     : `La información de ${tab.toLocaleLowerCase("es")} aún no está disponible en este catálogo. Consulta la fuente oficial de la institución.`}
                             </p>
-                            {tab === "Programas" && demo && (
+                            {tab === "Programas" && (
                                 <Link
                                     className="btn btn-primary"
                                     to={`/instituciones/${institutionId}/programas`}
                                 >
-                                    Explorar vista de programas
+                                    Explorar programas
                                 </Link>
                             )}
                         </div>
@@ -302,6 +278,7 @@ export default function InstitutionDetailPage() {
                         </aside>
                     </section>
                 )}
+                </SectionTabs>
             </div>
         </main>
     );

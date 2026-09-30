@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import InstitutionCard from "../components/InstitutionCard";
 import { getInstitutions } from "../services/institutions";
 
@@ -13,13 +14,27 @@ const ACADEMIC_CHARACTERS = [
 const EMPTY_TEXT = { name: "", municipality: "", program: "" };
 
 function InstitutionsPage() {
-    const [name, setName] = useState(() => new URLSearchParams(window.location.search).get('q') || "");
-    const [municipality, setMunicipality] = useState(() => new URLSearchParams(window.location.search).get('city') || "");
-    const [program, setProgram] = useState("");
-    const [textFilters, setTextFilters] = useState(() => ({ ...EMPTY_TEXT, name: new URLSearchParams(window.location.search).get('q') || "", municipality: new URLSearchParams(window.location.search).get('city') || "" }));
-    const [modality, setModality] = useState("");
-    const [sector, setSector] = useState("");
-    const [academicCharacter, setAcademicCharacter] = useState(() => new URLSearchParams(window.location.search).get('academicCharacter') || "");
+    const [params, setParams] = useSearchParams();
+    const name = params.get("q") || "";
+    const municipality = params.get("city") || "";
+    const program = params.get("program") || "";
+    const modality = params.get("modality") || "";
+    const sector = params.get("sector") || "";
+    const academicCharacter = params.get("academicCharacter") || "";
+    function updateParam(key, value) {
+        setParams(current => {
+            const next = new URLSearchParams(current);
+            if (value) next.set(key, value); else next.delete(key);
+            return next;
+        }, { replace: true });
+    }
+    const setName = value => updateParam("q", value);
+    const setMunicipality = value => updateParam("city", value);
+    const setProgram = value => updateParam("program", value);
+    const setModality = value => updateParam("modality", value);
+    const setSector = value => updateParam("sector", value);
+    const setAcademicCharacter = value => updateParam("academicCharacter", value);
+    const [textFilters, setTextFilters] = useState(() => ({ name, municipality, program }));
     const [institutions, setInstitutions] = useState([]);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -56,7 +71,7 @@ function InstitutionsPage() {
         getInstitutions(JSON.parse(criteriaKey), page, controller.signal)
             .then(({ institutions: fetched, hasMore: more }) => {
                 setInstitutions((current) => {
-                    if (page === 1) return fetched;
+                    if (page === 1) return [...new Map(fetched.map(institution => [institution.code, institution])).values()];
                     const seen = new Set(current.map((institution) => institution.code));
                     return [...current, ...fetched.filter((institution) => {
                         if (seen.has(institution.code)) return false;
@@ -79,13 +94,8 @@ function InstitutionsPage() {
     const hasFilters = Boolean(name || municipality || program || modality || sector || academicCharacter);
 
     function clearFilters() {
-        setName("");
-        setMunicipality("");
-        setProgram("");
+        setParams({});
         setTextFilters(EMPTY_TEXT);
-        setModality("");
-        setSector("");
-        setAcademicCharacter("");
         setPage(1);
     }
 
