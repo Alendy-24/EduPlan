@@ -24,7 +24,7 @@ export default function ScholarshipsPage() {
                     (s) =>
                         (type === "Todas" || s.type === type) &&
                         (!city || s.city === city) &&
-                        (!level || s.level === level) &&
+                        (!level || s.level === level || s.level === "Todos los niveles") &&
                         `${s.name} ${s.provider} ${s.description}`
                             .toLocaleLowerCase("es")
                             .includes(query.toLocaleLowerCase("es")),
@@ -148,6 +148,7 @@ export default function ScholarshipsPage() {
                                         <BookmarkButton
                                             id={`opportunity-${item.id}`}
                                             label={item.name}
+                                            item={{ id: `opportunity-${item.id}`, name: item.name, type: "opportunity", href: "/becas" }}
                                         />
                                     </div>
                                 </article>
