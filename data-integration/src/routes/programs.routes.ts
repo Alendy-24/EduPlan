@@ -38,7 +38,7 @@ programsRouter.get("/", async (request, response) => {
 });
 
 programsRouter.get("/:code", async (request, response) => {
-  if (!/^\d+$/.test(request.params.code)) {
+  if (!request.params.code.trim() || request.params.code.length > 512) {
     return response.status(400).json({ error: true, message: "El código de programa no es válido" });
   }
 

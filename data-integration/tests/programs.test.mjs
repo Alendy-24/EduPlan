@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { get as httpGet } from "node:http";
 import { app } from "../dist/app.js";
-import { transformProgram, getPrograms } from "../dist/services/programs.service.js";
+import { transformProgram, getPrograms, getProgramsByCode } from "../dist/services/programs.service.js";
 import { getInstitutions } from "../dist/services/institutions.service.js";
 
 const row = {
@@ -47,6 +47,32 @@ test("plausible original name is preserved, but is not certified by this heurist
 
 test("absence of row identity fails explicitly", () => {
   assert.throws(() => transformProgram({...row, source_row_id: undefined}), /identificador/);
+});
+
+test("program detail accepts opaque codes and preserves all source rows", async t => {
+  t.mock.method(globalThis, "fetch", async url => {
+    assert.equal(url.searchParams.get("$where"), "codigoprograma = 'No especifica'");
+    return Response.json([{ ...row, codigoprograma: 'No especifica' }, { ...row, source_row_id: 'other-row', codigoprograma: 'No especifica' }]);
+  });
+  assert.equal((await getProgramsByCode('No especifica')).length, 2);
+  const server = app.listen(0); t.after(() => server.close());
+  const response = await new Promise((resolve, reject) => {
+    httpGet(`http://127.0.0.1:${server.address().port}/api/programs/No%20especifica`, res => {
+      let body = ''; res.setEncoding('utf8'); res.on('data', chunk => { body += chunk; });
+      res.on('end', () => resolve({ status: res.statusCode, body: JSON.parse(body) }));
+      res.on('error', reject);
+    }).on('error', reject);
+  });
+  assert.equal(response.status, 200); assert.equal(response.body.data.length, 2);
+  assert.equal(response.body.data[0].code, 'No especifica');
+});
+
+test("opaque program codes keep SoQL literal escaping", async t => {
+  t.mock.method(globalThis, "fetch", async url => {
+    assert.equal(url.searchParams.get('$where'), "codigoprograma = 'ABC''12'");
+    return Response.json([]);
+  });
+  assert.deepEqual(await getProgramsByCode("ABC'12"), []);
 });
 
 test("program queries include row identity, title and unique order", async t => {

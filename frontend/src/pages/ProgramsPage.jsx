@@ -34,7 +34,7 @@ export default function ProgramsPage({ institutionOnly = false }) {
     const timer = setTimeout(() => {
       getPrograms(JSON.parse(criteria), page, controller.signal).then(incoming => {
         if (controller.signal.aborted) return;
-        setCatalog(current => ({ key: criteria, programs: mergePrograms(page === 1 || current.key !== criteria ? [] : current.programs, incoming), page, hasMore: incoming.length === PROGRAM_PAGE_SIZE }));
+        setCatalog(current => ({ key: criteria, programs: mergePrograms(page === 1 || current.key !== criteria ? [] : current.programs, incoming.programs), unusableCount: (page === 1 || current.key !== criteria ? 0 : current.unusableCount || 0) + incoming.unusableCount, page, hasMore: incoming.receivedCount === PROGRAM_PAGE_SIZE }));
         setLoading(false);
       }).catch(reason => { if (!controller.signal.aborted) { setError(reason.message); setLoading(false); } });
     }, 350);
@@ -57,8 +57,9 @@ export default function ProgramsPage({ institutionOnly = false }) {
       <button className="btn btn-secondary" type="button" disabled={!params.size} onClick={() => setParams({})}>Limpiar filtros</button>
     </div>
     <p className="subtle">Área, nivel y orden se aplican a las opciones cargadas; no al catálogo completo.</p>
-    <div className="results-line"><strong>{filtered.length} coincidencias en {records.length} registros cargados</strong><Link to="/comparar">Abrir comparador →</Link></div>
-    <div className="listing">{filtered.map(p => <ProgramCard key={p.id} program={p} />)}</div>
+    <div className="results-line"><strong>{!records.length && (error || loading) ? loading ? 'Consultando el catálogo…' : 'No se pudieron cargar resultados.' : `${filtered.length} coincidencias en ${records.length} registros cargados`}</strong><Link to="/comparar">Abrir comparador →</Link></div>
+    {catalog.key === criteria && catalog.unusableCount > 0 && <p className="subtle" role="status">{catalog.unusableCount} {catalog.unusableCount === 1 ? 'registro recibido no puede mostrarse porque le falta' : 'registros recibidos no pueden mostrarse porque les falta'} identidad o información utilizable. Las demás opciones siguen disponibles.</p>}
+    <div className="listing">{filtered.map(p => <ProgramCard key={p.id} program={p} searchQuery={query} />)}</div>
     <AsyncState loading={loading} error={error} onRetry={() => setRetry(v => v+1)} empty={!filtered.length}><p>{hasMore ? 'No hay coincidencias entre las opciones cargadas. Puedes cargar más o cambiar los filtros.' : 'Prueba otra búsqueda o cambia los filtros.'}</p></AsyncState>
     {hasMore && !loading && !error && <button className="btn btn-secondary load-more" type="button" onClick={() => { setLoading(true); setCatalog(current => ({ ...current, page: current.page + 1 })); }}>Cargar más programas</button>}
   </div></main>;
