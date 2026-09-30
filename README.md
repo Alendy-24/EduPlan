@@ -1,5 +1,126 @@
 # EduPlan
 
+## Desarrollo local completo en Windows
+
+Requisitos: Node.js con las dependencias del proyecto instaladas, PowerShell 7,
+JDK 21 y los binarios de PostgreSQL 18. No usar el Java 8 del PATH.
+El script detecta el JDK 21 en `.tools/jdk21/jdk-21.0.12.1+1`; en otro equipo,
+configura `JAVA_HOME` con tu JDK 21.
+
+Desde la raíz, terminal 1:
+
+```powershell
+pwsh -NoProfile -File scripts/dev-backend.ps1
+```
+
+Esto inicializa o reutiliza **solo** `.tools/local-dev/postgres-data`, inicia
+PostgreSQL en `127.0.0.1:55432`, crea `eduplan_local` y ejecuta el Maven wrapper
+con Spring Boot en `127.0.0.1:8080`. Flyway aplica las migraciones y Hibernate
+valida el esquema. No conecta a PostgreSQL personal en `5432`, no importa
+credenciales de Docker y no ejecuta sincronización administrativa.
+Si PostgreSQL está instalado en otra carpeta:
+
+```powershell
+pwsh -NoProfile -File scripts/dev-backend.ps1 -PostgresBin 'C:\ruta\PostgreSQL\bin'
+```
+
+Terminal 2, desde la raíz:
+
+```powershell
+npm run dev
+```
+
+Abre `http://127.0.0.1:5173`. Este comando inicia Vite y data-integration (`3001`).
+Si un puerto está ocupado, detén la ejecución anterior del mismo proyecto;
+no abras una segunda instancia. Los tres proxies API están en Vite.
+El catálogo externo requiere conexión a Internet.
+
+La contraseña PostgreSQL generada se guarda únicamente en
+`.tools/local-dev/database.json`, ignorado por Git. `JWT_SECRET` se genera
+aleatoriamente solo en el entorno del proceso: no se escribe en archivos.
+Al reiniciar el backend, inicia sesión de nuevo. Ctrl+C detiene cada terminal;
+la base aislada conserva sus datos. Para detener también esa instancia:
+
+```powershell
+pwsh -NoProfile -File scripts/stop-dev-db.ps1
+```
+
+Docker Compose sigue disponible como alternativa para equipos con Docker
+activo, pero no es necesario para este flujo nativo aislado.
+
+### Validación de ejecución
+
+Con ambas terminales activas y Playwright instalado en el entorno de pruebas:
+
+```powershell
+node frontend/tests/live-smoke.mjs
+node frontend/tests/browser-smoke.mjs
+node frontend/tests/accessibility-smoke.mjs
+```
+
+`live-smoke` usa los servicios reales y crea cuentas desechables `@example.test`
+en la base aislada. No ejecutarlo contra una base personal o de producción.
+`browser-smoke` usa fixtures explícitos para casos deterministas. Si el módulo
+Playwright está fuera del proyecto, configura `EDUPLAN_PLAYWRIGHT_PATH` con
+su ruta. No se instala una dependencia de producción para estas pruebas.
+Capturas e informes quedan en `.tools/qa`, ignorado por Git.
+
+## Frontend conectado
+
+La rama `feature/redesign-ui-antislop` conserva React/Vite y el catálogo real
+de instituciones. Programas consume los endpoints existentes de data-integration;
+área, nivel y orden se aplican únicamente a los registros cargados. Las filas se
+identifican por `sourceId`, porque un código de programa puede repetirse.
+
+Para desarrollo, `npm run dev` inicia frontend e integración. Java se inicia
+por separado. Vite proxifica `/api/institutions` y `/api/programs` a `3001`, y
+`/api/auth` a `8080`. `VITE_DATA_INTEGRATION_URL` conserva su uso existente para
+instituciones; programas y autenticación utilizan rutas del mismo origen.
+
+El backend requiere `DB_PASSWORD` y `JWT_SECRET`: este último debe ser Base64
+de al menos 32 bytes aleatorios, generado localmente (por ejemplo con
+`node -e "console.log(require('node:crypto').randomBytes(32).toString('base64'))"`).
+Nunca usar la clave de las pruebas en desarrollo o producción. El ejemplo
+`docker/backend.env.example` documenta las variables; no se modifican archivos
+locales de credenciales automáticamente.
+
+Login y registro usan autenticación real. Registro requiere `name`, `email`
+y `password` desde la interfaz; la API conserva soporte de teléfono.
+`expiresIn` está expresado en milisegundos. La sesión se conserva en
+`sessionStorage` hasta su vencimiento; cerrar sesión elimina esa sesión local,
+sin revocación del JWT ni refresh. `/dashboard` y `/perfil` requieren sesión.
+Todavía no existe `/me`; la restauración usa la respuesta de autenticación y
+su vencimiento, y un rechazo 401 invalida la sesión. OAuth y recuperación no
+están disponibles. La protección React no sustituye autorización de backend.
+
+Guardados, comparación (máximo tres) e intereses se conservan en este
+dispositivo, separados por cuenta. Los datos de invitado no se transfieren a
+una cuenta. Becas y rutas históricas de demostración conservan datos ficticios
+aislados y avisos visibles; nunca reemplazan un fallo de catálogo real.
+
+### Verificación
+
+Desde la raíz: `npm run lint --prefix frontend`,
+`npm run build --prefix frontend`, `node --test frontend/tests/*.test.mjs` y
+`npm run test --prefix data-integration`. Desde `backend/src`:
+`./mvnw test` (Windows: `.\mvnw.cmd test`) con Java 21 y un `JWT_SECRET` exclusivo
+de pruebas. Las pruebas Java crean PostgreSQL embebido aislado; no usan la base
+de desarrollo para insertar cuentas ni ejecutar migraciones.
+
+`frontend/tests/browser-smoke.mjs` verifica comportamiento UI con fixtures
+de red explícitos: requiere Vite activo y Playwright disponible en el entorno
+de pruebas (o `EDUPLAN_PLAYWRIGHT_PATH` apuntando a un módulo ya instalado).
+No es un fallback de datos de la aplicación. Usa Edge headless y genera
+capturas en `.tools/qa`, ignorado por Git. Comprueba 1440, 1024, 768 y 390 px.
+
+### Publicación posterior
+
+Servir el build con fallback de SPA a `index.html`, y reverse proxy del mismo
+origen para `/api/institutions`, `/api/programs` y `/api/auth` hacia sus servicios.
+No publicar asumiendo que `vite preview` proporciona un proxy de producción.
+La configuración CORS actual de integración solo cubre instituciones; no
+cambiar programas a una URL de otro origen sin preparar ese transporte.
+
 ## Integrantes
 - Salomé Ávila
 - Daniel Cedeño

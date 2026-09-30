@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Locale;
+import java.nio.charset.StandardCharsets;
 // codifica la contraseña y se identifica la cuenta con correo o telefono.
 @Service
 public class AuthService {
@@ -30,6 +31,10 @@ public class AuthService {
     }
 
     public AuthResponse register(RegisterRequest request) {
+        if (request.password().getBytes(StandardCharsets.UTF_8).length > 72) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "La contraseña no puede superar 72 bytes");
+        }
         String email = normalizeEmail(request.email());
         String phone = normalizePhone(request.phone());
 
@@ -55,6 +60,7 @@ public class AuthService {
         }
 
         Cuenta cuenta = new Cuenta();
+        cuenta.setNombre(request.name().trim());
         cuenta.setCorreo(email);
         cuenta.setTelefono(phone);
         cuenta.setContrasena(passwordEncoder.encode(request.password()));
@@ -71,6 +77,9 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
+        if (request.password().getBytes(StandardCharsets.UTF_8).length > 72) {
+            throw invalidCredentials();
+        }
         String identifier = request.identifier().trim();
 
         Cuenta cuenta = findByIdentifier(identifier)
@@ -119,7 +128,8 @@ public class AuthService {
                 jwtService.getExpirationMs(),
                 cuenta.getIdCuenta(),
                 cuenta.getCorreo(),
-                cuenta.getTelefono()
+                cuenta.getTelefono(),
+                cuenta.getNombre()
         );
     }
 
