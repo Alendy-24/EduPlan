@@ -1,4 +1,6 @@
 import { Route, Routes, Outlet, Link } from "react-router-dom";
+import { useState } from 'react';
+import Assistant from '../components/Assistant';
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Landing from "../pages/landing";
@@ -15,11 +17,13 @@ import ProfilePage from "../pages/ProfilePage";
 import GuidesPage from "../pages/GuidesPage";
 import RequireAuth from "../components/RequireAuth";
 function Layout() {
+    const [assistantOpen, setAssistantOpen] = useState(false);
     return (
         <>
             <Navbar />
             <Outlet />
-            <Footer />
+            <Footer onOpenAssistant={() => setAssistantOpen(true)} />
+            <Assistant open={assistantOpen} onOpen={() => setAssistantOpen(true)} onClose={() => setAssistantOpen(false)} />
         </>
     );
 }

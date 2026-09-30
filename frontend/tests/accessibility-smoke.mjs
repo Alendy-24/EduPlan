@@ -5,6 +5,8 @@ const { chromium } = require(process.env.EDUPLAN_PLAYWRIGHT_PATH || 'playwright'
 const browser = await chromium.launch({ channel: 'msedge', headless: true });
 const page = await browser.newPage();
 const base = process.env.EDUPLAN_TEST_URL || 'http://127.0.0.1:5173';
+// Layout/keyboard/contrast checks remain deterministic when the public source is offline.
+await page.route('**/api/institutions**', route => route.fulfill({ json: { data: [{ code:'1701', name:'Pontificia Universidad Javeriana', municipality:'Bogotá D.C.', sector:'Privado', academicCharacter:'Universidad', website:'www.javeriana.edu.co', campus:'Principal' }], hasMore:false } }));
 try {
   await page.goto(`${base}/becas`);
   await page.getByText('Fuentes oficiales, con fecha de revisión', { exact: true }).waitFor();

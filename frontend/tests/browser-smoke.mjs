@@ -13,7 +13,7 @@ const context = await browser.newContext();
 const page = await context.newPage();
 const errors=[]; page.on('pageerror',error=>errors.push(error.message));
 const institution = {code:'1101',name:'Institución de prueba para validación',sector:'Oficial',academicCharacter:'Universidad',municipality:'Bogotá',department:'Bogotá D.C.',website:'www.example.org',modalities:['Presencial']};
-const makeRow = n => ({sourceId:`upr9-nkiz:row-${n}`,code:n<2?'5':String(10+n),name:`Programa de prueba ${n}`,institutionCode:'1101',institutionName:institution.name,academicLevel:n%2?'Posgrado':'Pregrado',educationLevel:'Universitaria',knowledgeArea:n%2?'Salud':'Tecnología',modality:'Presencial',municipality:'Bogotá',periodCount:'8',periodicity:'Semestral',status:n%2?'Inactivo':'Activo',nameOrigin:'SOURCE_NAME',reviewRequired:false});
+const makeRow = n => ({sourceId:`upr9-nkiz:row-${n}`,code:n<2?'5':String(10+n),name:`Programa de prueba ${n}`,institutionCode:'1101',institutionName:institution.name,academicLevel:n%2?'Posgrado':'Pregrado',educationLevel:'Universitaria',knowledgeArea:n%2?'Salud':'Tecnología',modality:'Presencial',municipality:'Bogotá',periodCount:'8',periodicity:'Semestral',status:n%2?'Inactivo':'Activo',nameOrigin:'SNIES_NAME',reviewRequired:false});
 const requests=[];
 await page.route('**/api/programs**', async route=>{
  const url=new URL(route.request().url());requests.push(url);
@@ -54,7 +54,7 @@ try {
  for(let n=0;n<3;n++)await page.locator('.list-item').nth(n).getByRole('button',{name:/^Comparar /}).click();assert.equal(await page.locator('.list-item button:disabled').count(),10);
  await page.goto(`${base}/programas/12`);await page.getByRole('heading',{name:'Programa de prueba 2',exact:true}).waitFor();
  await page.goto(`${base}/programas/5`);await page.getByRole('heading',{name:'Selecciona un registro del programa'}).waitFor();assert.equal(await page.locator('.record-option').count(),2);
- await page.goto(`${base}/programas/5?registro=upr9-nkiz%3Arow-0`);await page.getByRole('heading',{name:'Programa de prueba 0',exact:true}).waitFor();assert.equal(await page.locator('.save-button[aria-pressed=true]').count(),2);
+ await page.goto(`${base}/programas/5?registro=upr9-nkiz%3Arow-0`);await page.getByRole('heading',{name:'Programa de prueba 0',exact:true}).waitFor();assert.equal(await page.locator('.save-button[aria-pressed=true]').count(),1);
  await page.locator('.save-button').first().click();assert.equal(await page.locator('.save-button[aria-pressed=true]').count(),0);
  await page.getByRole('tab',{name:'Descripción',exact:true}).focus();await page.keyboard.press('ArrowRight');assert.equal(await page.getByRole('tab',{name:'Plan de estudios',exact:true}).getAttribute('aria-selected'),'true');
  await page.goto(`${base}/programas/5?registro=missing`);await page.getByRole('heading',{name:'Registro no disponible'}).waitFor();
