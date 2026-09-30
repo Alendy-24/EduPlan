@@ -121,6 +121,7 @@ export default function InstitutionDetailPage() {
                         <BookmarkButton
                             id={`institution-${institutionId}`}
                             label={name}
+                            item={{ id: `institution-${institutionId}`, type: 'institution', name, href: `/instituciones/${encodeURIComponent(institutionId)}`, snapshot: { code: institutionId, name, city: city || '', sector: sector || '', academicCharacter: character || '', website: institution.website || '' } }}
                         />
                         <button
                             className="btn btn-secondary"

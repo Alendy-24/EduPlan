@@ -20,6 +20,13 @@ test('D: civil remains explainable through raw name or published knowledge area'
   const realPattern = normalizeProgram({ ...program, institutionName: 'Institución', knowledgeArea: 'Ingeniería civil y afines', rawName: 'Bogotá D.C.' });
   assert.equal(programSearchMatches(realPattern, 'civil')[0].key, 'area');
 });
+test('search preserves API relevance and explains engineering title variants without inventing a name', () => {
+  const program = normalizeProgram({ ...row(0), name: 'INGENIERO(A) DE SISTEMAS', rawName: 'Bogotá', awardedTitle: 'INGENIERO(A) DE SISTEMAS', nameOrigin: 'AWARDED_TITLE', reviewRequired: true, searchMatch: 'SIMILAR_NAME_OR_TITLE' });
+  assert.equal(program.searchMatch, 'SIMILAR_NAME_OR_TITLE');
+  assert.equal(program.name, 'INGENIERO(A) DE SISTEMAS');
+  assert.deepEqual(programSearchMatches(program, 'Ingeniería de Sistemas'), [{ key: 'awardedTitle', label: 'Título otorgado', value: program.awardedTitle }]);
+  assert.equal(normalizeProgram({ ...row(1), searchMatch: 'KNOWLEDGE_AREA' }).searchMatch, 'KNOWLEDGE_AREA');
+});
 test('F: corrupt rows are reported individually; absent optional fields remain displayable', () => {
   const result = normalizeProgramPage({ data: [row(0), { ...row(1), sourceId: null }, { ...row(2), municipality: null, modality: { invalid: true }, code: '' }] });
   assert.equal(result.programs.length, 2); assert.equal(result.unusableCount, 1); assert.equal(result.incompleteCount, 1);

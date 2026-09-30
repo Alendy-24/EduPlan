@@ -1,0 +1,164 @@
+package com.eduplan.account;
+
+import com.eduplan.BackendApplication;
+import com.eduplan.auth.CuentaPrincipal;
+import com.eduplan.auth.JwtService;
+import com.eduplan.repositories.CuentaRepository;
+import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
+import org.junit.jupiter.api.*;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+
+import java.net.URI;
+import java.net.http.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import static org.junit.jupiter.api.Assertions.*;
+
+/** Starts fresh PostgreSQL and applies all migrations; no personal database is used. */
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class AccountExplorationIntegrationTest {
+    private EmbeddedPostgres postgres;
+    private ConfigurableApplicationContext context;
+    private String base;
+    private final HttpClient http = HttpClient.newHttpClient();
+    private final JsonMapper json = new JsonMapper();
+    private record Account(String token, long id) {}
+
+    @BeforeAll void start() throws Exception {
+        postgres = EmbeddedPostgres.builder().setPort(0).start();
+        context = new SpringApplicationBuilder(BackendApplication.class).run(
+                "--spring.datasource.url=" + postgres.getJdbcUrl("postgres", "postgres"),
+                "--spring.datasource.username=postgres", "--spring.datasource.password=postgres",
+                "--server.port=0", "--server.address=127.0.0.1",
+                "--eduplan.jwt.secret=Y2ktdGVzdC1qd3Qtc2VjcmV0LXNob3VsZC1iZS1sb25nLWVub3VnaC0zMi1ieXRlcw==",
+                "--logging.level.org.springframework=WARN");
+        base = "http://127.0.0.1:" + context.getEnvironment().getProperty("local.server.port");
+    }
+
+    @AfterAll void stop() throws Exception {
+        if (context != null) context.close();
+        if (postgres != null) postgres.close();
+    }
+
+    private HttpResponse<String> request(String method, String route, String token, Object body) throws Exception {
+        var builder = HttpRequest.newBuilder(URI.create(base + route)).header("Content-Type", "application/json");
+        if (token != null) builder.header("Authorization", "Bearer " + token);
+        builder.method(method, body == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(json.writeValueAsString(body)));
+        return http.send(builder.build(), HttpResponse.BodyHandlers.ofString());
+    }
+
+    private JsonNode data(HttpResponse<String> response) { return json.readTree(response.body()); }
+
+    private Account register() throws Exception {
+        var response = request("POST", "/api/auth/register", null, Map.of("name", "Persona de prueba",
+                "email", "saved-" + UUID.randomUUID() + "@example.test", "password", "Password123!"));
+        assertEquals(201, response.statusCode(), response.body());
+        JsonNode account = data(response);
+        return new Account(account.get("token").asText(), account.get("userId").asLong());
+    }
+
+    private Map<String, Object> saved(String name) {
+        return Map.of("type", "program", "name", name, "href", "/programas/No%20especifica?registro=upr9-nkiz%3Arow-test",
+                "snapshot", Map.of("sourceId", "upr9-nkiz:row-test", "code", "No especifica", "status", "Activo", "name", name));
+    }
+
+    @Test void requiresValidJwtAndExistingActiveAccount() throws Exception {
+        assertEquals(401, request("GET", "/api/me/saved", null, null).statusCode());
+        assertEquals(401, request("GET", "/api/me/interests", "invalid-token", null).statusCode());
+        assertEquals(401, request("PUT", "/api/me/saved/example", null, saved("Nombre")).statusCode());
+        assertEquals(401, request("DELETE", "/api/me/saved/example", null, null).statusCode());
+        String missing = context.getBean(JwtService.class).generateToken(new CuentaPrincipal(Long.MAX_VALUE, "missing@example.test"));
+        assertEquals(401, request("GET", "/api/me/saved", missing, null).statusCode());
+        Account account = register();
+        CuentaRepository repository = context.getBean(CuentaRepository.class);
+        var entity = repository.findById(account.id()).orElseThrow();
+        entity.setEstado(false); repository.save(entity);
+        assertEquals(403, request("GET", "/api/me/interests", account.token(), null).statusCode());
+        assertEquals(403, request("PUT", "/api/me/saved/example", account.token(), saved("Nombre")).statusCode());
+        repository.deleteById(account.id());
+        assertEquals(401, request("GET", "/api/me/saved", account.token(), null).statusCode());
+    }
+
+    @Test void savesUpdatesAndDeletesOnlyForJwtOwner() throws Exception {
+        Account first = register();
+        Account second = register();
+        String path = "/api/me/saved/program-upr9-nkiz:row-test";
+        var created = request("PUT", path, first.token(), saved("Ingeniería de Sistemas"));
+        assertEquals(200, created.statusCode(), created.body());
+        JsonNode before = data(created);
+        assertEquals("program-upr9-nkiz:row-test", before.get("id").asText());
+        assertEquals("No especifica", before.get("snapshot").get("code").asText());
+        assertEquals(0, data(request("GET", "/api/me/saved?userId=" + first.id(), second.token(), null)).get("data").size());
+        assertEquals(204, request("DELETE", path, second.token(), null).statusCode());
+        assertEquals(1, data(request("GET", "/api/me/saved", first.token(), null)).get("data").size());
+        var updated = request("PUT", path, first.token(), saved("Nombre actualizado"));
+        assertEquals(200, updated.statusCode());
+        assertEquals(before.get("savedAt").asText(), data(updated).get("savedAt").asText());
+        assertEquals("Nombre actualizado", data(updated).get("name").asText());
+        assertTrue(data(updated).get("updatedAt").asText().compareTo(before.get("updatedAt").asText()) >= 0);
+        assertEquals(200, request("PUT", path, second.token(), saved("Otra cuenta")).statusCode());
+        assertEquals(2, context.getBean(SavedOptionRepository.class).findAll().stream()
+                .filter(item -> item.getReference().equals("program-upr9-nkiz:row-test")).count());
+        assertEquals(204, request("DELETE", path, first.token(), null).statusCode());
+        assertEquals(204, request("DELETE", path, first.token(), null).statusCode());
+        assertEquals(0, data(request("GET", "/api/me/saved", first.token(), null)).get("data").size());
+        assertEquals("Otra cuenta", data(request("GET", "/api/me/saved", second.token(), null)).get("data").get(0).get("name").asText());
+    }
+
+    @Test void validatesReferencesInternalLinksAndSnapshots() throws Exception {
+        Account account = register();
+        for (String href : List.of("https://example.com", "//example.com", "/%2fexample.com", "/%5cexample.com", "/%0aexample.com")) {
+            assertEquals(400, request("PUT", "/api/me/saved/invalid", account.token(),
+                    Map.of("type", "program", "name", "Programa", "href", href)).statusCode(), href);
+        }
+        assertEquals(400, request("PUT", "/api/me/saved/" + "a".repeat(201), account.token(), saved("Programa")).statusCode());
+        assertEquals(400, request("PUT", "/api/me/saved/invalid", account.token(), Map.of("type", "other", "name", "Programa", "href", "/programas")).statusCode());
+        assertEquals(400, request("PUT", "/api/me/saved/invalid", account.token(), saved("a".repeat(501))).statusCode());
+        for (Map<String, Object> snapshot : List.of(Map.<String, Object>of("sourceId", 123),
+                Map.<String, Object>of("unknown", "value"), Map.<String, Object>of("name", Map.of("nested", "value")),
+                Map.<String, Object>of("name", "é".repeat(2000), "institution", "é".repeat(2000), "city", "é".repeat(2000)))) {
+            assertEquals(400, request("PUT", "/api/me/saved/invalid", account.token(),
+                    Map.of("type", "program", "name", "Programa", "href", "/programas", "snapshot", snapshot)).statusCode());
+        }
+        assertEquals(0, data(request("GET", "/api/me/saved", account.token(), null)).get("data").size());
+        assertEquals(200, request("PUT", "/api/me/saved/beca-1", account.token(), Map.of("type", "opportunity", "name", "Beca",
+                "href", "/becas", "snapshot", Map.of("provider", "Entidad", "officialUrl", "https://example.com", "deadline", "2026-10-01"))).statusCode());
+        assertEquals(200, request("PUT", "/api/me/saved/institution-1", account.token(), Map.of("type", "institution", "name", "Universidad",
+                "href", "/instituciones/1", "snapshot", Map.of("sector", "Oficial", "academicCharacter", "Universidad", "website", "https://example.com"))).statusCode());
+    }
+
+    @Test void persistsValidatedInterestsWithoutCrossAccountAccess() throws Exception {
+        Account first = register(); Account second = register();
+        var initial = data(request("GET", "/api/me/interests", first.token(), null));
+        assertEquals(0, initial.get("areas").size()); assertTrue(initial.get("updatedAt").isNull());
+        var stored = request("PUT", "/api/me/interests", first.token(), Map.of("areas", List.of("Tecnología", "Tecnología", "Salud"),
+                "motivations", List.of("Resolver problemas", "Investigar"), "userId", second.id()));
+        assertEquals(200, stored.statusCode(), stored.body());
+        assertEquals(2, data(stored).get("areas").size()); assertFalse(data(stored).get("updatedAt").isNull());
+        assertEquals(data(stored), data(request("GET", "/api/me/interests", first.token(), null)));
+        assertEquals(0, data(request("GET", "/api/me/interests?userId=" + first.id(), second.token(), null)).get("areas").size());
+        assertEquals(400, request("PUT", "/api/me/interests", first.token(), Map.of("areas", List.of("Inventada"), "motivations", List.of())).statusCode());
+        assertEquals(400, request("PUT", "/api/me/interests", first.token(), Map.of("areas", List.of(), "motivations", List.of(""))).statusCode());
+        assertEquals(400, request("PUT", "/api/me/interests", first.token(), Map.of("motivations", List.of())).statusCode());
+        assertEquals(400, request("PUT", "/api/me/interests", first.token(), Map.of("areas", List.of(), "motivations", List.of("Inventada"))).statusCode());
+        assertEquals(2, data(request("GET", "/api/me/interests", first.token(), null)).get("areas").size());
+        var cleared = request("PUT", "/api/me/interests", first.token(), Map.of("areas", List.of(), "motivations", List.of()));
+        assertEquals(200, cleared.statusCode()); assertEquals(0, data(cleared).get("areas").size());
+    }
+
+    @Test void concurrentPutsKeepOneReferencePerAccount() throws Exception {
+        Account account = register();
+        List<CompletableFuture<Integer>> requests = java.util.stream.IntStream.range(0, 8).mapToObj(i -> CompletableFuture.supplyAsync(() -> {
+            try { return request("PUT", "/api/me/saved/same-reference", account.token(), saved("Programa " + i)).statusCode(); }
+            catch (Exception exception) { throw new RuntimeException(exception); }
+        })).toList();
+        for (var request : requests) assertEquals(200, request.join());
+        assertEquals(1, data(request("GET", "/api/me/saved", account.token(), null)).get("data").size());
+        assertEquals(1, context.getBean(SavedOptionRepository.class).findByAccountIdOrderBySavedAtDescDatabaseIdDesc(account.id()).size());
+    }
+}

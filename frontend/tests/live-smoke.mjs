@@ -85,7 +85,7 @@ try {
   await page.reload(); await page.locator('.save-button[aria-pressed=true]').first().waitFor();
   await page.getByRole('tab', { name: 'Descripción', exact: true }).focus(); await page.keyboard.press('ArrowRight');
   assert.equal(await page.getByRole('tab', { name: 'Plan de estudios', exact: true }).getAttribute('aria-selected'), 'true');
-  await page.getByText('No disponible en este catálogo', { exact: false }).first().waitFor();
+  await page.getByText('La información de plan de estudios no está disponible en este catálogo.', { exact: false }).first().waitFor();
   await page.goto(`${base}/programas/${program.code}`); await page.getByRole('heading', { name: 'Selecciona un registro del programa' }).waitFor();
   assert(await page.locator('.record-option').count() > 1);
   await page.goto(`${base}/programas/${program.code}?registro=missing`); await page.getByRole('heading', { name: 'Registro no disponible' }).waitFor();
@@ -98,7 +98,7 @@ try {
   await page.route('**/api/programs?**', route => route.abort());
   await page.goto(`${base}/programas`); await page.getByRole('alert').waitFor();
   await page.unroute('**/api/programs?**'); await page.getByRole('button', { name: 'Reintentar' }).click(); await page.locator('.list-item').first().waitFor();
-  await page.getByText('Área, nivel y orden se aplican a las opciones cargadas; no al catálogo completo.').waitFor();
+  await page.getByText('Los filtros y el orden se aplican a todo el catálogo. El conteo corresponde a los registros cargados.').waitFor();
   ok('Programas: búsqueda, municipio, modalidad, vacío, fallo de red inducido y reintento contra servicio real');
   const institutionPrograms = await catalog(`/instituciones/${program.institutionCode}/programas`, 'programs');
   assert(institutionPrograms.every(p => p.institutionCode === program.institutionCode));
@@ -124,6 +124,7 @@ try {
   await page.goto(`${base}/perfil`); await page.getByText('Intereses completados: 0 %', { exact: true }).waitFor();
   await page.getByRole('button', { name: 'Tecnología', exact: true }).click(); await page.getByText('Intereses completados: 50 %', { exact: true }).waitFor();
   await page.getByRole('button', { name: 'Investigar', exact: true }).click(); await page.getByRole('button', { name: 'Guardar intereses' }).click();
+  await page.getByText('Intereses guardados en tu cuenta.', { exact: true }).waitFor();
   await page.reload(); await page.getByText('Intereses completados: 100 %', { exact: true }).waitFor();
   await page.getByRole('tab', { name: 'Perfil', exact: true }).click(); await page.getByText(email, { exact: true }).waitFor();
   ok('Comparación recargada/quitar/limpiar; perfil real, intereses 0/50/100 persistidos');

@@ -31,9 +31,20 @@ public class SecurityConfig {
                                 SessionCreationPolicy.STATELESS
                         )
                 )
+                .exceptionHandling(errors -> errors
+                        .authenticationEntryPoint((request, response, exception) -> {
+                            response.setStatus(401);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"message\":\"Inicia sesión para continuar\"}");
+                        })
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/api/program-links",
+                                "/api/program-links/batch",
+                                "/api/admin/program-links",
+                                "/api/admin/program-links/**",
                                 "/api/admin/data-sync",
                                 "/api/admin/data-sync/**",
                                 "/error"

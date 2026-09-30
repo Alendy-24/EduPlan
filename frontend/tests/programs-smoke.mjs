@@ -49,14 +49,13 @@ try {
   assert(body.data.length>0);await page.locator('.list-item').first().waitFor();
   console.log(`PASS: filtros reales ${JSON.stringify(filter)} -> ${body.data.length} filas`);
  }
- const prior=await page.locator('.list-item h3').allTextContents();
- let requests=0;const listener=request=>{if(request.url().includes('/api/programs?'))requests++;};page.on('request',listener);
- const area=page.getByLabel(/^Área de los resultados cargados/), level=page.getByLabel(/^Nivel de los resultados cargados/);
- await area.selectOption({index:1});await level.selectOption({index:1});await page.getByLabel(/^Orden de resultados cargados/).selectOption('asc');
- await loaded();const names=await page.locator('.list-item h3').allTextContents();assert(names.length>0&&names.length<=prior.length);
- assert.deepEqual(names,[...names].sort((a,b)=>a.localeCompare(b,'es')));
- await page.waitForTimeout(400);assert.equal(requests,0);page.off('request',listener);
- await page.getByText('Área, nivel y orden se aplican a las opciones cargadas; no al catálogo completo.').waitFor();
+ for (const [label,value,key] of [['Área de conocimiento','Ingeniería de sistemas telemática y afines','knowledgeArea'],['Nivel académico','Pregrado','academicLevel'],['Ordenar por','asc','order']]) {
+  const pending=page.waitForResponse(r=>r.url().includes('/api/programs?')&&new URL(r.url()).searchParams.get(key)===value);
+  await page.getByLabel(label,{exact:true}).selectOption(value);const response=await pending;assert.equal(response.status(),200);
+ }
+ await loaded();await page.waitForFunction(()=>document.querySelectorAll('.list-item').length>0);
+ const names=await page.locator('.list-item h3').allTextContents();assert.deepEqual(names,[...names].sort((a,b)=>a.localeCompare(b,'es')));
+ await page.getByText('Los filtros y el orden se aplican a todo el catálogo. El conteo corresponde a los registros cargados.').waitFor();
  for(const width of [1440,390]) {
   await page.setViewportSize({width,height:900});await page.goto(`${base}/programas?q=civil`);await page.locator('.list-item').first().waitFor();
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));

@@ -32,7 +32,7 @@ npm run dev
 
 Abre `http://127.0.0.1:5173`. Este comando inicia Vite y data-integration (`3001`).
 Si un puerto está ocupado, detén la ejecución anterior del mismo proyecto;
-no abras una segunda instancia. Los tres proxies API están en Vite.
+no abras una segunda instancia. Los proxies API están en Vite.
 El catálogo externo requiere conexión a Internet.
 
 La contraseña PostgreSQL generada se guarda únicamente en
@@ -56,6 +56,8 @@ Con ambas terminales activas y Playwright instalado en el entorno de pruebas:
 node frontend/tests/live-smoke.mjs
 node frontend/tests/browser-smoke.mjs
 node frontend/tests/accessibility-smoke.mjs
+node frontend/tests/programs-filters-smoke.mjs
+node frontend/tests/account-sync-smoke.mjs
 ```
 
 `live-smoke` usa los servicios reales y crea cuentas desechables `@example.test`
@@ -68,13 +70,16 @@ Capturas e informes quedan en `.tools/qa`, ignorado por Git.
 ## Frontend conectado
 
 La rama `feature/redesign-ui-antislop` conserva React/Vite y el catálogo real
-de instituciones. Programas consume los endpoints existentes de data-integration;
-área, nivel y orden se aplican únicamente a los registros cargados. Las filas se
+de instituciones. Programas consulta data-integration; universidad, área, nivel,
+ciudad, modalidad y orden se aplican a todo el catálogo antes de paginar.
+`GET /api/programs/filters` obtiene las opciones oficiales y las conserva cinco
+minutos. La búsqueda prioriza nombre/título exacto, variantes similares y área.
+Los resúmenes mantienen los nombres publicados y su procedencia. Las filas se
 identifican por `sourceId`, porque un código de programa puede repetirse.
 
 Para desarrollo, `npm run dev` inicia frontend e integración. Java se inicia
 por separado. Vite proxifica `/api/institutions` y `/api/programs` a `3001`, y
-`/api/auth` a `8080`. `VITE_DATA_INTEGRATION_URL` conserva su uso existente para
+`/api/auth`, `/api/me` y `/api/program-links` a `8080`. `VITE_DATA_INTEGRATION_URL` conserva su uso existente para
 instituciones; programas y autenticación utilizan rutas del mismo origen.
 
 El backend requiere `DB_PASSWORD` y `JWT_SECRET`: este último debe ser Base64
@@ -89,14 +94,32 @@ y `password` desde la interfaz; la API conserva soporte de teléfono.
 `expiresIn` está expresado en milisegundos. La sesión se conserva en
 `sessionStorage` hasta su vencimiento; cerrar sesión elimina esa sesión local,
 sin revocación del JWT ni refresh. `/dashboard` y `/perfil` requieren sesión.
-Todavía no existe `/me`; la restauración usa la respuesta de autenticación y
-su vencimiento, y un rechazo 401 invalida la sesión. OAuth y recuperación no
+La restauración usa la respuesta de autenticación y su vencimiento; las API
+personales comprueban el JWT y la cuenta activa, y un rechazo 401 invalida la sesión. OAuth y recuperación no
 están disponibles. La protección React no sustituye autorización de backend.
 
-Guardados, comparación (máximo tres) e intereses se conservan en este
-dispositivo, separados por cuenta. Los datos de invitado no se transfieren a
-una cuenta. Becas y rutas históricas de demostración conservan datos ficticios
-aislados y avisos visibles; nunca reemplazan un fallo de catálogo real.
+Guardados e intereses se sincronizan por cuenta mediante `/api/me/saved` y
+`/api/me/interests`. La migración V5 crea tablas personales independientes del
+catálogo importado. Cada solicitud usa la cuenta firmada en el JWT, con
+validación de enlaces, resúmenes y opciones personales. Los cambios pendientes
+se conservan localmente y se reintentan; si el almacenamiento está bloqueado,
+se conservan en memoria durante la visita. Los guardados locales anteriores de
+esa cuenta se migran al servidor. Los datos de invitado nunca se transfieren.
+La comparación (máximo tres) continúa local, separada por cuenta.
+
+Desde el dashboard se pueden comprobar cambios en resúmenes guardados contra
+el catálogo actual y actualizarlos explícitamente. Programas muestra el sitio
+institucional publicado por MEN y preguntas para verificar costos/admisión;
+no inventa información académica ausente. Los enlaces específicos se muestran
+cuando han sido verificados en el registro independiente de enlaces oficiales.
+Consulta [el flujo de recopilación y revisión](docs/program-links.md).
+
+Becas contiene una selección editorial de ocho programas reales en
+`frontend/src/data/scholarships.js`, con requisitos, cobertura, fuente oficial,
+calendario y fecha de revisión. Su actualización es manual: deben revisarse las
+fuentes y `verifiedAt` al editar convocatorias. Las fechas pasadas se muestran
+cerradas y las fechas desconocidas exigen consultar vigencia. Las rutas
+históricas de demostración mantienen datos ficticios aislados y avisos.
 
 ### Verificación
 
@@ -116,7 +139,7 @@ capturas en `.tools/qa`, ignorado por Git. Comprueba 1440, 1024, 768 y 390 px.
 ### Publicación posterior
 
 Servir el build con fallback de SPA a `index.html`, y reverse proxy del mismo
-origen para `/api/institutions`, `/api/programs` y `/api/auth` hacia sus servicios.
+origen para `/api/institutions`, `/api/programs`, `/api/auth`, `/api/me` y `/api/program-links` hacia sus servicios.
 No publicar asumiendo que `vite preview` proporciona un proxy de producción.
 La configuración CORS actual de integración solo cubre instituciones; no
 cambiar programas a una URL de otro origen sin preparar ese transporte.

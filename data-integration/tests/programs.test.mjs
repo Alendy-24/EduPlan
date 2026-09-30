@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { get as httpGet } from "node:http";
 import { app } from "../dist/app.js";
-import { transformProgram, getPrograms, getProgramsByCode } from "../dist/services/programs.service.js";
+import { transformProgram, getPrograms, getProgramsByCode, getProgramFilterOptions } from "../dist/services/programs.service.js";
 import { getInstitutions } from "../dist/services/institutions.service.js";
 
 const row = {
@@ -84,6 +84,92 @@ test("program queries include row identity, title and unique order", async t => 
     return new Response(JSON.stringify([row]));
   });
   assert.equal((await getPrograms({page: 2, limit: 100}))[0].sourceId, "upr9-nkiz:" + row.source_row_id);
+});
+
+test("search ranks the entire source before pagination and preserves filters and published fields", async t => {
+  t.mock.method(globalThis, "fetch", async url => {
+    assert.equal(url.searchParams.get("$order"), "search_rank,:id");
+    assert.equal(url.searchParams.get("$limit"), "12");
+    assert.equal(url.searchParams.get("$offset"), "12");
+    const select = url.searchParams.get("$select"), where = url.searchParams.get("$where");
+    assert.match(select, /case\(.+ as search_rank$/);
+    assert.match(select, /true, 4/);
+    assert.match(where, /INGENIERIA DE SISTEMAS/);
+    assert.match(where, /INGENIERO\(A\) DE SISTEMAS/);
+    assert.match(where, /upper\(unaccent\(nombremunicipioprograma\)\)/);
+    assert.match(where, /nombremetodologia/);
+    assert.match(where, /codigoinstitucion = 1101/);
+    return Response.json(["0", "1", "2", "3", "4"].map((rank, i) => ({
+      ...row, source_row_id: `rank-${i}`, search_rank: rank,
+    })));
+  });
+  const programs = await getPrograms({ name: "  Ingeniería de Sistemas  ", municipality: "Bogotá", modality: "Presencial", institutionCode: "1101", page: 2, limit: 12 });
+  assert.deepEqual(programs.map(p => p.searchMatch), ["EXACT_NAME_OR_TITLE", "SIMILAR_NAME_OR_TITLE", "SIMILAR_NAME_OR_TITLE", "SIMILAR_NAME_OR_TITLE", "KNOWLEDGE_AREA"]);
+  assert(programs.every(p => p.rawName === row.nombreprograma && p.awardedTitle === row.nombretituloobtenido));
+});
+
+test("search escapes literals in both relevance and selection expressions", async t => {
+  t.mock.method(globalThis, "fetch", async url => {
+    assert.match(url.searchParams.get("$select"), /D''ANGELO/);
+    assert.match(url.searchParams.get("$where"), /D''ANGELO/);
+    return Response.json([]);
+  });
+  assert.deepEqual(await getPrograms({ name: "d'angelo", page: 1, limit: 12 }), []);
+});
+
+test("global level and knowledge area filters apply in the paginated source query", async t => {
+  t.mock.method(globalThis, "fetch", async url => {
+    const where = url.searchParams.get("$where");
+    assert.match(where, /upper\(unaccent\(nombrenivelacademico\)\) = 'PREGRADO'/);
+    assert.match(where, /upper\(unaccent\(nombrenbc\)\) = 'INGENIERIA DE SISTEMAS TELEMATICA Y AFINES'/);
+    assert.match(where, /codigoinstitucion = 1101/);
+    assert.equal(url.searchParams.get("$offset"), "24");
+    assert.equal(url.searchParams.get("$order"), "search_rank,:id");
+    return Response.json([]);
+  });
+  assert.deepEqual(await getPrograms({ name: "sistemas", academicLevel: "Pregrado", knowledgeArea: "Ingeniería de sistemas telemática y afines", institutionCode: "1101", page: 3, limit: 12 }), []);
+});
+
+test("alphabetical order uses a usable published name or awarded title before pagination", async t => {
+  const requests = [];
+  t.mock.method(globalThis, "fetch", async url => {
+    requests.push(url);
+    assert.match(url.searchParams.get("$select"), /coalesce\(upper\(unaccent\(nombretituloobtenido\)\), ''\)/);
+    assert.match(url.searchParams.get("$select"), /as sort_name/);
+    assert.equal(url.searchParams.get("$offset"), "12");
+    return Response.json([]);
+  });
+  await getPrograms({ name: "sistemas", order: "asc", page: 2, limit: 12 });
+  await getPrograms({ order: "desc", page: 2, limit: 12 });
+  assert.deepEqual(requests.map(url => url.searchParams.get("$order")), ["sort_name ASC,:id", "sort_name DESC,:id"]);
+});
+
+test("official filter options group the complete source, reject invalid codes, and cache successful requests", async t => {
+  const requests = [];
+  t.mock.method(globalThis, "fetch", async url => {
+    requests.push(url);
+    assert.equal(url.searchParams.get("$limit"), "50000");
+    if (url.searchParams.get("$group") === "codigoinstitucion,nombreinstitucion") return Response.json([
+      { code: "1101", name: "Universidad oficial" }, { code: "1101", name: "Universidad oficial" },
+      { code: "No especifica", name: "No seleccionable" }, { code: "1234", name: "" },
+    ]);
+    return Response.json([{ value: "Pregrado" }, { value: "Pregrado" }, { value: "" }, { value: "NA" }]);
+  });
+  const options = await getProgramFilterOptions();
+  assert.deepEqual(options.academicLevels, ["Pregrado"]);
+  assert.deepEqual(options.institutions, [{ code: "1101", name: "Universidad oficial" }]);
+  assert.equal(requests.length, 4);
+  assert.equal(await getProgramFilterOptions(), options);
+  assert.equal(requests.length, 4);
+  const server = app.listen(0); t.after(() => server.close());
+  const response = await new Promise((resolve, reject) => {
+    httpGet(`http://127.0.0.1:${server.address().port}/api/programs/filters`, res => {
+      let body = ""; res.setEncoding("utf8"); res.on("data", chunk => { body += chunk; });
+      res.on("end", () => resolve({ status: res.statusCode, body: JSON.parse(body) })); res.on("error", reject);
+    }).on("error", reject);
+  });
+  assert.equal(response.status, 200);
+  assert.deepEqual(response.body.data, options);
 });
 
 test("institution pagination includes a unique tie breaker", async t => {

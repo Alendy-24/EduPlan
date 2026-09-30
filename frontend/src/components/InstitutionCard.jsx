@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import institutionIcon from "../assets/Images/instituciones.svg";
+import BookmarkButton from './BookmarkButton';
 
 import { websiteUrl } from "../utils/website";
 export default function InstitutionCard({ institution }) {
@@ -37,6 +38,7 @@ export default function InstitutionCard({ institution }) {
                 </p>
             </div>
             <div className="institution-card-actions">
+                <BookmarkButton id={`institution-${institution.code}`} label={institution.name} item={{ id: `institution-${institution.code}`, type: 'institution', name: institution.name, href: `/instituciones/${encodeURIComponent(institution.code)}`, snapshot: { code: institution.code, name: institution.name, city: institution.municipality || '', sector: institution.sector || '', academicCharacter: institution.academicCharacter || '', website: institution.website || '' } }} />
                 <Link
                     className="btn btn-primary"
                     to={`/instituciones/${encodeURIComponent(institution.code)}`}

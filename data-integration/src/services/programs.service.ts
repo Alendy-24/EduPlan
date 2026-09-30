@@ -1,8 +1,9 @@
 import { SOURCES } from "../config/sources.js";
-import type { Program, ProgramFilters } from "../models/program.js";
+import type { Program, ProgramFilters, ProgramFilterOptions } from "../models/program.js";
 import { fetchJson } from "../utils/http.js";
 
 interface ProgramSourceRow {
+  search_rank?: string;
   source_row_id?: string;
   nombretituloobtenido?: string;
   nombrenbc?: string;
@@ -42,25 +43,43 @@ function escapeSoql(value: string): string {
   return value.replaceAll("'", "''");
 }
 
-function spanishSearchVariants(value: string): string[] {
-  const normalized = value.trim().toUpperCase();
-  const variants = new Set([normalized]);
-  const accents: Record<string, string> = { A: "Á", E: "É", I: "Í", O: "Ó", U: "Ú", N: "Ñ" };
-
-  for (let index = 0; index < normalized.length; index += 1) {
-    const replacement = accents[normalized[index]];
-    if (replacement) {
-      variants.add(`${normalized.slice(0, index)}${replacement}${normalized.slice(index + 1)}`);
-    }
-  }
-
-  return [...variants];
+function searchText(value: string): string {
+  return value.normalize("NFKD").replace(/\p{M}/gu, "").trim().toUpperCase();
 }
 
 function containsText(field: string, value: string): string {
-  return spanishSearchVariants(value)
-    .map((variant) => `upper(${field}) like '%${escapeSoql(variant)}%'`)
-    .join(" OR ");
+  return `upper(unaccent(${field})) like '%${escapeSoql(searchText(value))}%'`;
+}
+
+function usableNameExpression(): string {
+  const raw = "upper(unaccent(nombreprograma))";
+  return `case(coalesce(${raw}, '') in ('', 'NA', 'N/A') OR ${raw} = upper(unaccent(nombredepartprograma)) OR ${raw} = upper(unaccent(nombremunicipioprograma)), coalesce(upper(unaccent(nombretituloobtenido)), ''), true, ${raw})`;
+}
+
+function programSearch(value: string): { condition: string; rank: string } {
+  const term = searchText(value);
+  // These are search variants only; the published name and title stay intact.
+  const variants = /\bINGENIERIA\b/.test(term)
+    ? [term, ...["INGENIERO", "INGENIERA", "INGENIERO(A)"].map(word => term.replace(/\bINGENIERIA\b/g, word))]
+    : [term];
+  // A city/department mistakenly published as a name must not rank as a program name.
+  const raw = "upper(unaccent(nombreprograma))";
+  const name = `case(coalesce(${raw}, '') in ('', 'NA', 'N/A') OR ${raw} = upper(unaccent(nombredepartprograma)) OR ${raw} = upper(unaccent(nombremunicipioprograma)), '', true, ${raw})`;
+  const title = "upper(unaccent(nombretituloobtenido))";
+  const matches = (terms: string[], pattern: "exact" | "prefix" | "contains") =>
+    [name, title].flatMap(field => terms.map(text => pattern === "exact"
+      ? `${field} = '${escapeSoql(text)}'`
+      : `${field} like '${pattern === "contains" ? "%" : ""}${escapeSoql(text)}%'`)).join(" OR ");
+  const exact = matches([term], "exact");
+  const equivalent = matches(variants, "exact");
+  const prefix = matches(variants, "prefix");
+  const partial = matches(variants, "contains");
+  const area = containsText("nombrenbc", term);
+  return {
+    condition: `(${partial} OR ${area})`,
+    // Socrata sorts this expression before applying limit/offset. :id breaks ties.
+    rank: `case(${exact}, 0, ${equivalent}, 1, ${prefix}, 2, ${partial}, 3, true, 4)`,
+  };
 }
 
 export function transformProgram(row: ProgramSourceRow): Program {
@@ -103,12 +122,9 @@ export function transformProgram(row: ProgramSourceRow): Program {
 export async function getPrograms(filters: ProgramFilters): Promise<Program[]> {
   const url = new URL(SOURCES.programs.resourceUrl);
   const conditions: string[] = [];
+  const search = filters.name?.trim() ? programSearch(filters.name) : undefined;
 
-  if (filters.name?.trim()) {
-    conditions.push(
-      `(${containsText("nombreprograma", filters.name)} OR ${containsText("nombrenbc", filters.name)} OR ${containsText("nombretituloobtenido", filters.name)})`,
-    );
-  }
+  if (search) conditions.push(search.condition);
   if (filters.municipality?.trim()) {
     conditions.push(`(${containsText("nombremunicipioprograma", filters.municipality)})`);
   }
@@ -118,17 +134,70 @@ export async function getPrograms(filters: ProgramFilters): Promise<Program[]> {
   if (filters.institutionCode?.trim()) {
     conditions.push(`codigoinstitucion = ${filters.institutionCode}`);
   }
+  if (filters.academicLevel?.trim()) {
+    conditions.push(`upper(unaccent(nombrenivelacademico)) = '${escapeSoql(searchText(filters.academicLevel))}'`);
+  }
+  if (filters.knowledgeArea?.trim()) {
+    conditions.push(`upper(unaccent(nombrenbc)) = '${escapeSoql(searchText(filters.knowledgeArea))}'`);
+  }
 
-  url.searchParams.set("$select", SELECT_FIELDS);
+  const alphabetical = filters.order === "asc" || filters.order === "desc";
+  url.searchParams.set("$select", [SELECT_FIELDS, ...(search ? [`${search.rank} as search_rank`] : []), ...(alphabetical ? [`${usableNameExpression()} as sort_name`] : [])].join(","));
   url.searchParams.set("$limit", String(filters.limit));
   url.searchParams.set("$offset", String((filters.page - 1) * filters.limit));
-  url.searchParams.set("$order", ":id");
+  url.searchParams.set("$order", alphabetical ? `sort_name ${filters.order === "desc" ? "DESC" : "ASC"},:id` : search ? "search_rank,:id" : ":id");
   if (conditions.length > 0) {
     url.searchParams.set("$where", conditions.join(" AND "));
   }
 
   const rows = await fetchJson<ProgramSourceRow[]>(url);
-  return rows.map(transformProgram);
+  return rows.map(row => ({ ...transformProgram(row), ...(search ? {
+    searchMatch: row.search_rank === "0" ? "EXACT_NAME_OR_TITLE" as const
+      : row.search_rank === "4" ? "KNOWLEDGE_AREA" as const : "SIMILAR_NAME_OR_TITLE" as const,
+  } : {}) }));
+}
+
+const FILTER_CACHE_MS = 5 * 60 * 1000;
+let filterCache: { expiresAt: number; data: ProgramFilterOptions } | undefined;
+let filterRequest: Promise<ProgramFilterOptions> | undefined;
+
+async function groupedValues(field: string): Promise<string[]> {
+  const url = new URL(SOURCES.programs.resourceUrl);
+  url.searchParams.set("$select", `${field} as value`);
+  url.searchParams.set("$group", field);
+  url.searchParams.set("$where", `${field} IS NOT NULL`);
+  url.searchParams.set("$order", field);
+  url.searchParams.set("$limit", "50000");
+  const rows = await fetchJson<{ value?: string }[]>(url);
+  if (!Array.isArray(rows)) throw new Error("Opciones de catálogo no válidas");
+  return [...new Set(rows.map(row => typeof row.value === "string" ? row.value.trim() : "").filter(value => value && !["NA", "N/A"].includes(value.toUpperCase())))];
+}
+
+export function getProgramFilterOptions(): Promise<ProgramFilterOptions> {
+  if (filterCache && filterCache.expiresAt > Date.now()) return Promise.resolve(filterCache.data);
+  if (filterRequest) return filterRequest;
+  filterRequest = (async () => {
+    const institutionUrl = new URL(SOURCES.programs.resourceUrl);
+    institutionUrl.searchParams.set("$select", "codigoinstitucion as code,nombreinstitucion as name");
+    institutionUrl.searchParams.set("$group", "codigoinstitucion,nombreinstitucion");
+    institutionUrl.searchParams.set("$where", "codigoinstitucion IS NOT NULL AND nombreinstitucion IS NOT NULL");
+    institutionUrl.searchParams.set("$order", "nombreinstitucion,codigoinstitucion");
+    institutionUrl.searchParams.set("$limit", "50000");
+    const [academicLevels, knowledgeAreas, modalities, institutionRows] = await Promise.all([
+      groupedValues("nombrenivelacademico"), groupedValues("nombrenbc"), groupedValues("nombremetodologia"),
+      fetchJson<{ code?: string; name?: string }[]>(institutionUrl),
+    ]);
+    if (!Array.isArray(institutionRows)) throw new Error("Opciones de institución no válidas");
+    const byCode = new Map<string, { code: string; name: string }>();
+    for (const row of institutionRows) {
+      const code = String(row.code ?? "").trim(), name = typeof row.name === "string" ? row.name.trim() : "";
+      if (/^\d+$/.test(code) && name && !byCode.has(code)) byCode.set(code, { code, name });
+    }
+    const data = { academicLevels, knowledgeAreas, modalities, institutions: [...byCode.values()] };
+    filterCache = { data, expiresAt: Date.now() + FILTER_CACHE_MS };
+    return data;
+  })().finally(() => { filterRequest = undefined; });
+  return filterRequest;
 }
 
 export async function getProgramsByCode(code: string): Promise<Program[]> {

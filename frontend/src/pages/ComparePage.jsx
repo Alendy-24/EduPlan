@@ -2,10 +2,12 @@ import { Link } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import { useExploration } from '../contexts/ExplorationContext';
 import { programHref } from '../utils/programs';
-const rows = [['Institución',p=>p.institution],['Programa',p=>p.name],['Nivel',p=>p.level],['Ciudad',p=>p.city],['Duración publicada',p=>p.duration],['Modalidad',p=>p.modality],['Estado publicado',p=>p.status],['Costo',()=>null],['Enfoque',()=>null]];
+import { useOfficialPrograms } from '../hooks/useOfficialPrograms';
+const rows = [['Institución',p=>p.institution],['Programa',p=>p.name],['Título otorgado',p=>p.awardedTitle],['Nivel',p=>p.level],['Ciudad',p=>p.city],['Duración publicada',p=>p.duration],['Modalidad',p=>p.modality],['Estado publicado',p=>p.status],['Costo',()=>null],['Enfoque',()=>null]];
 const value = v => v || 'No disponible en este catálogo';
 export default function ComparePage() {
-  const { comparison, toggleCompare, clearComparison, persistent } = useExploration();
+  const { comparison: storedComparison, toggleCompare, clearComparison, persistent } = useExploration();
+  const comparison = useOfficialPrograms(storedComparison);
   return <main className="page"><div className="container"><Link className="back-link" to="/programas">← Volver a programas</Link><PageHeader title="Comparar programas">Revisa hasta tres opciones. La comparación organiza información; la decisión es tuya.</PageHeader>
     <p className="notice">Selección guardada en este dispositivo. Los resúmenes pueden estar desactualizados: abre cada programa para consultar la fuente actual. {comparison.some(p=>p.provenance==='demo') && 'La selección incluye datos ficticios de demostración.'}</p>
     {!persistent && <p role="status">La selección permanecerá solo durante esta visita.</p>}

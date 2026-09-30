@@ -57,7 +57,7 @@ class AuthIntegrationTest {
             assertEquals(400, post("register", "{\"name\":\"Persona\",\"email\":\"invalid@example.org\",\"password\":" + password + "}").statusCode());
         }
         assertEquals(400, post("register", "{\"email\":\"missing@example.org\",\"password\":\"Password123!\"}").statusCode());
-        var oversizedEmail = post("register", "{\"name\":\"Persona\",\"email\":\"" + "a".repeat(70) + "@example.org\",\"password\":\"Password123!\"}");
+        var oversizedEmail = post("register", "{\"name\":\"Persona\",\"email\":\"" + "a".repeat(60) + "@long-domain-example.org\",\"password\":\"Password123!\"}");
         assertEquals(400, oversizedEmail.statusCode());
         assertTrue(oversizedEmail.body().contains("80 caracteres"));
         assertFalse(oversizedEmail.body().contains("Password123!"));

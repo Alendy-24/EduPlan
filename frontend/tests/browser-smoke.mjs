@@ -17,6 +17,7 @@ const makeRow = n => ({sourceId:`upr9-nkiz:row-${n}`,code:n<2?'5':String(10+n),n
 const requests=[];
 await page.route('**/api/programs**', async route=>{
  const url=new URL(route.request().url());requests.push(url);
+ if(url.pathname.endsWith('/filters')) return route.fulfill({json:{data:{academicLevels:['Pregrado','Posgrado'],knowledgeAreas:['Salud','Tecnología'],modalities:['Presencial'],institutions:[{code:institution.code,name:institution.name}]}}});
  if(url.searchParams.get('name')==='error')return route.fulfill({status:502,json:{error:true}});
  const code=url.pathname.split('/')[3];
  const data=code==='5'?[makeRow(0),makeRow(1)]:code?[makeRow(Number(code)-10)]:url.searchParams.get('name')==='nada'?[]:url.searchParams.get('page')==='2'?[makeRow(11),makeRow(12)]:Array.from({length:12},(_,n)=>makeRow(n));
@@ -26,6 +27,17 @@ await page.route('**/api/institutions**',route=>route.fulfill({json:route.reques
 await page.route('**/api/auth/**',async route=>{
  const data=route.request().postDataJSON();
  await route.fulfill(data.password==='wrongpassword'?{status:401,json:{}}:{json:{token:'test-token-only',tokenType:'Bearer',expiresIn:3600000,userId:42,name:'Persona de prueba',email:'test@example.org',phone:null}});
+});
+const savedFixture=new Map(); let interestsFixture={areas:[],motivations:[],updatedAt:null};
+await page.route('**/api/me/**',async route=>{
+ const request=route.request(),url=new URL(request.url()),id=decodeURIComponent(url.pathname.split('/')[4]||'');
+ if(url.pathname.endsWith('/interests')) {
+  if(request.method()==='PUT') interestsFixture={...request.postDataJSON(),updatedAt:new Date().toISOString()};
+  return route.fulfill({json:interestsFixture});
+ }
+ if(request.method()==='GET')return route.fulfill({json:{data:[...savedFixture.values()]}});
+ if(request.method()==='DELETE'){savedFixture.delete(id);return route.fulfill({status:204});}
+ const item={id,...request.postDataJSON(),savedAt:savedFixture.get(id)?.savedAt||new Date().toISOString(),updatedAt:new Date().toISOString()};savedFixture.set(id,item);return route.fulfill({json:item});
 });
 try {
  await page.goto(base);
@@ -77,6 +89,6 @@ try {
  await page.evaluate(()=>{const data=JSON.parse(sessionStorage.getItem('eduplan-session-v1'));data.expiresAt=Date.now()-1;sessionStorage.setItem('eduplan-session-v1',JSON.stringify(data));});await page.reload();await page.waitForURL('**/login');
  const blocked=await context.newPage();blocked.on('pageerror',error=>errors.push(error.message));
  await blocked.addInitScript(()=>Object.defineProperty(window,'localStorage',{get(){throw new Error('Storage unavailable in test');}}));
- await blocked.goto(`${base}/becas`);await blocked.locator('.save-button').first().click();await blocked.getByText('Guardado solo durante esta visita.').first().waitFor();await blocked.close();
+ await blocked.goto(`${base}/becas`);await blocked.locator('.save-button').first().click();await blocked.getByText('Los cambios pendientes permanecen durante esta visita.').first().waitFor();await blocked.close();
  assert.deepEqual(errors,[]);console.log(`PASS: ${checked} route/viewport checks; auth, source identity, bookmarks, pagination, tabs, interests and comparison fixtures.`);
 } finally { await browser.close(); }

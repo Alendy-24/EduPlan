@@ -33,12 +33,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authorization != null && authorization.startsWith("Bearer ")) {
             String token = authorization.substring(7);
 
-            if (jwtService.isValid(token)) {
-                String identifier = jwtService.extractIdentifier(token);
-
+            try {
+                CuentaPrincipal principal = jwtService.extractPrincipal(token);
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
-                                identifier,
+                                principal,
                                 null,
                                 Collections.emptyList()
                         );
@@ -46,6 +45,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder
                         .getContext()
                         .setAuthentication(authentication);
+            } catch (Exception ignored) {
+                SecurityContextHolder.clearContext();
             }
         }
 

@@ -49,6 +49,9 @@ main { min-width:0; }
 .comparison-selection > a { max-width:100%; white-space:normal; }
 .saved-list { list-style:none; margin:0; padding:0; }
 .saved-list li { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:16px 0; border-bottom:1px solid var(--line-soft); }
+.saved-summary { display:grid; gap:8px; min-width:0; flex:1; }
+.saved-summary .notice { margin:8px 0; }
+.detail-copy li { margin:10px 0; line-height:1.6; }
 progress { display:block; margin:12px 0; width:100%; max-width:400px; accent-color:var(--navy); }
 .profile-panel dd { margin:6px 0 20px; }
 .guide-card ol { padding-left:20px; line-height:1.7; color:var(--body); }
