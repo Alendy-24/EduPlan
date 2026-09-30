@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useExploration } from '../contexts/ExplorationContext';
-import { useProfileInterests } from '../hooks/useProfileInterests';
+import { useAcademicProfile } from '../contexts/AcademicProfileContext';
+import RecommendationsSection from '../components/RecommendationsSection';
 import { getProgramsByCode } from '../services/programs';
 import { getInstitutionByCode } from '../services/institutions';
 import { programItem } from '../utils/programs';
@@ -17,7 +18,7 @@ const date = value => value && Number.isFinite(Date.parse(value)) ? new Date(val
 export default function DashboardPage() {
   const { user, persistent: sessionPersistent } = useAuth();
   const { saved, comparison, removeSaved, updateSaved, persistent, syncState, syncError, retrySync } = useExploration();
-  const { progress } = useProfileInterests();
+  const { completeness: progress, state: profileState } = useAcademicProfile();
   const { photo } = useLocalAvatar(user);
   const [checking,setChecking] = useState(false), [updates,setUpdates] = useState({}), [checkedAt,setCheckedAt] = useState(null);
   const controller = useRef(null);
@@ -63,6 +64,7 @@ export default function DashboardPage() {
       {syncState === 'loading' && <p role="status">Cargando guardados de tu cuenta…</p>}{syncState === 'saving' && <p role="status">Sincronizando cambios…</p>}{syncState === 'synced' && <p className="subtle" role="status">Guardados sincronizados con tu cuenta.</p>}{syncError && <p role="alert">{syncError}</p>}{!persistent && <p role="status">El almacenamiento de este dispositivo no está disponible. Los cambios confirmados en tu cuenta se conservan en el servidor.</p>}
       {checkedAt && <p className="subtle" role="status">Fuentes comprobadas el {date(checkedAt)}. Las becas se comparan con el catálogo verificado de EduPlan; consulta su fuente oficial para confirmar vigencia.</p>}
       {saved.length ? <ul className="saved-list">{saved.map(item=><li key={item.id}><div className="saved-summary"><Link to={item.href}>{savedItemName(item)}</Link>{item.snapshot?.awardedTitle && <small className="subtle">Título otorgado: {item.snapshot.awardedTitle}</small>}{date(item.savedAt) && <small className="subtle">{[item.snapshot?.institution, item.snapshot?.city].filter(Boolean).join(" · ")}{item.snapshot?.institution && " · "}Guardado el {date(item.savedAt)}</small>}{updates[item.id]?.state === 'changed' && <div className="notice"><strong>La información publicada cambió.</strong><ul>{updates[item.id].changes.map(change=><li key={change.key}>{change.label}: {change.before || 'No disponible'} → {change.after}</li>)}</ul><button className="text-link plain-button" type="button" onClick={()=>acceptUpdate(item)}>Actualizar resumen guardado</button></div>}{updates[item.id]?.state === 'missing' && <p role="status">Este registro ya no aparece en la consulta actual. Confirma su disponibilidad con la fuente oficial.</p>}{updates[item.id]?.state === 'same' && <small className="subtle">Sin cambios en los datos que pudimos comprobar.</small>}{['error','unverified'].includes(updates[item.id]?.state) && <small role="status">No pudimos comprobar este resumen. Abre su detalle o consulta la fuente oficial.</small>}</div><button type="button" disabled={syncState === 'loading'} className="text-link plain-button" aria-label={`Quitar ${item.name} de guardados`} onClick={()=>removeSaved(item.id)}>Quitar</button></li>)}</ul> : syncState !== 'loading' && <div className="dashboard-empty"><h3>Tu próxima opción empieza aquí</h3><p>Aún no tienes guardados. Explora y conserva las opciones que quieras revisar después.</p><Link className="btn btn-primary" to="/programas">Explorar programas</Link></div>}</section>
-    <aside className="dashboard-aside"><section className="dashboard-section interest-panel"><p className="eyebrow">Conoce tus prioridades</p><h2>Tus intereses</h2><label htmlFor="interest-progress">Intereses completados: {progress} %</label><progress id="interest-progress" max="100" value={progress} /><p>Selecciona áreas y motivaciones para organizar tu exploración. Todavía no se generan recomendaciones.</p><Link className="btn btn-primary" to="/perfil">Editar intereses</Link></section>{comparison.length > 0 && <section className="comparison-resume"><h2>Comparación</h2><p>{comparison.length} programas seleccionados.</p><Link className="text-link" to="/comparar">Continuar comparación →</Link></section>}</aside></div>
+    <aside className="dashboard-aside"><section className="dashboard-section interest-panel"><p className="eyebrow">Conoce tus prioridades</p><h2>Tu perfil académico</h2>{profileState==='ready' ? <><label htmlFor="interest-progress">Perfil completado: {progress} %</label><progress id="interest-progress" max="100" value={progress} /></> : <p role="status">{profileState==='error' ? 'No pudimos consultar tu perfil.' : 'Cargando perfil…'}</p>}<p>Completa intereses, motivaciones y preferencias académicas. Este porcentaje mide completitud, no compatibilidad.</p><Link className="btn btn-primary" to="/perfil">Editar perfil</Link></section>{comparison.length > 0 && <section className="comparison-resume"><h2>Comparación</h2><p>{comparison.length} programas seleccionados.</p><Link className="text-link" to="/comparar">Continuar comparación →</Link></section>}</aside></div>
+    <RecommendationsSection limit={3} />
   </div></main>;
 }

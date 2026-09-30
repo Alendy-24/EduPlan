@@ -9,8 +9,9 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     proxy: {
-      '/api/institutions': 'http://127.0.0.1:3001',
-      '/api/programs': 'http://127.0.0.1:3001',
+      '/api/institutions': process.env.EDUPLAN_CATALOG_URL || 'http://127.0.0.1:3001',
+      '/api/programs': process.env.EDUPLAN_CATALOG_URL || 'http://127.0.0.1:3001',
+      '/api/recommendations': process.env.EDUPLAN_CATALOG_URL || 'http://127.0.0.1:3001',
       '/api/program-links': 'http://127.0.0.1:8080',
       '/api/auth': 'http://127.0.0.1:8080',
       '/api/me': 'http://127.0.0.1:8080',

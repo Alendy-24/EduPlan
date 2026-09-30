@@ -3,14 +3,21 @@ import PageHeader from '../components/PageHeader';
 import { useExploration } from '../contexts/ExplorationContext';
 import { programHref } from '../utils/programs';
 import { useOfficialPrograms } from '../hooks/useOfficialPrograms';
+import ProgramPersonalMatch from '../components/ProgramPersonalMatch';
+import ProgramOfficialLink from '../components/ProgramOfficialLink';
+import { useProgramLinks } from '../hooks/useProgramLinks';
 const rows = [['Institución',p=>p.institution],['Programa',p=>p.name],['Título otorgado',p=>p.awardedTitle],['Nivel',p=>p.level],['Ciudad',p=>p.city],['Duración publicada',p=>p.duration],['Modalidad',p=>p.modality],['Estado publicado',p=>p.status],['Costo',()=>null],['Enfoque',()=>null]];
 const value = v => v || 'No disponible en este catálogo';
 export default function ComparePage() {
   const { comparison: storedComparison, toggleCompare, clearComparison, persistent } = useExploration();
   const comparison = useOfficialPrograms(storedComparison);
+  const sourceIds = comparison.filter(p=>p.provenance==='real').map(p=>p.sourceId);
+  const links = useProgramLinks(sourceIds);
   return <main className="page"><div className="container"><Link className="back-link" to="/programas">← Volver a programas</Link><PageHeader title="Comparar programas">Revisa hasta tres opciones. La comparación organiza información; la decisión es tuya.</PageHeader>
     <p className="notice">Selección guardada en este dispositivo. Los resúmenes pueden estar desactualizados: abre cada programa para consultar la fuente actual. {comparison.some(p=>p.provenance==='demo') && 'La selección incluye datos ficticios de demostración.'}</p>
     {!persistent && <p role="status">La selección permanecerá solo durante esta visita.</p>}
+    <ProgramPersonalMatch sourceIds={sourceIds} comparison />
+    {sourceIds.length>0 && <section><h2>Enlaces oficiales de programas</h2><div className="comparison-personal">{comparison.filter(p=>p.provenance==='real').map(p=><section key={p.sourceId}><h3>{p.name}</h3><ProgramOfficialLink state={{...links,...links.data.find(link=>link.sourceId===p.sourceId)}} onRetry={links.retry} /></section>)}</div></section>}
     <div className="results-line"><strong>{comparison.length} de 3 programas</strong><button className="btn btn-secondary" type="button" onClick={clearComparison} disabled={!comparison.length}>Limpiar comparación</button></div>
     {comparison.length ? <><div className="comparison-selection">{comparison.map(p=><div key={p.id}><strong>{p.name}</strong><button className="text-link plain-button" type="button" aria-label={`Quitar ${p.name} de comparación`} onClick={()=>toggleCompare(p)}>Quitar</button></div>)}</div>
     <div className="compare-wrap compare-desktop"><table className="compare-table"><caption className="sr-only">Comparación de programas seleccionados</caption><thead><tr><th scope="col">Criterio</th>{comparison.map(p=><th scope="col" key={p.id}>{p.name}</th>)}</tr></thead><tbody>{rows.map(([label,get])=><tr key={label}><th scope="row">{label}</th>{comparison.map(p=><td key={p.id}>{value(get(p))}</td>)}</tr>)}</tbody></table></div>

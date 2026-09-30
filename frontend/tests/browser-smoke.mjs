@@ -31,6 +31,7 @@ await page.route('**/api/auth/**',async route=>{
 const savedFixture=new Map(); let interestsFixture={areas:[],motivations:[],updatedAt:null};
 await page.route('**/api/me/**',async route=>{
  const request=route.request(),url=new URL(request.url()),id=decodeURIComponent(url.pathname.split('/')[4]||'');
+ if(url.pathname.endsWith('/preferences')) return route.fulfill({json:{academicLevel:'',modality:'',municipality:'',department:'',mobility:''}});
  if(url.pathname.endsWith('/interests')) {
   if(request.method()==='PUT') interestsFixture={...request.postDataJSON(),updatedAt:new Date().toISOString()};
   return route.fulfill({json:interestsFixture});

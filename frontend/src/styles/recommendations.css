@@ -1,0 +1,19 @@
+.academic-preferences fieldset { border:0; padding:0; margin:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1.25rem; }
+.academic-preferences label { display:grid; gap:.5rem; min-width:0; font-weight:600; }
+.academic-preferences input,.academic-preferences select { width:100%; min-width:0; padding:.8rem; border:1px solid var(--border,#d6dae1); border-radius:.6rem; font:inherit; background:white; color:inherit; }
+.academic-preferences p { grid-column:1/-1; }
+.recommendation-list { display:grid; gap:1.5rem; }
+.recommendation-result { border:1px solid var(--border,#d6dae1); border-radius:1rem; overflow:hidden; min-width:0; }
+.recommendation-result .list-item { border:0; border-radius:0; }
+.recommendation-result .recommendation-explanation { padding:.75rem 1rem; border-radius:.5rem; margin-top:1rem; }
+.recommendation-explanation { padding:1.25rem; background:var(--surface,#f5f7f9); overflow-wrap:anywhere; }
+.compatibility { line-height:1.5; }
+.compatibility strong { font-size:1.7rem; }
+.recommendation-explanation summary { cursor:pointer; font-weight:600; min-height:44px; display:list-item; }
+.recommendation-explanation ul { padding-left:1.3rem; }
+.personal-match { margin:1.5rem 0; }
+.recommendation-list h3 { overflow-wrap:anywhere; }
+.recommendation-dismiss { margin:.5rem 1.25rem 1rem; min-height:44px; }
+.comparison-personal { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; margin:1.5rem 0; }
+.comparison-personal > section { min-width:0; overflow-wrap:anywhere; }
+@media(max-width:767px) { .academic-preferences fieldset,.comparison-personal { grid-template-columns:minmax(0,1fr); } .recommendation-explanation { padding:1rem; } }

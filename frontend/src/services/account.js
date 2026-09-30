@@ -1,5 +1,6 @@
 import { validSavedItem } from '../utils/saved.js';
 import { validInterests } from '../utils/interests.js';
+import { validPreferences } from '../utils/preferences.js';
 
 async function request(path, token, { method = 'GET', body, signal } = {}) {
   let response;
@@ -39,4 +40,14 @@ export async function putInterests(value, token, signal) {
   const payload = await request('/interests', token, { method: 'PUT', body: { areas: value.areas, motivations: value.motivations }, signal });
   if (!validInterests(payload)) throw new Error('La respuesta de intereses no es válida.');
   return payload;
+}
+export async function getPreferences(token, signal) {
+  const value = await request('/preferences', token, { signal });
+  if (!validPreferences(value)) throw new Error('Respuesta de preferencias no válida.');
+  return value;
+}
+export async function putPreferences(value, token, signal) {
+  const result = await request('/preferences', token, { method: 'PUT', body: value, signal });
+  if (!validPreferences(result)) throw new Error('Respuesta de preferencias no válida.');
+  return result;
 }

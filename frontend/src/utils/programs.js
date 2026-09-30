@@ -1,4 +1,4 @@
-const textFields = ['code','sniesCode','nameMatchMethod','name','rawName','awardedTitle','institutionName','municipality','department','academicLevel','educationLevel','knowledgeArea','modality','periodCount','periodicity','status','institutionCode','nameOrigin','searchMatch','institutionWebsite','institutionMunicipality','institutionDepartment','institutionCampus','nameSource','nameSourceField','nameImportedAt'];
+const textFields = ['code','sniesCode','nameMatchMethod','name','rawName','awardedTitle','institutionName','municipality','department','academicLevel','educationLevel','knowledgeArea','broadKnowledgeArea','credits','modality','periodCount','periodicity','status','institutionCode','nameOrigin','searchMatch','institutionWebsite','institutionMunicipality','institutionDepartment','institutionCampus','nameSource','nameSourceField','nameImportedAt'];
 export function academicProgramName(program) {
   if (program.provenance === 'demo') return program.name;
   return program.nameOrigin !== 'SNIES_NAME' || program.reviewRequired ? 'Nombre del programa no disponible' : typeof program.name === 'string' && program.name.trim() || 'Nombre del programa no disponible';

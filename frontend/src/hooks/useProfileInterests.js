@@ -31,6 +31,7 @@ export function useProfileInterests() {
         const result = value ? await putInterests(value, token, request.signal) : remote;
         if (request.signal.aborted) return;
         select(result); cache(result); setUpdatedAt(result.updatedAt); setSyncState('synced');
+        if (value) window.dispatchEvent(new Event('eduplan-profile-updated'));
         pendingMemory.current = null;
         writeStorage(browserStorage(), migratedKey, true);
         try { browserStorage()?.removeItem(pendingKey); } catch { /* cache unavailable */ }
@@ -57,6 +58,7 @@ export function useProfileInterests() {
       const result = await putInterests(value, token, request.signal);
       if (request.signal.aborted) return;
       setUpdatedAt(result.updatedAt); setSyncState('synced'); setMessage('Intereses guardados en tu cuenta.');
+      window.dispatchEvent(new Event('eduplan-profile-updated'));
       pendingMemory.current = null;
       writeStorage(browserStorage(), migratedKey, true);
       try { browserStorage()?.removeItem(pendingKey); } catch { /* unavailable storage */ }
