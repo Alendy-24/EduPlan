@@ -38,6 +38,12 @@ public class Estudiante {
     @Column(name = "modalidad_preferida", length = 100)
     private String modalidadPreferida;
 
+    @Column(name = "nivel_buscado", length = 30)
+    private String nivelBuscado;
+
+    @Column(length = 30)
+    private String movilidad;
+
     @OneToOne
     @JoinColumn(name = "id_cuenta", referencedColumnName = "id_cuenta")
     private Cuenta cuenta;

@@ -67,6 +67,34 @@ class AccountExplorationIntegrationTest {
                 "snapshot", Map.of("sourceId", "upr9-nkiz:row-test", "code", "No especifica", "status", "Activo", "name", name));
     }
 
+    @Test void academicPreferencesPersistAndAreIsolatedByJwt() throws Exception {
+        Account a = register(), b = register();
+        var value = Map.of("academicLevel", "Pregrado", "modality", "Virtual", "municipality", "Bogotá", "department", "Bogotá D.C.", "mobility", "CITY");
+        assertEquals(401, request("GET", "/api/me/preferences", null, null).statusCode());
+        assertEquals(200, request("PUT", "/api/me/preferences", a.token(), value).statusCode());
+        var db = context.getBean(org.springframework.jdbc.core.JdbcTemplate.class);
+        db.update("UPDATE estudiante SET nombre='Nombre existente',apellido='Apellido existente',grado='11',presupuesto=2500000 WHERE id_cuenta=?", a.id());
+        assertEquals("Bogotá", data(request("GET", "/api/me/preferences", a.token(), null)).get("municipality").asText());
+        assertEquals("", data(request("GET", "/api/me/preferences", b.token(), null)).get("municipality").asText());
+        assertEquals(400, request("PUT", "/api/me/preferences", a.token(), Map.of("academicLevel", "Otro", "modality", "Virtual", "municipality", "", "department", "", "mobility", "CITY")).statusCode());
+        assertEquals(400, request("PUT", "/api/me/preferences", a.token(), Map.of("academicLevel", "Pregrado", "modality", "", "municipality", "", "department", "", "mobility", "DEPARTMENT")).statusCode());
+        assertEquals(200, request("PUT", "/api/me/preferences", a.token(), value).statusCode());
+        assertEquals("Virtual", data(request("GET", "/api/me/preferences", a.token(), null)).get("modality").asText());
+        var legacy = db.queryForMap("SELECT nombre,apellido,grado,presupuesto FROM estudiante WHERE id_cuenta=?", a.id());
+        assertEquals("Nombre existente", legacy.get("nombre")); assertEquals("Apellido existente", legacy.get("apellido")); assertEquals("11", legacy.get("grado"));
+        assertEquals(new java.math.BigDecimal("2500000.00"), legacy.get("presupuesto"));
+        var entity = context.getBean(CuentaRepository.class).findById(a.id()).orElseThrow();
+        var loginResponse = request("POST", "/api/auth/login", null, Map.of("identifier", entity.getCorreo(), "password", "Password123!"));
+        assertEquals(200, loginResponse.statusCode(), loginResponse.body());
+        var login = data(loginResponse);
+        assertEquals("Bogotá", data(request("GET", "/api/me/preferences", login.get("token").asText(), null)).get("municipality").asText());
+        assertEquals("", data(request("GET", "/api/me/preferences?userId=" + a.id(), b.token(), null)).get("municipality").asText());
+        assertEquals(400, request("PUT", "/api/me/preferences", a.token(), Map.of("academicLevel", "Pregrado", "modality", "Virtual", "municipality", "x".repeat(101), "department", "", "mobility", "ANY")).statusCode());
+        var longName = request("POST", "/api/auth/register", null, Map.of("name", "a".repeat(120), "email", "long-" + UUID.randomUUID() + "@example.test", "password", "Password123!"));
+        assertEquals(201, longName.statusCode());
+        assertEquals(200, request("PUT", "/api/me/preferences", data(longName).get("token").asText(), value).statusCode());
+    }
+
     @Test void requiresValidJwtAndExistingActiveAccount() throws Exception {
         assertEquals(401, request("GET", "/api/me/saved", null, null).statusCode());
         assertEquals(401, request("GET", "/api/me/interests", "invalid-token", null).statusCode());

@@ -11,8 +11,15 @@ import java.util.List;
 @RequestMapping("/api/me")
 public class AccountExplorationController {
     private final AccountExplorationService service;
+    private final AcademicPreferencesService preferences;
 
-    public AccountExplorationController(AccountExplorationService service) { this.service = service; }
+    public AccountExplorationController(AccountExplorationService service, AcademicPreferencesService preferences) { this.service = service; this.preferences = preferences; }
+
+    @GetMapping("/preferences")
+    public AcademicPreferences preferences(@AuthenticationPrincipal CuentaPrincipal principal) { return preferences.get(principal); }
+
+    @PutMapping("/preferences")
+    public AcademicPreferences preferences(@AuthenticationPrincipal CuentaPrincipal principal, @Valid @RequestBody AcademicPreferences request) { return preferences.put(principal, request); }
 
     public record SavedList(List<SavedOptionResponse> data) {}
 

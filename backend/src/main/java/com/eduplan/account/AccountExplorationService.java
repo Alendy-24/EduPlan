@@ -96,7 +96,7 @@ public class AccountExplorationService {
         return interestsResponse(interests.save(item));
     }
 
-    private Cuenta requireAccount(CuentaPrincipal principal, boolean lock) {
+    Cuenta requireAccount(CuentaPrincipal principal, boolean lock) {
         if (principal == null || principal.userId() == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Inicia sesión para continuar");
         }
