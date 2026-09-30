@@ -1,9 +1,8 @@
 export default function DemoNotice() {
     return (
         <p className="notice" role="note">
-            <strong>Vista de ejemplo.</strong> Este contenido ayuda a explorar
-            el diseño; confirma programas, requisitos, costos y convocatorias
-            directamente con cada institución.
+            Datos ficticios de demostración. No representan convocatorias,
+            condiciones ni ofertas académicas verificadas.
         </p>
     );
 }

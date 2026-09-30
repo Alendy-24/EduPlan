@@ -1,31 +1,14 @@
 import { Link } from "react-router-dom";
-import chatIcon from "../assets/Images/chat.svg";
 export default function Footer() {
     return (
         <footer className="site-footer">
             <div className="container footer-inner">
-            <div className="footer-content">
-
-                <p>
-                    ¿Eres una organización o institución y quieres ser parte de nuestra misión?
-                </p>
-
-                <button className="contact-button">
-                    Contáctanos!
-                </button>
-
-            </div>
-
-            <div className="chat-button">
-                <img src={chatIcon} alt="Ayuda" />
-                <span>¿Necesitas ayuda?</span>
-            </div>
                 <span>
                     <strong>EduPlan</strong> · Información para elegir tu camino
                     académico.
                 </span>
                 <span>
-                    <Link to="/dashboard">Panel de ejemplo</Link> ·{" "}
+                    <Link to="/dashboard">Mi espacio</Link> ·{" "}
                     <Link to="/perfil">Mi perfil</Link> ·{" "}
                     <Link to="/guias">Guías</Link>
                 </span>
