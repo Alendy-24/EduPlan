@@ -17,12 +17,24 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-          cache-dependency-path: data-integration/package-lock.json
-      - run: npm ci
+          cache-dependency-path: |
+            data-integration/package-lock.json
+            frontend/package-lock.json
+      - run: npm ci --workspaces=false
+        working-directory: data-integration
+      - run: npm run typecheck
         working-directory: data-integration
       - run: npm test
         working-directory: data-integration
-      - run: bash mvnw -B -ntp test
+      - run: npm ci --workspaces=false
+        working-directory: frontend
+      - run: npm test
+        working-directory: frontend
+      - run: npm run lint
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
+      - run: bash mvnw -B -ntp verify
         working-directory: backend/src
         env:
           JWT_SECRET: Y2ktdGVzdC1qd3Qtc2VjcmV0LXNob3VsZC1iZS1sb25nLWVub3VnaC0zMi1ieXRlcw==
