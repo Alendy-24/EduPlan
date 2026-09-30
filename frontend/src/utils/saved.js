@@ -13,7 +13,10 @@ export function mergeRemoteSaved(remote, pending) {
   }
   return [...map.values()];
 }
-export const snapshotLabels = { name: 'Nombre', institution: 'Institución', city: 'Ciudad', level: 'Nivel', duration: 'Duración', modality: 'Modalidad', status: 'Estado', sector: 'Sector', academicCharacter: 'Carácter académico', website: 'Sitio web', provider: 'Entidad', type: 'Tipo de apoyo', deadline: 'Fecha de cierre', officialUrl: 'Fuente oficial' };
+export function savedItemName(item) {
+  return item.type === 'program' && item.snapshot?.provenance === 'real' && item.snapshot.nameOrigin !== 'SNIES_NAME' ? 'Nombre del programa no disponible' : item.name;
+}
+export const snapshotLabels = { name: 'Nombre', awardedTitle: 'Título otorgado', institution: 'Institución', city: 'Ciudad', level: 'Nivel', duration: 'Duración', modality: 'Modalidad', status: 'Estado', sector: 'Sector', academicCharacter: 'Carácter académico', website: 'Sitio web', provider: 'Entidad', type: 'Tipo de apoyo', deadline: 'Fecha de cierre', officialUrl: 'Fuente oficial' };
 export function snapshotChanges(previous, current) {
   return Object.entries(snapshotLabels).filter(([key]) => typeof previous?.[key] === 'string' && previous[key] !== (current[key] || '')).map(([key,label]) => ({ key, label, before: previous[key], after: current[key] || 'No disponible' }));
 }

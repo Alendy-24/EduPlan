@@ -114,7 +114,7 @@ export default function InstitutionDetailPage() {
                         <div className="metadata">
                             <span>{sector || "Sector no disponible"}</span>
                             <span>{character || "Tipo no disponible"}</span>
-                            <span>{city || "Ciudad no disponible"}</span>
+                            <span>{city || "Ciudad no disponible"}</span>{institution.campus && <span>{institution.campus}</span>}
                         </div>
                     </div>
                     <div className="detail-actions">
@@ -135,7 +135,7 @@ export default function InstitutionDetailPage() {
                                 className="btn btn-primary"
                                 href={website}
                                 target="_blank"
-                                rel="noreferrer"
+                                rel="noopener noreferrer"
                             >
                                 Sitio web ↗
                             </a>
@@ -271,7 +271,7 @@ export default function InstitutionDetailPage() {
                                     className="btn btn-secondary"
                                     href={website}
                                     target="_blank"
-                                    rel="noreferrer"
+                                    rel="noopener noreferrer"
                                 >
                                     Visitar sitio web ↗
                                 </a>

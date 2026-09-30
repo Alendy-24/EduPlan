@@ -144,6 +144,20 @@ class SynchronizationPostgresTest {
     }
 
     @Test
+    void officialSniesNameIsPersistedSeparatelyFromAwardedTitle() {
+        persistence.saveInstitutions(List.of(institution("2209", "Universidad")));
+        var value = new ProgramPayload("upr9-nkiz:row-snies", "Antioquia", "INGENIERO DE SISTEMAS", "Ingeniería",
+                "SNIES_NAME", false, "5", "2209", "Universidad", "INGENIERIA DE SISTEMAS", "Pregrado",
+                "Universitaria", "Presencial", "10", "Semestral", "Antioquia", "Abejorral", "Activo");
+        assertEquals(1, persistence.savePrograms(List.of(value)).created());
+        var stored = programs.findAll().getFirst();
+        assertEquals("INGENIERIA DE SISTEMAS", stored.getNombre());
+        assertEquals("INGENIERO DE SISTEMAS", stored.getTituloOtorgado());
+        assertEquals("SNIES_NAME", stored.getOrigenNombre());
+        assertFalse(stored.isRequiereRevision());
+    }
+
+    @Test
     void sameSourceRowUpdatesEvenWhenMunicipalityChangesAndKeepsManualFields() {
         persistence.saveInstitutions(List.of(institution("2209", "Universidad")));
         persistence.savePrograms(List.of(program("one", "Titulo original", "Abejorral")));

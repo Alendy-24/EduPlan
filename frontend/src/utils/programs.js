@@ -1,10 +1,14 @@
-const textFields = ['code','name','rawName','awardedTitle','institutionName','municipality','department','academicLevel','educationLevel','knowledgeArea','modality','periodCount','periodicity','status','institutionCode','nameOrigin','searchMatch'];
+const textFields = ['code','sniesCode','nameMatchMethod','name','rawName','awardedTitle','institutionName','municipality','department','academicLevel','educationLevel','knowledgeArea','modality','periodCount','periodicity','status','institutionCode','nameOrigin','searchMatch','institutionWebsite','institutionMunicipality','institutionDepartment','institutionCampus','nameSource','nameSourceField','nameImportedAt'];
+export function academicProgramName(program) {
+  if (program.provenance === 'demo') return program.name;
+  return program.nameOrigin !== 'SNIES_NAME' || program.reviewRequired ? 'Nombre del programa no disponible' : typeof program.name === 'string' && program.name.trim() || 'Nombre del programa no disponible';
+}
 export function normalizeProgram(row) {
   if (!row || typeof row.sourceId !== 'string' || !row.sourceId.startsWith('upr9-nkiz:') || !row.sourceId.slice(10).trim()) throw new Error('Registro sin identidad de fuente');
   const text = Object.fromEntries(textFields.map(key => [key, typeof row[key] === 'string' ? row[key] : '']));
   if (![text.name,text.rawName,text.awardedTitle,text.institutionName,text.knowledgeArea].some(value => value.trim())) throw new Error('Registro sin información utilizable');
   const incomplete = ['code','name','institutionName','municipality','academicLevel','modality'].some(key => !text[key].trim()) || textFields.some(key => row[key] === null || row[key] !== undefined && typeof row[key] !== 'string');
-  return { ...text, sourceId: row.sourceId, id: row.sourceId, name: text.name || text.awardedTitle || (!row.reviewRequired && text.rawName) || 'Nombre no disponible', institution: text.institutionName || 'Institución no disponible', city: text.municipality || 'No disponible', level: text.academicLevel || 'No disponible', area: text.knowledgeArea, duration: [text.periodCount, text.periodicity].filter(Boolean).join(' ') || 'No disponible', reviewRequired: row.reviewRequired === true, recordQuality: incomplete ? 'incomplete' : 'usable', provenance: 'real' };
+  return { ...text, sourceId: row.sourceId, id: row.sourceId, name: academicProgramName(row), institution: text.institutionName || 'Institución no disponible', city: text.municipality || text.institutionMunicipality || 'No disponible', level: text.academicLevel || 'No disponible', area: text.knowledgeArea, duration: [text.periodCount, text.periodicity].filter(Boolean).join(' ') || '', reviewRequired: row.reviewRequired === true, institutionEnrichmentUnavailable: row.institutionEnrichmentUnavailable === true, recordQuality: incomplete ? 'incomplete' : 'usable', provenance: 'real' };
 }
 export function normalizeProgramPage(payload) {
   if (!payload || !Array.isArray(payload.data)) throw new Error('Respuesta de programas no válida');
@@ -25,7 +29,7 @@ export function programSearchMatches(program, query) {
   const term = comparable(query.trim());
   const variants = /\bingenieria\b/.test(term)
     ? [term, ...['ingeniero','ingeniera','ingeniero(a)'].map(word => term.replace(/\bingenieria\b/g, word))] : [term];
-  return [...(program.nameOrigin === 'OFFICIAL_PAGE' ? [['name','Nombre del programa']] : []),['rawName',program.reviewRequired ? 'Nombre publicado (sin verificar)' : 'Nombre publicado'],['awardedTitle','Título otorgado'],['area','Área publicada']]
+  return [...(['SNIES_NAME','OFFICIAL_PAGE'].includes(program.nameOrigin) ? [['name','Nombre del programa']] : []),['rawName',program.reviewRequired ? 'Nombre publicado (sin verificar)' : 'Nombre publicado'],['awardedTitle','Título otorgado'],['area','Área publicada']]
     .filter(([key]) => typeof program[key] === 'string' && (key === 'area' ? [term] : variants).some(value => comparable(program[key]).includes(value)))
     .map(([key,label]) => ({ key, label, value: program[key] }));
 }
@@ -33,7 +37,7 @@ export function programHref(program) {
   return program.provenance === 'demo' ? `/programas/${encodeURIComponent(program.id)}` : program.code?.trim() ? `/programas/${encodeURIComponent(program.code)}?registro=${encodeURIComponent(program.sourceId)}` : null;
 }
 export function programItem(program) {
-  return { id: `program-${program.id}`, type: 'program', name: program.name, href: programHref(program) || '/programas', snapshot: Object.fromEntries(['sourceId','code','institutionCode','name','institution','city','level','duration','modality','status','provenance'].filter(key => typeof program[key] === 'string').map(key => [key,program[key]])) };
+  return { id: `program-${program.id}`, type: 'program', name: program.name, href: programHref(program) || '/programas', snapshot: Object.fromEntries(['sourceId','code','institutionCode','name','nameOrigin','awardedTitle','institution','city','level','duration','modality','status','provenance'].filter(key => typeof program[key] === 'string').map(key => [key,program[key]])) };
 }
 export function mergePrograms(current, incoming) {
   const map = new Map(current.map(p => [p.id, p])); incoming.forEach(p => map.set(p.id, p)); return [...map.values()];

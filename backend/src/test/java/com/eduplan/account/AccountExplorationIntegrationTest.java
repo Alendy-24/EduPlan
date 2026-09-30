@@ -130,6 +130,10 @@ class AccountExplorationIntegrationTest {
                 "href", "/becas", "snapshot", Map.of("provider", "Entidad", "officialUrl", "https://example.com", "deadline", "2026-10-01"))).statusCode());
         assertEquals(200, request("PUT", "/api/me/saved/institution-1", account.token(), Map.of("type", "institution", "name", "Universidad",
                 "href", "/instituciones/1", "snapshot", Map.of("sector", "Oficial", "academicCharacter", "Universidad", "website", "https://example.com"))).statusCode());
+        var program = data(request("PUT", "/api/me/saved/program-snies", account.token(), Map.of("type", "program", "name", "Ingeniería de Sistemas",
+                "href", "/programas/1", "snapshot", Map.of("nameOrigin", "SNIES_NAME", "awardedTitle", "Ingeniero de Sistemas"))));
+        assertEquals("SNIES_NAME", program.get("snapshot").get("nameOrigin").asText());
+        assertEquals("Ingeniero de Sistemas", program.get("snapshot").get("awardedTitle").asText());
     }
 
     @Test void persistsValidatedInterestsWithoutCrossAccountAccess() throws Exception {

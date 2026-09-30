@@ -21,7 +21,7 @@ public class AccountExplorationService {
     private static final Set<String> TYPES = Set.of("program", "institution", "opportunity");
     private static final Set<String> SNAPSHOT_FIELDS = Set.of(
             "sourceId", "code", "name", "institution", "city", "level", "duration", "modality",
-            "status", "provenance", "institutionCode", "provider", "type", "deadline", "verifiedAt",
+            "status", "provenance", "institutionCode", "nameOrigin", "awardedTitle", "provider", "type", "deadline", "verifiedAt",
             "officialUrl", "academicCharacter", "sector", "website");
     private static final Set<String> AREAS = Set.of("Tecnología", "Salud", "Ciencias", "Artes", "Negocios", "Ciencias sociales", "Educación");
     private static final Set<String> MOTIVATIONS = Set.of("Resolver problemas", "Ayudar a otros", "Crear cosas nuevas", "Liderar equipos", "Investigar", "Trabajar con personas");

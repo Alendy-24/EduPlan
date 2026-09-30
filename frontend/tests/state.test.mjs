@@ -42,5 +42,5 @@ test('corrupt comparison summaries cannot become rendered objects',()=>{
  assert.equal(validStoredProgram({...program,institution:{unexpected:true}}),false);
  assert.equal(validStoredProgram({...program,sourceId:undefined}),false);
  assert.equal(normalizeProgram({...row,name:{unexpected:true}}).recordQuality,'incomplete');
- assert.equal(normalizeProgram({...row,name:{unexpected:true}}).name,'Nombre no disponible');
+ assert.equal(normalizeProgram({...row,name:{unexpected:true}}).name,'Nombre del programa no disponible');
 });

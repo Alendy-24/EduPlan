@@ -23,7 +23,7 @@ test('D: civil remains explainable through raw name or published knowledge area'
 test('search preserves API relevance and explains engineering title variants without inventing a name', () => {
   const program = normalizeProgram({ ...row(0), name: 'INGENIERO(A) DE SISTEMAS', rawName: 'Bogotá', awardedTitle: 'INGENIERO(A) DE SISTEMAS', nameOrigin: 'AWARDED_TITLE', reviewRequired: true, searchMatch: 'SIMILAR_NAME_OR_TITLE' });
   assert.equal(program.searchMatch, 'SIMILAR_NAME_OR_TITLE');
-  assert.equal(program.name, 'INGENIERO(A) DE SISTEMAS');
+  assert.equal(program.name, 'Nombre del programa no disponible');
   assert.deepEqual(programSearchMatches(program, 'Ingeniería de Sistemas'), [{ key: 'awardedTitle', label: 'Título otorgado', value: program.awardedTitle }]);
   assert.equal(normalizeProgram({ ...row(1), searchMatch: 'KNOWLEDGE_AREA' }).searchMatch, 'KNOWLEDGE_AREA');
 });

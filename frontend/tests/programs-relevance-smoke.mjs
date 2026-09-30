@@ -17,7 +17,7 @@ try {
   assert.equal(names.length, 12);
   assert.equal(names[0], 'INGENIERIA DE SISTEMAS');
   assert.equal(names[1], 'INGENIERIA DE SISTEMAS');
-  assert(names[2].includes('INGENIERO'));
+  assert(names.every(name => !name.startsWith('INGENIERO')));
   assert(names.every(name => !name.includes('DOCTOR EN')));
   assert.equal(await page.getByLabel('Ordenar por', { exact: true }).inputValue(), 'source');
   assert.equal(await page.locator('option[value="source"]').textContent(), 'Relevancia de búsqueda');
@@ -56,7 +56,8 @@ try {
     knowledgeArea: 'Ingeniería de sistemas telemática y afines', searchMatch: 'KNOWLEDGE_AREA',
   }] } }));
   await page.reload();
-  await page.getByText('Coincidencia solo por área de conocimiento.', { exact: true }).waitFor();
+  await page.getByText('Coincidencia por área de conocimiento.', { exact: true }).waitFor();
+  await page.getByRole('heading',{name:'Nombre del programa no disponible',exact:true}).waitFor();
   assert.deepEqual(errors, []);
   console.log(`PASS: exact names first; ${total} real rows ordered across pages, ${areaOnly} area-only rows last; load more, explanation, desktop/mobile`);
 } finally { await browser.close(); }

@@ -173,7 +173,7 @@ public class DataPagePersistenceService {
 
     private void mapProgram(ProgramPayload source, Institucion institution, ProgramaAcademico target) {
         if (source.nameOrigin() == null
-                || !List.of("SOURCE_NAME", "AWARDED_TITLE", "UNAVAILABLE").contains(source.nameOrigin())) {
+                || !List.of("SOURCE_NAME", "AWARDED_TITLE", "SNIES_NAME", "UNAVAILABLE").contains(source.nameOrigin())) {
             throw new DataIntegrationException("Origen del nombre del programa inválido");
         }
         checkLength(source.code(), 30);

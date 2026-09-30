@@ -4,7 +4,7 @@ import BookmarkButton from './BookmarkButton';
 
 import { websiteUrl } from "../utils/website";
 export default function InstitutionCard({ institution }) {
-    const location = [institution.municipality, institution.department]
+    const location = [institution.municipality, institution.department !== institution.municipality ? institution.department : '', institution.campus]
         .filter(Boolean)
         .join(" · ");
     const website = websiteUrl(institution.website);
@@ -51,7 +51,7 @@ export default function InstitutionCard({ institution }) {
                         className="btn btn-secondary"
                         href={website}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                     >
                         Sitio web ↗
                     </a>

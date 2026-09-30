@@ -9,6 +9,7 @@ export interface Institution {
   phone: string;
   status: string;
   website: string;
+  campus: string;
   modalities?: string[];
 }
 
