@@ -13,6 +13,7 @@ import ComparePage from "../pages/ComparePage";
 import ScholarshipsPage from "../pages/ScholarshipsPage";
 import ProfilePage from "../pages/ProfilePage";
 import GuidesPage from "../pages/GuidesPage";
+import RequireAuth from "../components/RequireAuth";
 function Layout() {
     return (
         <>
@@ -40,7 +41,10 @@ export default function AppRoutes() {
                 <Route index element={<Landing />} />
                 <Route path="login" element={<AuthPage />} />
                 <Route path="register" element={<Register />} />
-                <Route path="dashboard" element={<DashboardPage />} />
+                <Route element={<RequireAuth />}>
+                    <Route path="dashboard" element={<DashboardPage />} />
+                    <Route path="perfil" element={<ProfilePage />} />
+                </Route>
                 <Route path="instituciones" element={<InstitutionsPage />} />
                 <Route
                     path="instituciones/:institutionId"
@@ -57,7 +61,6 @@ export default function AppRoutes() {
                 />
                 <Route path="comparar" element={<ComparePage />} />
                 <Route path="becas" element={<ScholarshipsPage />} />
-                <Route path="perfil" element={<ProfilePage />} />
                 <Route path="guias" element={<GuidesPage />} />
                 <Route path="*" element={<NotFound />} />
             </Route>

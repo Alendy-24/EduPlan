@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import logoEduplan from "../assets/Images/EduPlanLogo.svg";
 
 const links = [
@@ -7,12 +8,11 @@ const links = [
     ["Programas", "/programas"],
     ["Becas", "/becas"],
     ["Guías", "/guias"],
-    ["Ayuda", "/ayuda"],
 ];
 
 function Navbar() {
     const [open, setOpen] = useState(false);
-    const navigate = useNavigate();
+    const { user, logout } = useAuth();
     const location = useLocation();
 
     function closeMenu() {
@@ -45,13 +45,7 @@ function Navbar() {
                 </nav>
 
                 <div className="header-actions">
-                    <button
-                        className="btn btn-primary"
-                        type="button"
-                        onClick={() => navigate("/login")}
-                    >
-                        Iniciar Sesión
-                    </button>
+                    {user ? <><Link className="account-link" to="/dashboard" onClick={closeMenu}>Mi espacio</Link><Link className="account-link" to="/perfil" onClick={closeMenu}>Perfil</Link><button className="text-link plain-button" type="button" onClick={() => { closeMenu(); logout(); }}>Salir</button></> : <Link className="btn btn-primary" to="/login" onClick={closeMenu}>Iniciar sesión</Link>}
                 </div>
 
                 <button
