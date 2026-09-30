@@ -14,6 +14,8 @@ import ScholarshipsPage from "../pages/ScholarshipsPage";
 import ProfilePage from "../pages/ProfilePage";
 import GuidesPage from "../pages/GuidesPage";
 import RequireAuth from "../components/RequireAuth";
+import NoticiasPage from "../pages/NoticiasPage";
+
 function Layout() {
     return (
         <>
@@ -23,6 +25,7 @@ function Layout() {
         </>
     );
 }
+
 function NotFound() {
     return (
         <main className="page container">
@@ -34,6 +37,7 @@ function NotFound() {
         </main>
     );
 }
+
 export default function AppRoutes() {
     return (
         <Routes>
@@ -41,27 +45,57 @@ export default function AppRoutes() {
                 <Route index element={<Landing />} />
                 <Route path="login" element={<AuthPage />} />
                 <Route path="register" element={<Register />} />
+
                 <Route element={<RequireAuth />}>
                     <Route path="dashboard" element={<DashboardPage />} />
                     <Route path="perfil" element={<ProfilePage />} />
                 </Route>
-                <Route path="instituciones" element={<InstitutionsPage />} />
+
+                <Route
+                    path="instituciones"
+                    element={<InstitutionsPage />}
+                />
+
                 <Route
                     path="instituciones/:institutionId"
                     element={<InstitutionDetailPage />}
                 />
+
                 <Route
                     path="instituciones/:institutionId/programas"
                     element={<ProgramsPage institutionOnly />}
                 />
-                <Route path="programas" element={<ProgramsPage />} />
+
+                <Route
+                    path="programas"
+                    element={<ProgramsPage />}
+                />
+
                 <Route
                     path="programas/:programId"
                     element={<ProgramDetailPage />}
                 />
-                <Route path="comparar" element={<ComparePage />} />
-                <Route path="becas" element={<ScholarshipsPage />} />
-                <Route path="guias" element={<GuidesPage />} />
+
+                <Route
+                    path="comparar"
+                    element={<ComparePage />}
+                />
+
+                <Route
+                    path="becas"
+                    element={<ScholarshipsPage />}
+                />
+
+                <Route
+                    path="guias"
+                    element={<GuidesPage />}
+                />
+
+                <Route
+                    path="noticias"
+                    element={<NoticiasPage />}
+                />
+
                 <Route path="*" element={<NotFound />} />
             </Route>
         </Routes>
