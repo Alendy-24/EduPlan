@@ -18,7 +18,10 @@ async function request(path, token, { method = 'GET', body, signal } = {}) {
     window.dispatchEvent(new Event('eduplan-auth-rejected'));
     throw new Error('Tu sesión venció. Inicia sesión de nuevo.');
   }
-  if (!response.ok) throw new Error(response.status === 403 ? 'Tu cuenta no tiene acceso. Inicia sesión de nuevo.' : 'No pudimos sincronizar tu cuenta. Inténtalo de nuevo.');
+  if (!response.ok) throw new Error(response.status === 403 ? 'Tu cuenta no tiene acceso. Inicia sesión de nuevo.'
+    : path === '/account' && response.status === 409 ? 'Ese teléfono ya pertenece a otra cuenta.'
+    : path === '/account' && response.status === 400 ? 'Revisa el nombre y el teléfono antes de guardar.'
+    : 'No pudimos sincronizar tu cuenta. Inténtalo de nuevo.');
   if (response.status === 204) return null;
   return response.json().catch(() => { throw new Error('La respuesta de tu cuenta no es válida. Inténtalo de nuevo.'); });
 }
@@ -49,5 +52,19 @@ export async function getPreferences(token, signal) {
 export async function putPreferences(value, token, signal) {
   const result = await request('/preferences', token, { method: 'PUT', body: value, signal });
   if (!validPreferences(result)) throw new Error('Respuesta de preferencias no válida.');
+  return result;
+}
+function validAccount(value) {
+  return value && Number.isInteger(value.userId) && typeof value.name === 'string'
+    && typeof value.email === 'string' && (value.phone === null || typeof value.phone === 'string');
+}
+export async function getAccount(token, signal) {
+  const value = await request('/account', token, { signal });
+  if (!validAccount(value)) throw new Error('La respuesta de tu cuenta no es válida.');
+  return value;
+}
+export async function putAccount(value, token, signal) {
+  const result = await request('/account', token, { method: 'PUT', body: value, signal });
+  if (!validAccount(result)) throw new Error('La respuesta de tu cuenta no es válida.');
   return result;
 }

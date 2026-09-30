@@ -27,7 +27,14 @@ await context.route('**/api/institutions**', route => {
   return route.fulfill({json:code ? institutions.find(i => i.code === code) : {data:institutions,hasMore:false}});
 });
 const saved = { id:'program-upr9-nkiz:campus-0', type:'program', name:'INGENIERIA DE SISTEMAS', href:'/programas/2000?registro=upr9-nkiz%3Acampus-0', savedAt:'2026-09-30T10:00:00Z', snapshot:{nameOrigin:'SNIES_NAME',institution:'Pontificia Universidad Javeriana',city:'Bogotá D.C.',provenance:'real'} };
-await context.route('**/api/me/**', route => route.fulfill({json:route.request().url().includes('/interests') ? {areas:['Tecnología'],motivations:[],updatedAt:null} : {data:[saved]}}));
+await context.route('**/api/me/**', route => {
+  const url = route.request().url();
+  const json = url.includes('/interests') ? {areas:['Tecnología'],motivations:[],updatedAt:null}
+    : url.includes('/preferences') ? {academicLevel:'',modality:'',municipality:'',department:'',mobility:''}
+    : url.includes('/account') ? {userId:1,name:'Yua',email:'yua@example.test',phone:null}
+    : {data:[saved]};
+  return route.fulfill({json});
+});
 await context.addInitScript(() => {
   if (!sessionStorage.getItem('eduplan-session-v1')) sessionStorage.setItem('eduplan-session-v1', JSON.stringify({ token:'fixture-token', user:{id:1,name:'Yua',email:'yua@example.test'}, expiresAt:Date.now()+3600000 }));
 });
@@ -54,13 +61,13 @@ try {
     assert.match(await page.locator('.program-hero').innerText(),new RegExp(institution.municipality));
     assert.match(await page.locator('.program-hero').innerText(),/Título otorgado: INGENIERO DE SISTEMAS/);
   }
-  assert(!network.some(url=>url.includes('program-links')));
+  assert(network.some(url=>url.includes('/api/program-links/batch?')));
   await page.goto(base + '/dashboard'); await page.getByRole('heading',{name:'Hola, Yua'}).waitFor();
-  await page.getByText('Intereses completados: 50 %',{exact:true}).waitFor();
+  await page.getByText('17% de perfil académico',{exact:true}).waitFor();
   assert.equal(await page.locator('.user-avatar').innerText(),'Y'); assert.equal(await page.locator('.saved-list > li').count(),1);
   assert.equal(await page.getByRole('link',{name:'Continuar comparación →'}).count(),0);
   await page.goto(base + '/perfil');
-  await page.getByRole('heading',{level:1,name:'Yua',exact:true}).waitFor();
+  await page.getByRole('heading',{level:2,name:'Yua',exact:true}).waitFor();
   const image = await page.evaluate(() => { const canvas=document.createElement('canvas');canvas.width=1600;canvas.height=1200;const c=canvas.getContext('2d');c.fillStyle='#102653';c.fillRect(0,0,1600,1200); return canvas.toDataURL('image/png').split(',')[1]; });
   const file = {name:'photo.png',mimeType:'image/png',buffer:Buffer.from(image,'base64')};
   await page.getByLabel('Subir foto de perfil').setInputFiles(file);
@@ -78,12 +85,12 @@ try {
   assert.equal(await page.locator('.user-avatar').innerText(),'Y');
   await page.getByLabel('Subir foto de perfil').setInputFiles(file); await page.getByRole('img',{name:'Foto de Yua'}).waitFor();
   await page.evaluate(()=>{const session=JSON.parse(sessionStorage.getItem('eduplan-session-v1'));session.user={id:2,name:'Sebastián',email:'sebastian@example.test'};sessionStorage.setItem('eduplan-session-v1',JSON.stringify(session));});
-  await page.reload();await page.getByRole('heading',{level:1,name:'Sebastián'}).waitFor(); assert.equal(await page.locator('.user-avatar').innerText(),'S');assert.equal(await page.locator('.user-avatar img').count(),0);
+  await page.reload();await page.getByRole('heading',{level:2,name:'Sebastián'}).waitFor(); assert.equal(await page.locator('.user-avatar').innerText(),'S');assert.equal(await page.locator('.user-avatar img').count(),0);
   await page.evaluate(()=>{const session=JSON.parse(sessionStorage.getItem('eduplan-session-v1'));session.user={id:1,name:'Yua',email:'yua@example.test'};sessionStorage.setItem('eduplan-session-v1',JSON.stringify(session));});
   await page.reload(); await page.getByRole('img',{name:'Foto de Yua'}).waitFor();
-  await page.getByRole('tab',{name:'Resultados',exact:true}).click();await page.getByRole('heading',{name:'Todavía no generamos recomendaciones personalizadas.'}).waitFor();
-  await page.getByRole('tab',{name:'Configuración',exact:true}).click();assert(await page.getByRole('button',{name:'Cerrar sesión',exact:true}).count());
-  await page.getByRole('tab',{name:'Perfil',exact:true}).focus();await page.keyboard.press('ArrowRight');assert.equal(await page.getByRole('tab',{name:'Mis intereses',exact:true}).getAttribute('aria-selected'),'true');
+  await page.getByRole('tab',{name:'Resultados',exact:true}).click();await page.getByRole('heading',{name:'Primero, construyamos tu perfil'}).waitFor();
+  await page.getByRole('tab',{name:'Cuenta',exact:true}).click();await page.getByRole('button',{name:'Cerrar sesión',exact:true}).waitFor();
+  await page.getByRole('tab',{name:'Perfil',exact:true}).focus();await page.keyboard.press('ArrowRight');await page.waitForFunction(()=>document.querySelector('[role="tab"][aria-selected="true"]')?.textContent==='Preferencias académicas');
   let checks=0;
   for (const width of [1440,1024,768,390]) {
     await page.setViewportSize({width,height:900});

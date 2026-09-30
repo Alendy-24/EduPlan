@@ -1,6 +1,10 @@
 import { Link } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import RecommendationsSection from '../components/RecommendationsSection';
+import { useAcademicProfile } from '../contexts/AcademicProfileContext';
+import { sufficientPreferences } from '../utils/preferences';
 export default function RecommendationsPage() {
-  return <main className="page"><div className="container"><PageHeader title="Tus recomendaciones">Explora programas reales según tus intereses, nivel, modalidad y ubicación.</PageHeader><p><Link to="/perfil" className="text-link">Editar mis preferencias →</Link></p><RecommendationsSection /></div></main>;
+  const profile = useAcademicProfile();
+  const ready = profile.state === 'ready' && sufficientPreferences(profile.preferences, profile.interests);
+  return <main className="page recommendations-page"><div className="container"><PageHeader title={ready ? 'Tus recomendaciones' : 'Construye tus recomendaciones'}>{ready ? 'Explora programas verificados según tus intereses, nivel, modalidad y ubicación.' : 'Completa lo esencial de tu perfil para descubrir opciones afines a ti.'}</PageHeader><p><Link to="/perfil?seccion=preferencias" className="text-link">{ready ? 'Ajustar mis preferencias' : 'Completar mi perfil'} →</Link></p><RecommendationsSection /></div></main>;
 }

@@ -10,6 +10,28 @@ No reemplaza ni modifica la instalacion nativa de PostgreSQL de Windows.
 
 Se usan puertos distintos para que ambos puedan estar encendidos al mismo tiempo.
 
+## Inicio en una sola terminal (WSL)
+
+Con Docker Engine activo y el JDK 21 instalado en WSL, desde la raiz de `EduPlan`:
+
+```bash
+npm ci
+npm run dev
+```
+
+`npm ci` solo es necesario al instalar o reparar dependencias. Ejecutalo en el
+mismo entorno (WSL) donde usaras `npm run dev`: los `node_modules` de Windows
+no sirven para los binarios nativos de Linux. `npm run dev` inicia el frontend,
+la integracion de datos, PostgreSQL en Docker y el backend. La primera ejecucion
+puede tardar mientras Docker descarga PostgreSQL y Maven compila Java. Vite
+espera al backend para evitar errores de registro durante el arranque. Abre
+`http://127.0.0.1:5173/` cuando Vite indique que esta listo.
+
+Deten los procesos de desarrollo con `Ctrl+C`. El contenedor de PostgreSQL y
+sus datos permanecen disponibles; no es necesario levantarlo en otra terminal.
+La contrasena local se guarda en `.tools/local-dev/wsl-database.json` (ignorado
+por Git), separada de la base usada por el script de Windows.
+
 ## Primera ejecucion
 
 1. Tener Docker Engine activo en WSL. En este equipo ya quedo instalado como

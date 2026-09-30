@@ -19,8 +19,8 @@ try{
  await page.locator('.list-item').first().waitFor();
  let put=page.waitForResponse(r=>r.url().includes('/api/me/saved/')&&r.request().method()==='PUT');await page.locator('.list-item').first().getByRole('button',{name:/^Guardar /}).click();assert.equal((await put).status(),200);
  await page.goto(base+'/becas');put=page.waitForResponse(r=>r.url().includes('/api/me/saved/')&&r.request().method()==='PUT');await page.locator('.save-button').first().click();assert.equal((await put).status(),200);
- await page.goto(base+'/perfil');await page.getByRole('button',{name:'Tecnología',exact:true}).click();await page.getByRole('button',{name:'Investigar',exact:true}).click();await page.getByRole('button',{name:'Guardar intereses'}).click();await page.getByText('Intereses guardados en tu cuenta.',{exact:true}).waitFor();
- await login(other);assert.equal(await other.locator('.saved-list li').count(),2);await other.goto(base+'/perfil');await other.getByText('Intereses completados: 100 %',{exact:true}).waitFor();
+ await page.goto(base+'/perfil');await page.getByRole('tab',{name:'Intereses',exact:true}).click();await page.getByRole('button',{name:'Tecnología',exact:true}).click();await page.getByRole('button',{name:'Investigar',exact:true}).click();await page.getByRole('button',{name:'Guardar intereses'}).click();await page.getByText('Intereses guardados en tu cuenta.',{exact:true}).waitFor();
+ await login(other);assert.equal(await other.locator('.saved-list li').count(),2);await other.goto(base+'/perfil?seccion=intereses');await other.getByText('Intereses: 100%',{exact:true}).waitFor();
  console.log('PASS: programa, beca e intereses recuperados en otro contexto sin localStorage compartido');
  // Persist an old status in this disposable QA account, then compare against the real source.
  const token=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('eduplan-session-v1')).token);
@@ -47,7 +47,7 @@ try{
  console.log('PASS: datos de invitado separados y sin falsas opciones por claves de migración');
  const blocked=await browser.newContext();await blocked.addInitScript(()=>Object.defineProperty(window,'localStorage',{get(){throw new Error('Storage unavailable in test');}}));
  const memory=await blocked.newPage();memory.on('pageerror',error=>errors.push(error.message));memory.setDefaultTimeout(45000);
- await login(memory);await memory.goto(base+'/perfil');await memory.getByRole('button',{name:'Salud',exact:true}).click();
+ await login(memory);await memory.goto(base+'/perfil?seccion=intereses');await memory.getByRole('button',{name:'Salud',exact:true}).click();
  await memory.route('**/api/me/interests',route=>route.request().method()==='PUT'?route.abort():route.continue());
  await memory.getByRole('button',{name:'Guardar intereses'}).click();await memory.getByText('No pudimos guardar en tu cuenta ni en este dispositivo.',{exact:false}).waitFor();
  assert.equal(await memory.getByRole('button',{name:'Salud',exact:true}).getAttribute('aria-pressed'),'true');

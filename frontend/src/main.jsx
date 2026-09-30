@@ -19,6 +19,7 @@ import './styles/instituciones.css'
 import './styles/product.css'
 import './styles/authenticated.css'
 import './styles/recommendations.css'
+import './styles/authenticated-polish.css'
 
 import App from './App.jsx'
 

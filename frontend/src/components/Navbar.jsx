@@ -45,7 +45,7 @@ function Navbar() {
                 </nav>
 
                 <div className="header-actions">
-                    {user ? <><Link className="account-link" to="/dashboard" onClick={closeMenu}>Mi espacio</Link><Link className="account-link" to="/perfil" onClick={closeMenu}>Perfil</Link><button className="text-link plain-button" type="button" onClick={() => { closeMenu(); logout(); }}>Salir</button></> : <Link className="btn btn-primary" to="/login" onClick={closeMenu}>Iniciar sesión</Link>}
+                    {user ? <><Link className="account-link" to="/dashboard" aria-current={location.pathname === '/dashboard' ? 'page' : undefined} onClick={closeMenu}>Mi espacio</Link><Link className="account-link" to="/perfil" aria-current={location.pathname === '/perfil' ? 'page' : undefined} onClick={closeMenu}>Mi perfil</Link><button className="text-link plain-button" type="button" onClick={() => { closeMenu(); logout(); }}>Salir</button></> : <Link className="btn btn-primary" to="/login" onClick={closeMenu}>Iniciar sesión</Link>}
                 </div>
 
                 <button

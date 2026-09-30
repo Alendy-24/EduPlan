@@ -8,6 +8,12 @@ export function AuthProvider({ children }) {
   const [persistent, setPersistent] = useState(true);
   function logout() { setSession(null); try { browserStorage('sessionStorage')?.removeItem(key); } catch { /* session remains cleared in memory */ } }
   function startSession(value) { setPersistent(writeStorage(browserStorage('sessionStorage'), key, value)); setSession(value); }
+  function updateUser(details) {
+    if (!session || session.user.id !== details.userId) return;
+    const next = { ...session, user: { ...session.user, name: details.name, email: details.email, phone: details.phone } };
+    setPersistent(writeStorage(browserStorage('sessionStorage'), key, next));
+    setSession(next);
+  }
   useEffect(() => {
     window.addEventListener('eduplan-auth-rejected', logout);
     return () => window.removeEventListener('eduplan-auth-rejected', logout);
@@ -19,6 +25,6 @@ export function AuthProvider({ children }) {
     window.addEventListener('focus', check);
     return () => { clearTimeout(timer); window.removeEventListener('focus', check); };
   }, [session]);
-  return <AuthContext.Provider value={{ user: session?.user ?? null, token: session?.token ?? null, startSession, logout, persistent }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user: session?.user ?? null, token: session?.token ?? null, startSession, updateUser, logout, persistent }}>{children}</AuthContext.Provider>;
 }
 export function useAuth() { return useContext(AuthContext); }

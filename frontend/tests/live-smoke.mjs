@@ -121,11 +121,11 @@ try {
   await page.getByRole('button', { name: 'Limpiar comparación' }).click(); await page.getByRole('heading', { name: 'Aún no has elegido programas' }).waitFor();
   await catalog('/programas', 'programs'); await page.locator('.list-item').first().waitFor();
   for (let n = 0; n < 3; n++) await page.locator('.list-item').nth(n).getByRole('button', { name: /^Comparar / }).click();
-  await page.goto(`${base}/perfil`); await page.getByText('Intereses completados: 0 %', { exact: true }).waitFor();
-  await page.getByRole('button', { name: 'Tecnología', exact: true }).click(); await page.getByText('Intereses completados: 50 %', { exact: true }).waitFor();
+  await page.goto(`${base}/perfil?seccion=intereses`); await page.getByText('Intereses: 0%', { exact: true }).waitFor();
+  await page.getByRole('button', { name: 'Tecnología', exact: true }).click(); await page.getByText('Intereses: 50%', { exact: true }).waitFor();
   await page.getByRole('button', { name: 'Investigar', exact: true }).click(); await page.getByRole('button', { name: 'Guardar intereses' }).click();
   await page.getByText('Intereses guardados en tu cuenta.', { exact: true }).waitFor();
-  await page.reload(); await page.getByText('Intereses completados: 100 %', { exact: true }).waitFor();
+  await page.reload(); await page.getByText('Intereses: 100%', { exact: true }).waitFor();
   await page.getByRole('tab', { name: 'Perfil', exact: true }).click(); await page.getByText(email, { exact: true }).waitFor();
   ok('Comparación recargada/quitar/limpiar; perfil real, intereses 0/50/100 persistidos');
   const routes = ['/', '/programas', detail, '/comparar', '/dashboard', '/perfil', '/instituciones', '/becas', '/guias'];

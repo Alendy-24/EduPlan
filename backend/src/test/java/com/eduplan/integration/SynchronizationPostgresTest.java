@@ -84,6 +84,7 @@ class SynchronizationPostgresTest {
                 .web(WebApplicationType.SERVLET)
                 .run("--spring.datasource.url=" + postgres.getJdbcUrl("postgres", "postgres"),
                         "--server.port=0", "--server.address=127.0.0.1",
+                        "--eduplan.jwt.secret=Y2ktdGVzdC1qd3Qtc2VjcmV0LXNob3VsZC1iZS1sb25nLWVub3VnaC0zMi1ieXRlcw==",
                         "--eduplan.data-integration.admin-token=" + TEST_TOKEN,
                         "--logging.level.org.springframework=WARN", "--logging.level.org.hibernate=WARN",
                         "--spring.datasource.username=postgres", "--spring.datasource.password=postgres",

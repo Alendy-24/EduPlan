@@ -67,6 +67,28 @@ class AccountExplorationIntegrationTest {
                 "snapshot", Map.of("sourceId", "upr9-nkiz:row-test", "code", "No especifica", "status", "Activo", "name", name));
     }
 
+    @Test void accountDetailsCanBeEditedWithoutChangingEmailOrAnotherAccount() throws Exception {
+        Account first = register(), second = register();
+        assertEquals(401, request("GET", "/api/me/account", null, null).statusCode());
+        var original = data(request("GET", "/api/me/account", first.token(), null));
+        String email = original.get("email").asText();
+        assertEquals("Persona de prueba", original.get("name").asText());
+        var updated = request("PUT", "/api/me/account", first.token(), Map.of("name", "  Nuevo nombre  ", "phone", "310 123 4567"));
+        assertEquals(200, updated.statusCode(), updated.body());
+        assertEquals("Nuevo nombre", data(updated).get("name").asText());
+        assertEquals("3101234567", data(updated).get("phone").asText());
+        assertEquals(email, data(updated).get("email").asText());
+        assertEquals("Persona de prueba", data(request("GET", "/api/me/account", second.token(), null)).get("name").asText());
+        assertEquals(400, request("PUT", "/api/me/account", first.token(), Map.of("name", "   ", "phone", "")).statusCode());
+        assertEquals(400, request("PUT", "/api/me/account", first.token(), Map.of("name", "x".repeat(121), "phone", "")).statusCode());
+        assertEquals(409, request("PUT", "/api/me/account", second.token(), Map.of("name", "Otra persona", "phone", "3101234567")).statusCode());
+        assertEquals("Nuevo nombre", data(request("GET", "/api/me/account", first.token(), null)).get("name").asText());
+        var login = request("POST", "/api/auth/login", null, Map.of("identifier", email, "password", "Password123!"));
+        assertEquals(200, login.statusCode());
+        assertEquals("Nuevo nombre", data(login).get("name").asText());
+        assertEquals(200, request("POST", "/api/auth/login", null, Map.of("identifier", "3101234567", "password", "Password123!")).statusCode());
+    }
+
     @Test void academicPreferencesPersistAndAreIsolatedByJwt() throws Exception {
         Account a = register(), b = register();
         var value = Map.of("academicLevel", "Pregrado", "modality", "Virtual", "municipality", "Bogotá", "department", "Bogotá D.C.", "mobility", "CITY");

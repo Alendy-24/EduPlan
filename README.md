@@ -3,18 +3,21 @@
 ## Desarrollo local completo en Windows
 
 Requisitos: Node.js con las dependencias del proyecto instaladas, PowerShell 7,
-JDK 21 y los binarios de PostgreSQL 18. No usar el Java 8 del PATH.
+JDK 21 o superior y los binarios de PostgreSQL. No usar el Java 8 del PATH.
 El script detecta el JDK 21 en `.tools/jdk21/jdk-21.0.12.1+1`; en otro equipo,
-configura `JAVA_HOME` con tu JDK 21.
+detecta también los JDK compatibles en `%USERPROFILE%/.jdks`, o usa `JAVA_HOME`.
+PostgreSQL puede obtenerse de la instalación local o del caché de las pruebas Maven.
 
-Desde la raíz, terminal 1:
+Desde la raíz de `EduPlan`, en una sola terminal:
 
 ```powershell
-pwsh -NoProfile -File scripts/dev-backend.ps1
+npm install
+npm run dev
 ```
 
 Esto inicializa o reutiliza **solo** `.tools/local-dev/postgres-data`, inicia
-PostgreSQL en `127.0.0.1:55432`, crea `eduplan_local` y ejecuta el Maven wrapper
+PostgreSQL en `127.0.0.1:55432`, usa `eduplan_local` (o `postgres` en la instancia
+aislada cuando el paquete embebido no incluye `psql`) y ejecuta Maven
 con Spring Boot en `127.0.0.1:8080`. Flyway aplica las migraciones y Hibernate
 valida el esquema. No conecta a PostgreSQL personal en `5432`, no importa
 credenciales de Docker y no ejecuta sincronización administrativa.
@@ -24,13 +27,10 @@ Si PostgreSQL está instalado en otra carpeta:
 pwsh -NoProfile -File scripts/dev-backend.ps1 -PostgresBin 'C:\ruta\PostgreSQL\bin'
 ```
 
-Terminal 2, desde la raíz:
-
-```powershell
-npm run dev
-```
-
-Abre `http://127.0.0.1:5173`. Este comando inicia Vite y data-integration (`3001`).
+Abre `http://127.0.0.1:5173`. Este comando inicia Vite, data-integration (`3001`)
+y el backend (`8080`). Espera a que aparezca `Started BackendApplication` antes
+de registrar una cuenta. En WSL con Node de Windows se utiliza el mismo flujo;
+con Node de Linux configura previamente Java, PostgreSQL, `DB_PASSWORD` y `JWT_SECRET`.
 Si un puerto está ocupado, detén la ejecución anterior del mismo proyecto;
 no abras una segunda instancia. Los proxies API están en Vite.
 El catálogo externo requiere conexión a Internet.
@@ -38,7 +38,7 @@ El catálogo externo requiere conexión a Internet.
 La contraseña PostgreSQL generada se guarda únicamente en
 `.tools/local-dev/database.json`, ignorado por Git. `JWT_SECRET` se genera
 aleatoriamente solo en el entorno del proceso: no se escribe en archivos.
-Al reiniciar el backend, inicia sesión de nuevo. Ctrl+C detiene cada terminal;
+Al reiniciar el backend, inicia sesión de nuevo. Ctrl+C detiene los servicios;
 la base aislada conserva sus datos. Para detener también esa instancia:
 
 ```powershell
@@ -50,7 +50,7 @@ activo, pero no es necesario para este flujo nativo aislado.
 
 ### Validación de ejecución
 
-Con ambas terminales activas y Playwright instalado en el entorno de pruebas:
+Con los servicios activos y Playwright instalado en el entorno de pruebas:
 
 ```powershell
 node frontend/tests/live-smoke.mjs
@@ -77,8 +77,8 @@ minutos. La búsqueda prioriza nombre/título exacto, variantes similares y áre
 Los resúmenes mantienen los nombres publicados y su procedencia. Las filas se
 identifican por `sourceId`, porque un código de programa puede repetirse.
 
-Para desarrollo, `npm run dev` inicia frontend e integración. Java se inicia
-por separado. Vite proxifica `/api/institutions` y `/api/programs` a `3001`, y
+Para desarrollo, `npm run dev` inicia frontend, integración y Java.
+Vite proxifica `/api/institutions` y `/api/programs` a `3001`, y
 `/api/auth`, `/api/me` y `/api/program-links` a `8080`. `VITE_DATA_INTEGRATION_URL` conserva su uso existente para
 instituciones; programas y autenticación utilizan rutas del mismo origen.
 
