@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getPrograms, getProgramsByCode } from "../services/programs.service.js";
+import { getPrograms, getProgramsByCode, getProgramFilterOptions } from "../services/programs.service.js";
 import { parsePagination } from "../utils/http.js";
 
 export const programsRouter = Router();
@@ -17,6 +17,10 @@ programsRouter.get("/", async (request, response) => {
   if (institutionCode && !/^\d+$/.test(institutionCode)) {
     return response.status(400).json({ error: true, message: "institutionCode no es válido" });
   }
+  const order = typeof request.query.order === "string" ? request.query.order : undefined;
+  if (order && !["source", "asc", "desc"].includes(order)) {
+    return response.status(400).json({ error: true, message: "order no es válido" });
+  }
 
   try {
     const data = await getPrograms({
@@ -25,6 +29,9 @@ programsRouter.get("/", async (request, response) => {
         typeof request.query.municipality === "string" ? request.query.municipality : undefined,
       modality: typeof request.query.modality === "string" ? request.query.modality : undefined,
       institutionCode,
+      academicLevel: typeof request.query.academicLevel === "string" ? request.query.academicLevel : undefined,
+      knowledgeArea: typeof request.query.knowledgeArea === "string" ? request.query.knowledgeArea : undefined,
+      order: order as "source" | "asc" | "desc" | undefined,
       ...pagination,
     });
 
@@ -37,8 +44,13 @@ programsRouter.get("/", async (request, response) => {
   }
 });
 
+programsRouter.get("/filters", async (_request, response) => {
+  try { return response.json({ data: await getProgramFilterOptions() }); }
+  catch { return response.status(502).json({ error: true, message: "No fue posible consultar los filtros del catálogo" }); }
+});
+
 programsRouter.get("/:code", async (request, response) => {
-  if (!/^\d+$/.test(request.params.code)) {
+  if (!request.params.code.trim() || request.params.code.length > 512) {
     return response.status(400).json({ error: true, message: "El código de programa no es válido" });
   }
 

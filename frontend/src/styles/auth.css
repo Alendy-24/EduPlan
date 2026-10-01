@@ -1,0 +1,134 @@
+/* ============================= */
+/* AUTH: inicio de sesión y registro */
+/* ============================= */
+
+
+/* ============================= */
+/* LOGIN (clases auth-*) */
+/* ============================= */
+
+.auth-main {
+  min-height: calc(100vh - 72px);
+  display: grid;
+  place-items: center;
+  padding: 55px 24px;
+  background: var(--grad-page);
+  /* Si prefieres la foto de antes, reemplaza la línea de arriba por:
+     background: linear-gradient(rgba(18,43,64,.16), rgba(18,43,64,.16)),
+                 url('../assets/Images/estudiantess.avif') center/cover;
+     (ojo: la ruta lleva ../ porque este archivo está dentro de /css) */
+}
+
+.auth-card {
+  width: min(520px, 100%);
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 48px;
+  box-shadow: var(--shadow-panel);
+}
+
+.auth-card h1 {
+  text-align: center;
+  font-size: 32px;
+  margin: 0 0 8px;
+}
+
+.auth-card > .subtle {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.auth-form {
+  display: grid;
+  gap: 17px;
+}
+
+/* Campos del login con el mismo look que los del registro */
+.auth-form .field input {
+  min-height: 52px;
+  border-radius: 10px;
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+}
+
+.auth-form .field input:focus {
+  background: #fff;
+}
+
+.auth-form .btn {
+  width: 100%;
+  margin-top: 5px;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #9ca3af;
+  font-size: 12px;
+  margin: 25px 0;
+}
+
+.auth-divider:before,
+.auth-divider:after {
+  content: '';
+  height: 1px;
+  background: #e5e7eb;
+  flex: 1;
+}
+
+.social-buttons {
+  display: grid;
+  gap: 9px;
+}
+
+.social-buttons button {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background 0.18s;
+}
+
+.social-buttons button:hover {
+  background: #f9fafb;
+}
+
+.auth-foot {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  margin: 22px 0 0;
+}
+
+.auth-foot a {
+  color: var(--blue);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-feedback {
+  font-size: 13px;
+  margin: 0;
+  color: var(--blue-dark);
+}
+
+
+/* ============================= */
+/* RESPONSIVE */
+/* ============================= */
+
+@media (max-width: 540px) {
+  .auth-card {
+    padding: 29px 23px;
+  }
+
+}

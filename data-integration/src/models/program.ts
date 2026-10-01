@@ -1,9 +1,23 @@
 export interface Program {
+  searchMatch?: "EXACT_NAME_OR_TITLE" | "SIMILAR_NAME_OR_TITLE" | "KNOWLEDGE_AREA";
   sourceId: string;
   rawName: string;
   awardedTitle: string;
   knowledgeArea: string;
-  nameOrigin: "SOURCE_NAME" | "AWARDED_TITLE" | "UNAVAILABLE";
+  broadKnowledgeArea?: string;
+  credits?: string;
+  nameOrigin: "SNIES_NAME" | "UNAVAILABLE";
+  nameSource?: string;
+  nameSourceField?: string;
+  nameImportedAt?: string;
+  sniesCode?: string;
+  nameMatchMethod?: string;
+  institutionWebsite?: string;
+  institutionSector?: string;
+  institutionMunicipality?: string;
+  institutionDepartment?: string;
+  institutionCampus?: string;
+  institutionEnrichmentUnavailable?: boolean;
   reviewRequired: boolean;
   code: string;
   institutionCode: string;
@@ -24,6 +38,16 @@ export interface ProgramFilters {
   municipality?: string;
   modality?: string;
   institutionCode?: string;
+  academicLevel?: string;
+  knowledgeArea?: string;
+  order?: "source" | "asc" | "desc";
   page: number;
   limit: number;
+}
+
+export interface ProgramFilterOptions {
+  academicLevels: string[];
+  knowledgeAreas: string[];
+  modalities: string[];
+  institutions: { code: string; name: string; municipality?: string; department?: string; campus?: string }[];
 }

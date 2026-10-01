@@ -114,6 +114,10 @@
 		</testResources>
 		<resources>
 			<resource>
+				<directory>../../data-integration/src/config</directory>
+				<includes><include>matching-v2.json</include></includes>
+			</resource>
+			<resource>
 				<directory>main/resources</directory>
 			</resource>
 		</resources>

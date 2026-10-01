@@ -1,0 +1,54 @@
+/* ============================= */
+/* COMPARADOR */
+/* ============================= */
+
+.compare-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line-card);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  box-shadow: var(--shadow-panel);
+}
+
+.compare-table {
+  border-collapse: collapse;
+  min-width: 820px;
+  width: 100%;
+  font-size: 14px;
+  color: var(--body);
+}
+
+.compare-table th,
+.compare-table td {
+  border: 1px solid var(--line-card);
+  padding: 15px;
+  vertical-align: top;
+  text-align: left;
+}
+
+/* Primera columna con los nombres de cada criterio */
+.compare-table th {
+  width: 180px;
+  background: var(--soft);
+  color: var(--navy);
+}
+
+/* Fila superior con las instituciones/programas a comparar */
+.compare-table thead td {
+  min-width: 210px;
+  background: var(--bg-tint);
+}
+
+.compare-table img {
+  width: 100%;
+  height: 105px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background: var(--grad-cover);
+}
+
+.compare-table strong {
+  display: block;
+  color: var(--navy);
+}

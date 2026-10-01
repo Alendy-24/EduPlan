@@ -1,0 +1,72 @@
+/* ============================= */
+/* DASHBOARD (panel del usuario) */
+/* ============================= */
+
+
+/* ============================= */
+/* ACCIONES RÁPIDAS */
+/* ============================= */
+
+.dashboard-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.dashboard-action {
+  padding: 23px;
+  text-decoration: none;
+  border-top: 4px solid var(--blue);
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.dashboard-action:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card-hover);
+  background: var(--sky);
+}
+
+.dashboard-action strong {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--navy);
+}
+
+.dashboard-action p {
+  font-size: 13px;
+  color: var(--muted-strong);
+  margin: 0;
+}
+
+
+/* ============================= */
+/* SECCIONES */
+/* ============================= */
+
+.dashboard-section {
+  margin-top: 40px;
+}
+
+.dashboard-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+
+/* ============================= */
+/* RESPONSIVE */
+/* ============================= */
+
+@media (max-width: 1024px) {
+  .dashboard-actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 540px) {
+  .dashboard-actions,
+  .dashboard-bottom {
+    grid-template-columns: 1fr;
+  }
+}

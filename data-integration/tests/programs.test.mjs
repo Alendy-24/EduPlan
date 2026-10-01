@@ -1,9 +1,11 @@
-import test from "node:test";
+import test, { beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { get as httpGet } from "node:http";
 import { app } from "../dist/app.js";
-import { transformProgram, getPrograms } from "../dist/services/programs.service.js";
-import { getInstitutions } from "../dist/services/institutions.service.js";
+import { transformProgram, getPrograms, getProgramsByCode, getProgramFilterOptions } from "../dist/services/programs.service.js";
+import { getInstitutions, clearInstitutionCatalogCache } from "../dist/services/institutions.service.js";
+import { clearProgramCatalogCache, selectPrograms, getProgramCatalog } from '../dist/services/program-catalog.js';
+beforeEach(() => { clearInstitutionCatalogCache(); clearProgramCatalogCache(); });
 
 const row = {
   source_row_id: "row-gwwh_nn2q.c23h", codigoprograma: "5", codigoinstitucion: "2209",
@@ -24,11 +26,12 @@ test("different source rows survive the formerly colliding composite key", () =>
   assert.equal(a.modality, b.modality);
 });
 
-test("suspicious names retain raw data and explicitly use the awarded title", () => {
+test("suspicious names retain raw data and keep awarded title separate", () => {
   const program = transformProgram(row);
   assert.equal(program.rawName, "Antioquia");
-  assert.equal(program.name, row.nombretituloobtenido);
-  assert.equal(program.nameOrigin, "AWARDED_TITLE");
+  assert.equal(program.name, 'Nombre del programa no disponible');
+  assert.equal(program.awardedTitle, row.nombretituloobtenido);
+  assert.equal(program.nameOrigin, "UNAVAILABLE");
   assert.equal(program.reviewRequired, true);
 });
 
@@ -38,15 +41,42 @@ test("missing title does not invent a program name", () => {
   assert.equal(program.reviewRequired, true);
 });
 
-test("plausible original name is preserved, but is not certified by this heuristic", () => {
+test("plausible raw names without a SNIES match are not certified by a heuristic", () => {
   const program = transformProgram({...row, nombreprograma: "INGENIERIA DE SISTEMAS"});
-  assert.equal(program.name, "INGENIERIA DE SISTEMAS");
-  assert.equal(program.nameOrigin, "SOURCE_NAME");
-  assert.equal(program.reviewRequired, false);
+  assert.equal(program.rawName, "INGENIERIA DE SISTEMAS");
+  assert.equal(program.name, 'Nombre del programa no disponible');
+  assert.equal(program.nameOrigin, "UNAVAILABLE");
+  assert.equal(program.reviewRequired, true);
 });
 
 test("absence of row identity fails explicitly", () => {
   assert.throws(() => transformProgram({...row, source_row_id: undefined}), /identificador/);
+});
+
+test("program detail accepts opaque codes and preserves all source rows", async t => {
+  t.mock.method(globalThis, "fetch", async url => {
+    assert.equal(url.searchParams.get("$where"), "codigoprograma = 'No especifica'");
+    return Response.json([{ ...row, codigoprograma: 'No especifica' }, { ...row, source_row_id: 'other-row', codigoprograma: 'No especifica' }]);
+  });
+  assert.equal((await getProgramsByCode('No especifica')).length, 2);
+  const server = app.listen(0); t.after(() => server.close());
+  const response = await new Promise((resolve, reject) => {
+    httpGet(`http://127.0.0.1:${server.address().port}/api/programs/No%20especifica`, res => {
+      let body = ''; res.setEncoding('utf8'); res.on('data', chunk => { body += chunk; });
+      res.on('end', () => resolve({ status: res.statusCode, body: JSON.parse(body) }));
+      res.on('error', reject);
+    }).on('error', reject);
+  });
+  assert.equal(response.status, 200); assert.equal(response.body.data.length, 2);
+  assert.equal(response.body.data[0].code, 'No especifica');
+});
+
+test("opaque program codes keep SoQL literal escaping", async t => {
+  t.mock.method(globalThis, "fetch", async url => {
+    assert.equal(url.searchParams.get('$where'), "codigoprograma = 'ABC''12'");
+    return Response.json([]);
+  });
+  assert.deepEqual(await getProgramsByCode("ABC'12"), []);
 });
 
 test("program queries include row identity, title and unique order", async t => {
@@ -58,6 +88,66 @@ test("program queries include row identity, title and unique order", async t => 
     return new Response(JSON.stringify([row]));
   });
   assert.equal((await getPrograms({page: 2, limit: 100}))[0].sourceId, "upr9-nkiz:" + row.source_row_id);
+});
+
+test('official academic names participate in search before pagination with all filters', () => {
+  const base = { ...transformProgram(row), nameOrigin: 'SNIES_NAME', name: 'Medicina', awardedTitle: 'MÉDICO', academicLevel: 'Pregrado', knowledgeArea: 'Salud', institutionCode: '1701', municipality: 'Bogotá', modality: 'Presencial' };
+  const programs = Array.from({length: 20}, (_, i) => ({...base, sourceId: 'upr9-nkiz:' + String(i).padStart(3,'0')}));
+  programs.push({...base, sourceId: 'other-institution', institutionCode: '1702'}, {...base, sourceId: 'other-level', academicLevel: 'Posgrado'});
+  const result = selectPrograms(programs, {name:'medicina', municipality:'bogota', institutionCode:'1701', modality:'Presencial', academicLevel:'Pregrado', knowledgeArea:'Salud', page:2, limit:12});
+  assert.equal(result.length,8); assert(result.every(p => p.searchMatch === 'EXACT_NAME_OR_TITLE' && p.name === 'Medicina'));
+  assert.equal(result[0].sourceId, 'upr9-nkiz:012');
+  assert.equal(selectPrograms(programs, {name:'médico', page:1,limit:12}).length,12);
+});
+test('search retains title variants as search matches without converting display names', () => {
+  const base = {...transformProgram(row), awardedTitle:'INGENIERO(A) DE SISTEMAS'};
+  const result = selectPrograms([base], {name:'ingenieria de sistemas', page:1,limit:12});
+  assert.equal(result.length,1); assert.equal(result[0].name, 'Nombre del programa no disponible');
+  assert.equal(result[0].searchMatch, 'SIMILAR_NAME_OR_TITLE');
+});
+test('global alphabetical ordering uses joined academic names before pagination', () => {
+  const programs = ['Zootecnia','Medicina','Arquitectura'].map((name,i) => ({...transformProgram(row),name,nameOrigin:'SNIES_NAME',sourceId:'upr9-nkiz:' + i}));
+  assert.equal(selectPrograms(programs,{order:'asc',page:2,limit:1})[0].name,'Medicina');
+  assert.equal(selectPrograms(programs,{order:'desc',page:1,limit:1})[0].name,'Zootecnia');
+});
+test('complete source catalog shares concurrent requests, caches successes and does not interpolate user searches', async t => {
+  let requests=0;
+  t.mock.method(globalThis,'fetch',async url => {
+    requests++; assert.equal(url.searchParams.get('$limit'),'10000'); assert.equal(url.searchParams.get('$offset'),'0');
+    assert.equal(url.searchParams.get('$where'),null); assert.equal(url.searchParams.get('$order'),':id');
+    return Response.json([row]);
+  });
+  const [a,b] = await Promise.all([getProgramCatalog(':id as source_row_id',transformProgram), getProgramCatalog(':id as source_row_id',transformProgram)]);
+  assert.equal(a,b); assert.equal(requests,1); assert.equal(await getProgramCatalog('',transformProgram),a);
+  assert.deepEqual(selectPrograms(a,{name:"d'angelo",page:1,limit:12}),[]);
+});
+
+test("official filter options group the complete source, reject invalid codes, and cache successful requests", async t => {
+  const requests = [];
+  t.mock.method(globalThis, "fetch", async url => {
+    requests.push(url);
+    assert.equal(url.searchParams.get("$limit"), "50000");
+    if (url.searchParams.get("$group") === "codigoinstitucion,nombreinstitucion") return Response.json([
+      { code: "1101", name: "Universidad oficial" }, { code: "1101", name: "Universidad oficial" },
+      { code: "No especifica", name: "No seleccionable" }, { code: "1234", name: "" },
+    ]);
+    return Response.json([{ value: "Pregrado" }, { value: "Pregrado" }, { value: "" }, { value: "NA" }]);
+  });
+  const options = await getProgramFilterOptions();
+  assert.deepEqual(options.academicLevels, ["Pregrado"]);
+  assert.deepEqual(options.institutions, [{ code: "1101", name: "Universidad oficial" }]);
+  assert.equal(requests.length, 5);
+  assert.equal(await getProgramFilterOptions(), options);
+  assert.equal(requests.length, 5);
+  const server = app.listen(0); t.after(() => server.close());
+  const response = await new Promise((resolve, reject) => {
+    httpGet(`http://127.0.0.1:${server.address().port}/api/programs/filters`, res => {
+      let body = ""; res.setEncoding("utf8"); res.on("data", chunk => { body += chunk; });
+      res.on("end", () => resolve({ status: res.statusCode, body: JSON.parse(body) })); res.on("error", reject);
+    }).on("error", reject);
+  });
+  assert.equal(response.status, 200);
+  assert.deepEqual(response.body.data, options);
 });
 
 test("institution pagination includes a unique tie breaker", async t => {

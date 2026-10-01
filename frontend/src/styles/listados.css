@@ -1,0 +1,259 @@
+/* ============================= */
+/* LISTADOS (programas, becas, resultados) */
+/* ============================= */
+
+
+/* ============================= */
+/* ENCABEZADO DE PÁGINA */
+/* ============================= */
+
+.page-intro {
+  margin-bottom: 28px;
+}
+
+.page-intro h1 {
+  font-size: clamp(36px, 4vw, 54px);
+  margin: 0 0 10px;
+}
+
+.page-intro p {
+  margin-bottom: 0;
+}
+
+.back-link {
+  display: inline-block;
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: 23px;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+
+/* ============================= */
+/* FILTROS */
+/* ============================= */
+
+.filter-bar {
+  display: grid;
+  grid-template-columns: 2fr repeat(3, 1fr);
+  gap: 12px;
+  margin: 22px 0;
+  padding: 18px;
+  background: #fff;
+  border: 1px solid var(--line-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+}
+
+.filter-bar .field {
+  min-width: 0;
+}
+
+
+/* ============================= */
+/* CONTEO DE RESULTADOS */
+/* ============================= */
+
+.results-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 24px 0 14px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.results-line strong {
+  font-size: 16px;
+  color: var(--navy);
+}
+
+
+/* ============================= */
+/* LISTA DE RESULTADOS */
+/* ============================= */
+
+.listing {
+  display: grid;
+  gap: 12px;
+}
+
+.list-item {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr) auto;
+  gap: 22px;
+  align-items: center;
+  padding: 12px;
+  text-decoration: none;
+  min-width: 0;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.list-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.list-item img {
+  width: 210px;
+  height: 128px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--grad-cover);
+}
+
+.list-item h3 {
+  font-size: 18px;
+  margin: 0 0 5px;
+}
+
+.list-item p {
+  font-size: 14px;
+  color: var(--muted-strong);
+  margin: 0 0 9px;
+}
+
+.metadata {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--blue-dark);
+}
+
+.metadata span:not(:last-child):after {
+  content: '·';
+  margin-left: 9px;
+  color: var(--blue-mid);
+}
+
+.list-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-right: 12px;
+}
+
+.list-actions .btn {
+  white-space: nowrap;
+}
+
+
+/* ============================= */
+/* BECAS (variante de la lista) */
+/* ============================= */
+
+.scholarship-item {
+  grid-template-columns: 120px minmax(0, 1fr) auto;
+}
+
+.scholarship-item img {
+  width: 120px;
+  height: 100px;
+}
+
+
+/* ============================= */
+/* TABS DE CATEGORÍAS */
+/* ============================= */
+
+.category-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 23px 0;
+}
+
+.category-tabs button {
+  border: 1px solid var(--line-card);
+  background: var(--soft);
+  border-radius: var(--radius-pill);
+  min-height: 41px;
+  padding: 7px 16px;
+  color: var(--navy);
+  transition: background 0.18s, border-color 0.18s;
+}
+
+.category-tabs button:hover {
+  background: var(--sky);
+  border-color: var(--blue-mid);
+}
+
+.category-tabs button[aria-pressed=true] {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+}
+
+
+/* ============================= */
+/* RESPONSIVE */
+/* ============================= */
+
+@media (max-width: 1024px) {
+  .filter-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .list-item {
+    grid-template-columns: 145px minmax(0, 1fr);
+  }
+
+  .list-item img {
+    width: 145px;
+    height: 110px;
+  }
+
+  .list-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    padding: 0;
+  }
+}
+
+@media (max-width: 540px) {
+  .filter-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .list-item,
+  .scholarship-item {
+    grid-template-columns: 1fr;
+  }
+
+  .list-item img,
+  .scholarship-item img {
+    width: 100%;
+    height: 150px;
+  }
+
+  .list-actions {
+    justify-content: stretch;
+  }
+
+  .list-actions .btn {
+    flex: 1;
+  }
+
+  .results-line {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .results-line > div {
+    flex-wrap: wrap;
+  }
+
+  .results-line > div .btn {
+    flex: 1;
+  }
+}

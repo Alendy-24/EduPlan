@@ -17,7 +17,10 @@ public class Cuenta {
   @Column(name = "id_cuenta")
   private Long idCuenta;
 
-  @Column(name = "correo", length = 120)
+  @Column(name = "nombre", nullable = false, length = 120)
+  private String nombre;
+
+  @Column(name = "correo", length = 80)
   private String correo;
 
 // Para ingresar con telefono, opcional

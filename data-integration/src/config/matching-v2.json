@@ -1,0 +1,937 @@
+{
+  "version": "matching-v2.0",
+  "source": {
+    "dataset": "upr9-nkiz",
+    "url": "https://www.datos.gov.co/resource/upr9-nkiz.json",
+    "observedAt": "2026-09-30",
+    "note": "Relaciones editoriales explícitas, revisables; no son validación psicológica. El NBC conserva su etiqueta original."
+  },
+  "maxResults": 50,
+  "weights": {
+    "affinity": 40,
+    "activities": 20,
+    "modality": 12,
+    "location": 12,
+    "formation": 8,
+    "duration": 4,
+    "sector": 4
+  },
+  "strengths": {
+    "generalNbc": 0.6,
+    "generalBroad": 0.3,
+    "specificBroad": 0.45,
+    "hybridModality": 0.65,
+    "sameDepartment": 0.65,
+    "otherLocation": 0.2,
+    "preferredLocationMultiplier": 0.65,
+    "activityShare": 0.8,
+    "durationToleranceMonths": 24
+  },
+  "evidence": {
+    "minimumActiveWeight": 72,
+    "minimumCriteria": 4
+  },
+  "interests": {
+    "Tecnología": {
+      "broadAreas": [
+        "Ingeniería arquitectura urbanismo y afines"
+      ],
+      "nbcs": [
+        "Ingeniería biomédica y afines",
+        "Ingeniería de sistemas telemática y afines",
+        "Ingeniería eléctrica y afines",
+        "Ingeniería electrónica telecomunicaciones y afines",
+        "Ingeniería industrial y afines",
+        "Ingeniería mecánica y afines"
+      ]
+    },
+    "Salud": {
+      "broadAreas": [
+        "Ciencias de la salud"
+      ],
+      "nbcs": [
+        "Bacteriología",
+        "Enfermería",
+        "Instrumentación quirúrgica",
+        "Medicina",
+        "Nutrición y dietética",
+        "Odontología",
+        "Optometría otros programas de ciencias de la salud",
+        "Salud pública",
+        "Terapias"
+      ]
+    },
+    "Ciencias": {
+      "broadAreas": [
+        "Matemáticas y ciencias naturales",
+        "Agronomía veterinaria y afines"
+      ],
+      "nbcs": [
+        "Agronomía",
+        "Biología microbiología y afines",
+        "Física",
+        "Geología otros programas de ciencias naturales",
+        "Matemáticas estadística y afines",
+        "Medicina veterinaria",
+        "Química y afines",
+        "Zootecnia"
+      ]
+    },
+    "Artes": {
+      "broadAreas": [
+        "Bellas artes"
+      ],
+      "nbcs": [
+        "Arquitectura",
+        "Artes plásticas visuales y afines",
+        "Artes representativas",
+        "Diseño",
+        "Música",
+        "Otros programas asociados a bellas artes"
+      ]
+    },
+    "Negocios": {
+      "broadAreas": [
+        "Economía administración contaduría y afines"
+      ],
+      "nbcs": [
+        "Administración",
+        "Contaduría pública",
+        "Economía",
+        "Ingeniería administrativa y afines",
+        "Publicidad y afines"
+      ]
+    },
+    "Ciencias sociales": {
+      "broadAreas": [
+        "Ciencias sociales y humanas"
+      ],
+      "nbcs": [
+        "Antropología y  artes liberales",
+        "Bibliotecología otros de ciencias sociales y humanas",
+        "Ciencia política relaciones internacionales",
+        "Comunicación social periodismo y afines",
+        "Derecho y afines",
+        "Filosofía teología y afines",
+        "Geografía historia",
+        "Lenguas modernas literatura linguística y afines",
+        "Psicología",
+        "Sociología trabajo social y afines"
+      ]
+    },
+    "Educación": {
+      "broadAreas": [
+        "Ciencias de la educación"
+      ],
+      "nbcs": [
+        "Deportes educación física y recreación",
+        "Educación"
+      ]
+    }
+  },
+  "nbcs": [
+    {
+      "name": "Administración",
+      "broadArea": "Economía administración contaduría y afines"
+    },
+    {
+      "name": "Agronomía",
+      "broadArea": "Agronomía veterinaria y afines"
+    },
+    {
+      "name": "Antropología y  artes liberales",
+      "broadArea": "Ciencias sociales y humanas"
+    },
+    {
+      "name": "Arquitectura",
+      "broadArea": "Ingeniería arquitectura urbanismo y afines"
+    },
+    {
+      "name": "Artes plásticas visuales y afines",
+      "broadArea": "Bellas artes"
+    },
+    {
+      "name": "Artes representativas",
+      "broadArea": "Bellas artes"
+    },
+    {
+      "name": "Bacteriología",
+      "broadArea": "Ciencias de la salud"
+    },
+    {
+      "name": "Bibliotecología otros de ciencias sociales y humanas",
+      "broadArea": "Ciencias sociales y humanas"
+    },
+    {
+      "name": "Biología microbiología y afines",
+      "broadArea": "Matemáticas y ciencias naturales"
+    },
+    {
+      "name": "Ciencia política relaciones internacionales",
+      "broadArea": "Ciencias sociales y humanas"
+    },
+    {
+      "name": "Comunicación social periodismo y afines",
+      "broadArea": "Ciencias sociales y humanas"
+    },
+    {
+      "name": "Contaduría pública",
+      "broadArea": "Economía administración contaduría y afines"
+    },
+    {
+      "name": "Deportes educación física y recreación",
+      "broadArea": "Ciencias sociales y humanas"
+    },
+    {
+      "name": "Derecho y afines",
+      "broadArea": "Ciencias sociales y humanas"
+    },
+    {
+      "name": "Diseño",
+      "broadArea": "Bellas artes"
+    },
+    {
+      "name": "Economía",
+      "broadArea": "Economía administración contaduría y afines"
+    },
+    {
+      "name": "Educación",
+      "broadArea": "Ciencias de la educación"
+    },
+    {
+      "name": "Enfermería",
+      "broadArea": "Ciencias de la salud"
+    },
+    {
+      "name": "Filosofía teología y afines",
+      "broadArea": "Ciencias sociales y humanas"
+    },
+    {
+      "name": "Física",
+      "broadArea": "Matemáticas y ciencias naturales"
+    },
+    {
+      "name": "Formación relacionada con el campo militar o policial",
+      "broadArea": "Ciencias sociales y humanas"
+    },
+    {
+      "name": "Geografía historia",
+      "broadArea": "Ciencias sociales y humanas"
+    },
+    {
+      "name": "Geología otros programas de ciencias naturales",
+      "broadArea": "Matemáticas y ciencias naturales"
+    },
+    {
+      "name": "Ingeniería administrativa y afines",
+      "broadArea": "Ingeniería arquitectura urbanismo y afines"
+    },
+    {
+      "name": "Ingeniería agrícola forestal y afines",
+      "broadArea": "Ingeniería arquitectura urbanismo y afines"
+    },
+    {
+      "name": "Ingeniería agroindustrial alimentos y afines",
+      "broadArea": "Ingeniería arquitectura urbanismo y afines"
+    },
+    {
+      "name": "Ingeniería agronómica pecuaria y afines",
+      "broadArea": "Ingeniería arquitectura urbanismo y afines"
+    },
+    {
+      "name": "Ingeniería ambiental sanitaria y afines",
+      "broadArea": "Ingeniería arquitectura urbanismo y afines"
+    },
+    {
+      "name": "Ingeniería biomédica y afines",
+      "broadArea": "Ingeniería arquitectura urbanismo y afines"
+    },
+    {
+      "name": "Ingeniería civil y afines",
+      "broadArea": "Ingeniería arquitectura urbanismo y afines"
+    },
+    {
+      "name": "Ingeniería de minas metalurgia y afines",
+      "broadArea": "Ingeniería arquitectura urbanismo y afines"
+    },
+    {
+      "name": "Ingeniería de sistemas telemática y afines",
+      "broadArea": "Ingeniería arquitectura urbanismo y afines"
+    },
+    {
+      "name": "Ingeniería eléctrica y afines",
+      "broadArea": "Ingeniería arquitectura urbanismo y afines"
+    },
+    {
+      "name": "Ingeniería electrónica telecomunicaciones y afines",
+      "broadArea": "Ingeniería arquitectura urbanismo y afines"
+    },
+    {
+      "name": "Ingeniería industrial y afines",
+      "broadArea": "Ingeniería arquitectura urbanismo y afines"
+    },
+    {
+      "name": "Ingeniería mecánica y afines",
+      "broadArea": "Ingeniería arquitectura urbanismo y afines"
+    },
+    {
+      "name": "Ingeniería química y afines",
+      "broadArea": "Ingeniería arquitectura urbanismo y afines"
+    },
+    {
+      "name": "Instrumentación quirúrgica",
+      "broadArea": "Ciencias de la salud"
+    },
+    {
+      "name": "Lenguas modernas literatura linguística y afines",
+      "broadArea": "Ciencias sociales y humanas"
+    },
+    {
+      "name": "Matemáticas estadística y afines",
+      "broadArea": "Matemáticas y ciencias naturales"
+    },
+    {
+      "name": "Medicina",
+      "broadArea": "Ciencias de la salud"
+    },
+    {
+      "name": "Medicina veterinaria",
+      "broadArea": "Agronomía veterinaria y afines"
+    },
+    {
+      "name": "Música",
+      "broadArea": "Bellas artes"
+    },
+    {
+      "name": "Nutrición y dietética",
+      "broadArea": "Ciencias de la salud"
+    },
+    {
+      "name": "Odontología",
+      "broadArea": "Ciencias de la salud"
+    },
+    {
+      "name": "Optometría otros programas de ciencias de la salud",
+      "broadArea": "Ciencias de la salud"
+    },
+    {
+      "name": "Otras ingenierías",
+      "broadArea": "Ingeniería arquitectura urbanismo y afines"
+    },
+    {
+      "name": "Otros programas asociados a bellas artes",
+      "broadArea": "Bellas artes"
+    },
+    {
+      "name": "Psicología",
+      "broadArea": "Ciencias sociales y humanas"
+    },
+    {
+      "name": "Publicidad y afines",
+      "broadArea": "Bellas artes"
+    },
+    {
+      "name": "Química y afines",
+      "broadArea": "Matemáticas y ciencias naturales"
+    },
+    {
+      "name": "Salud pública",
+      "broadArea": "Ciencias de la salud"
+    },
+    {
+      "name": "Sociología trabajo social y afines",
+      "broadArea": "Ciencias sociales y humanas"
+    },
+    {
+      "name": "Terapias",
+      "broadArea": "Ciencias de la salud"
+    },
+    {
+      "name": "Zootecnia",
+      "broadArea": "Agronomía veterinaria y afines"
+    }
+  ],
+  "relationships": [
+    {
+      "a": "Ingeniería de sistemas telemática y afines",
+      "b": "Ingeniería electrónica telecomunicaciones y afines",
+      "strength": 0.78,
+      "reason": "sistemas"
+    },
+    {
+      "a": "Ingeniería de sistemas telemática y afines",
+      "b": "Matemáticas estadística y afines",
+      "strength": 0.68,
+      "reason": "estadística"
+    },
+    {
+      "a": "Ingeniería electrónica telecomunicaciones y afines",
+      "b": "Ingeniería eléctrica y afines",
+      "strength": 0.78,
+      "reason": "automatización"
+    },
+    {
+      "a": "Administración",
+      "b": "Ingeniería administrativa y afines",
+      "strength": 0.8,
+      "reason": "gestión"
+    },
+    {
+      "a": "Economía",
+      "b": "Contaduría pública",
+      "strength": 0.8,
+      "reason": "finanzas"
+    },
+    {
+      "a": "Administración",
+      "b": "Economía",
+      "strength": 0.75,
+      "reason": "negocios"
+    },
+    {
+      "a": "Medicina",
+      "b": "Enfermería",
+      "strength": 0.78,
+      "reason": "cuidados"
+    },
+    {
+      "a": "Medicina",
+      "b": "Terapias",
+      "strength": 0.7,
+      "reason": "rehabilitación"
+    }
+  ],
+  "activities": [
+    {
+      "label": "Resolver problemas",
+      "rationale": "Resolución técnica y análisis cuantitativo en los NBC publicados.",
+      "relations": [
+        {
+          "nbc": "Ingeniería de sistemas telemática y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Matemáticas estadística y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Ingeniería industrial y afines",
+          "strength": 0.8
+        },
+        {
+          "nbc": "Ingeniería mecánica y afines",
+          "strength": 0.75
+        }
+      ]
+    },
+    {
+      "label": "Analizar datos",
+      "rationale": "Relación temática con estadística, sistemas y economía; no infiere competencias personales.",
+      "relations": [
+        {
+          "nbc": "Matemáticas estadística y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Ingeniería de sistemas telemática y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Economía",
+          "strength": 0.85
+        },
+        {
+          "nbc": "Contaduría pública",
+          "strength": 0.65
+        }
+      ]
+    },
+    {
+      "label": "Diseñar o crear",
+      "rationale": "Creación visual, espacial, artística y de sistemas.",
+      "relations": [
+        {
+          "nbc": "Diseño",
+          "strength": 1
+        },
+        {
+          "nbc": "Artes plásticas visuales y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Arquitectura",
+          "strength": 0.9
+        },
+        {
+          "nbc": "Ingeniería de sistemas telemática y afines",
+          "strength": 0.65
+        }
+      ]
+    },
+    {
+      "label": "Desarrollar tecnología",
+      "rationale": "Desarrollo informático y electrónico según los NBC.",
+      "relations": [
+        {
+          "nbc": "Ingeniería de sistemas telemática y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Ingeniería electrónica telecomunicaciones y afines",
+          "strength": 0.9
+        },
+        {
+          "nbc": "Ingeniería eléctrica y afines",
+          "strength": 0.7
+        }
+      ]
+    },
+    {
+      "label": "Ayudar a otros",
+      "rationale": "Atención, cuidado y acompañamiento en salud, educación y trabajo social.",
+      "relations": [
+        {
+          "nbc": "Medicina",
+          "strength": 1
+        },
+        {
+          "nbc": "Enfermería",
+          "strength": 1
+        },
+        {
+          "nbc": "Terapias",
+          "strength": 0.9
+        },
+        {
+          "nbc": "Psicología",
+          "strength": 0.85
+        },
+        {
+          "nbc": "Sociología trabajo social y afines",
+          "strength": 0.8
+        },
+        {
+          "nbc": "Educación",
+          "strength": 0.75
+        }
+      ]
+    },
+    {
+      "label": "Investigar",
+      "rationale": "Afinidad editorial con ciencias naturales, cuantitativas y salud, sin medir aptitud investigadora.",
+      "relations": [
+        {
+          "nbc": "Biología microbiología y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Química y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Física",
+          "strength": 1
+        },
+        {
+          "nbc": "Matemáticas estadística y afines",
+          "strength": 0.9
+        },
+        {
+          "nbc": "Medicina",
+          "strength": 0.8
+        },
+        {
+          "nbc": "Ingeniería de sistemas telemática y afines",
+          "strength": 0.65
+        }
+      ]
+    },
+    {
+      "label": "Liderar equipos",
+      "rationale": "Organización y gestión en administración y formación relacionada.",
+      "relations": [
+        {
+          "nbc": "Administración",
+          "strength": 1
+        },
+        {
+          "nbc": "Ingeniería administrativa y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Ingeniería industrial y afines",
+          "strength": 0.85
+        }
+      ]
+    },
+    {
+      "label": "Comunicar o negociar",
+      "rationale": "Comunicación, publicidad y gestión comercial.",
+      "relations": [
+        {
+          "nbc": "Comunicación social periodismo y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Publicidad y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Administración",
+          "strength": 0.9
+        },
+        {
+          "nbc": "Economía",
+          "strength": 0.65
+        }
+      ]
+    },
+    {
+      "label": "Enseñar",
+      "rationale": "Afinidad explícita con el NBC Educación.",
+      "relations": [
+        {
+          "nbc": "Educación",
+          "strength": 1
+        },
+        {
+          "nbc": "Lenguas modernas literatura linguística y afines",
+          "strength": 0.7
+        },
+        {
+          "nbc": "Deportes educación física y recreación",
+          "strength": 0.7
+        }
+      ]
+    },
+    {
+      "label": "Trabajar con números",
+      "rationale": "Contabilidad, economía y matemáticas.",
+      "relations": [
+        {
+          "nbc": "Contaduría pública",
+          "strength": 1
+        },
+        {
+          "nbc": "Economía",
+          "strength": 1
+        },
+        {
+          "nbc": "Matemáticas estadística y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Administración",
+          "strength": 0.7
+        }
+      ]
+    },
+    {
+      "label": "Crear cosas nuevas",
+      "rationale": "Reutiliza la motivación existente como preferencia de creación.",
+      "relations": [
+        {
+          "nbc": "Diseño",
+          "strength": 1
+        },
+        {
+          "nbc": "Artes plásticas visuales y afines",
+          "strength": 0.9
+        },
+        {
+          "nbc": "Ingeniería de sistemas telemática y afines",
+          "strength": 0.8
+        },
+        {
+          "nbc": "Arquitectura",
+          "strength": 0.8
+        }
+      ]
+    },
+    {
+      "label": "Trabajar con personas",
+      "rationale": "Reutiliza el interés declarado en interacción, sin inferir personalidad.",
+      "relations": [
+        {
+          "nbc": "Educación",
+          "strength": 1
+        },
+        {
+          "nbc": "Enfermería",
+          "strength": 0.95
+        },
+        {
+          "nbc": "Psicología",
+          "strength": 0.9
+        },
+        {
+          "nbc": "Sociología trabajo social y afines",
+          "strength": 0.9
+        },
+        {
+          "nbc": "Administración",
+          "strength": 0.7
+        },
+        {
+          "nbc": "Comunicación social periodismo y afines",
+          "strength": 0.9
+        }
+      ]
+    }
+  ],
+  "contexts": [
+    {
+      "label": "Personas",
+      "rationale": "Afinidad de contexto con atención, educación y comunicación.",
+      "relations": [
+        {
+          "nbc": "Educación",
+          "strength": 1
+        },
+        {
+          "nbc": "Enfermería",
+          "strength": 1
+        },
+        {
+          "nbc": "Psicología",
+          "strength": 1
+        },
+        {
+          "nbc": "Comunicación social periodismo y afines",
+          "strength": 0.9
+        }
+      ]
+    },
+    {
+      "label": "Datos",
+      "rationale": "Contexto cuantitativo explícito.",
+      "relations": [
+        {
+          "nbc": "Matemáticas estadística y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Ingeniería de sistemas telemática y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Economía",
+          "strength": 0.85
+        },
+        {
+          "nbc": "Contaduría pública",
+          "strength": 0.9
+        }
+      ]
+    },
+    {
+      "label": "Tecnología",
+      "rationale": "Contexto informático/electrónico.",
+      "relations": [
+        {
+          "nbc": "Ingeniería de sistemas telemática y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Ingeniería electrónica telecomunicaciones y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Ingeniería eléctrica y afines",
+          "strength": 0.8
+        }
+      ]
+    },
+    {
+      "label": "Ideas y creación",
+      "rationale": "Contexto de creación y reflexión.",
+      "relations": [
+        {
+          "nbc": "Diseño",
+          "strength": 1
+        },
+        {
+          "nbc": "Artes plásticas visuales y afines",
+          "strength": 0.9
+        },
+        {
+          "nbc": "Filosofía teología y afines",
+          "strength": 1
+        },
+        {
+          "nbc": "Arquitectura",
+          "strength": 0.85
+        }
+      ]
+    },
+    {
+      "label": "Negocios",
+      "rationale": "Contexto de gestión económica.",
+      "relations": [
+        {
+          "nbc": "Administración",
+          "strength": 1
+        },
+        {
+          "nbc": "Economía",
+          "strength": 1
+        },
+        {
+          "nbc": "Contaduría pública",
+          "strength": 1
+        },
+        {
+          "nbc": "Ingeniería administrativa y afines",
+          "strength": 0.9
+        }
+      ]
+    }
+  ],
+  "formations": [
+    {
+      "academicLevel": "Pregrado",
+      "raw": "Especialización tecnológica",
+      "id": "SPECIALIZATION",
+      "label": "Especialización",
+      "count": 1,
+      "selectable": false,
+      "note": "Combinación anómala publicada como Pregrado; se conserva sin ofrecer especializaciones como formación de pregrado."
+    },
+    {
+      "academicLevel": "Posgrado",
+      "raw": "Especialización técnico profesional",
+      "id": "SPECIALIZATION",
+      "label": "Especialización",
+      "count": 65
+    },
+    {
+      "academicLevel": "Pregrado",
+      "raw": "Formación técnica profesional",
+      "id": "TECHNICAL",
+      "label": "Técnico profesional",
+      "count": 2214
+    },
+    {
+      "academicLevel": "Pregrado",
+      "raw": "Tecnológica",
+      "id": "TECHNOLOGICAL",
+      "label": "Tecnológico",
+      "count": 5042
+    },
+    {
+      "academicLevel": "Posgrado",
+      "raw": "Doctorado",
+      "id": "DOCTORATE",
+      "label": "Doctorado",
+      "count": 434
+    },
+    {
+      "academicLevel": "Pregrado",
+      "raw": "Universitaria",
+      "id": "UNIVERSITY",
+      "label": "Universitario",
+      "count": 7788
+    },
+    {
+      "academicLevel": "Posgrado",
+      "raw": "Especialización médico quirúrgica",
+      "id": "SPECIALIZATION",
+      "label": "Especialización",
+      "count": 587
+    },
+    {
+      "academicLevel": "Posgrado",
+      "raw": "Maestría",
+      "id": "MASTER",
+      "label": "Maestría",
+      "count": 2687
+    },
+    {
+      "academicLevel": "Posgrado",
+      "raw": "Especialización universitaria",
+      "id": "SPECIALIZATION",
+      "label": "Especialización",
+      "count": 7632
+    },
+    {
+      "academicLevel": "Posgrado",
+      "raw": "Especialización tecnológica",
+      "id": "SPECIALIZATION",
+      "label": "Especialización",
+      "count": 551
+    }
+  ],
+  "periodMonths": {
+    "Mensual": 1,
+    "Bimestral": 2,
+    "Trimestral": 3,
+    "Cuatrimestral": 4,
+    "Semestral": 6,
+    "Anual": 12
+  },
+  "durationOptions": [
+    {
+      "id": "SHORT",
+      "label": "Hasta 2 años",
+      "maxMonths": 24
+    },
+    {
+      "id": "MEDIUM",
+      "label": "Más de 2 y hasta 4 años",
+      "maxMonths": 48
+    },
+    {
+      "id": "LONG",
+      "label": "Más de 4 años",
+      "maxMonths": 120
+    }
+  ],
+  "sectorOptions": [
+    {
+      "id": "PUBLIC",
+      "label": "Público",
+      "raw": [
+        "Oficial"
+      ]
+    },
+    {
+      "id": "PRIVATE",
+      "label": "Privado",
+      "raw": [
+        "Privado"
+      ]
+    }
+  ],
+  "locationPriorities": [
+    {
+      "id": "REQUIRED",
+      "label": "Indispensable"
+    },
+    {
+      "id": "HIGH",
+      "label": "Muy importante"
+    },
+    {
+      "id": "PREFERRED",
+      "label": "Preferible"
+    },
+    {
+      "id": "IGNORE",
+      "label": "Me da igual"
+    }
+  ],
+  "modalityPriorities": [
+    {
+      "id": "REQUIRED",
+      "label": "Solo la seleccionada"
+    },
+    {
+      "id": "PREFERRED",
+      "label": "La prefiero"
+    },
+    {
+      "id": "IGNORE",
+      "label": "Me da igual"
+    }
+  ]
+}

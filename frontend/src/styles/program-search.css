@@ -1,0 +1,25 @@
+.program-search-panel { display:grid; gap:20px; padding:20px; margin-bottom:20px; background:#fff; border:1px solid var(--line-card); border-radius:12px; }
+.program-search-primary { display:grid; grid-template-columns:2fr 1fr 1fr; gap:16px; }
+.program-search-university { display:flex; align-items:flex-end; gap:16px; }
+.program-search-university > .field { flex:1; min-width:0; }
+.program-fixed-institution { flex:1; margin:0; align-self:center; }
+.program-search-panel .field { min-width:0; }
+.program-search-panel select,.program-search-panel input { width:100%; min-height:44px; min-width:0; }
+.program-more-filters { border-top:1px solid var(--line-card); padding-top:8px; }
+.program-more-filters summary { cursor:pointer; min-height:44px; padding:12px 0; font-weight:600; }
+.program-search-extra { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; padding-top:12px; }
+.program-active-filters { display:flex; flex-wrap:wrap; gap:8px; list-style:none; padding:0; margin:0 0 20px; }
+.program-active-filters li { max-width:100%; }
+.program-active-filters button { display:flex; align-items:center; gap:12px; max-width:100%; min-height:44px; background:#eef3f8; border:1px solid var(--line-card); border-radius:8px; padding:8px 12px; color:var(--navy); text-align:left; cursor:pointer; }
+.program-active-filters button span { overflow-wrap:anywhere; }
+.program-filter-error { display:flex; align-items:center; flex-wrap:wrap; gap:12px; }
+.program-filter-error p { margin:0; }
+.institution-search { position:relative; }
+.institution-options-panel { position:absolute; top:100%; left:0; right:0; z-index:20; background:#fff; border:1px solid var(--line-card); border-radius:8px; box-shadow:0 4px 12px #10254a18; }
+.institution-options-panel ul { list-style:none; margin:0; padding:4px; max-height:280px; overflow-y:auto; }
+.institution-options-panel li { padding:12px; min-height:44px; cursor:pointer; overflow-wrap:anywhere; color:var(--navy); }
+.institution-options-panel li.is-active,.institution-options-panel li:hover { background:#eef3f8; }
+.institution-options-panel p { padding:12px; margin:0; }
+@media (max-width:1024px) { .program-search-primary { grid-template-columns:repeat(2,minmax(0,1fr)); } .program-search-primary > :first-child { grid-column:1/-1; } }
+@media (max-width:768px) { .program-search-extra { grid-template-columns:1fr; } }
+@media (max-width:540px) { .program-search-panel { padding:16px; } .program-search-primary { grid-template-columns:1fr; } .program-search-university { flex-direction:column; align-items:stretch; } .program-fixed-institution { align-self:stretch; } .program-search-university > .field { width:100%; } }

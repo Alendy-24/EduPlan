@@ -1,0 +1,16 @@
+import { Link } from 'react-router-dom';
+import { useRecommendations } from '../hooks/useRecommendations';
+import ProgramCard from './ProgramCard';
+import RecommendationExplanation from './RecommendationExplanation';
+import RecommendationScore from './RecommendationScore';
+import { useRecommendationFeedback } from '../hooks/useRecommendationFeedback';
+export default function RecommendationsSection({ limit=20 }) {
+  const feedback = useRecommendationFeedback();
+  const result = useRecommendations({limit,excludedSourceIds:feedback.excluded});
+  const incomplete = result.state === 'ready' && result.status === 'INCOMPLETE_PROFILE';
+  return <section className="dashboard-section recommendations-section"><div className="section-heading"><div><p className="eyebrow">Orientación a tu medida</p><h2>{incomplete ? 'Prepara tus recomendaciones' : 'Programas para explorar'}</h2><p>{incomplete ? 'Primero necesitamos conocer al menos un interés general o un NBC específico.' : 'Compatibilidad orientativa con tus preferencias y ofertas verificadas.'}</p></div></div>
+    {feedback.excluded.length>0 && <p className="subtle">{feedback.excluded.length} registros ocultos para tu cuenta en este dispositivo. <button className="plain-button text-link" onClick={feedback.reset}>Restaurar recomendaciones ocultas</button></p>}{!feedback.persistent && <p role="status">No pudimos guardar las exclusiones en este dispositivo; permanecen durante esta visita.</p>}
+    {result.state==='loading' ? <p role="status">Consultando el catálogo y calculando compatibilidad…</p> : result.state==='error' ? <div role="alert"><p>{result.error}</p><button className="btn btn-secondary" onClick={result.retry}>Reintentar recomendaciones</button></div> : incomplete ? <div className="recommendation-onboarding surface"><span className="onboarding-number">01 / 02</span><h3>Cuéntanos qué buscas</h3><p>Selecciona un área de interés en tu perfil o un NBC específico en Orientación. Puedes dejar el nivel académico sin definir. Si prefieres estudiar solo en una ciudad o departamento, indícalo en tus preferencias.</p><div className="recommendation-onboarding-actions"><Link className="btn btn-primary" to="/perfil">Completar perfil académico</Link></div></div> : result.data.length ? <div className="recommendation-list">{result.data.map(row=><div className="recommendation-result" key={row.program.sourceId}><RecommendationScore result={row} className="recommendation-score compatibility"/><ProgramCard program={row.program}><RecommendationExplanation result={row} showScore={false} /></ProgramCard><button className="plain-button text-link recommendation-dismiss" aria-label={`No me interesa ${row.program.name}`} onClick={()=>feedback.dismiss(row.program.sourceId)}>No me interesa</button></div>)}</div> : <div className="recommendation-onboarding surface"><h3>Sin coincidencias por ahora</h3><p>No hay ofertas verificadas que cumplan tus restricciones actuales. Puedes revisar el nivel y la ubicación sin perder tus intereses.</p><Link className="btn btn-secondary" to="/perfil">Revisar preferencias</Link></div>}
+    {limit===3 && !incomplete && result.data.length > 0 && <p><Link className="text-link" to="/recomendaciones">Ver todas las recomendaciones →</Link></p>}
+  </section>;
+}

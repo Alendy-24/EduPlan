@@ -1,28 +1,10 @@
-import chatIcon from "../assets/Images/chat.svg";
-
-function Footer() {
-    return (
-        <footer className="footer">
-
-            <div className="footer-content">
-
-                <p>
-                    ¿Eres una organización o institución y quieres ser parte de nuestra misión?
-                </p>
-
-                <button className="contact-button">
-                    Contáctanos!
-                </button>
-
-            </div>
-
-            <div className="chat-button">
-                <img src={chatIcon} alt="Ayuda" />
-                <span>¿Necesitas ayuda?</span>
-            </div>
-
-        </footer>
-    );
+import { Link } from 'react-router-dom';
+import { ChatIcon } from './Assistant';
+export default function Footer({ onOpenAssistant }) {
+  return <footer className="site-footer"><div className="container footer-grid">
+    <div className="footer-brand"><Link to="/">EduPlan</Link><p>Información para elegir<br />tu camino académico.</p></div>
+    <nav aria-label="Explorar en EduPlan"><h2>Explorar</h2><Link to="/instituciones">Instituciones</Link><Link to="/programas">Programas</Link><Link to="/becas">Becas</Link><Link to="/guias">Guías</Link></nav>
+    <nav aria-label="Tu espacio"><h2>Tu espacio</h2><Link to="/dashboard">Mi espacio</Link><Link to="/perfil">Mi perfil</Link></nav>
+    <div className="footer-assistant"><h2>Asistente</h2><button className="footer-assistant-button" type="button" onClick={onOpenAssistant}><ChatIcon /> Asistente EduPlan</button><p>Próximamente</p></div>
+  </div><div className="container footer-bottom"><p>© EduPlan <span>Información educativa basada en fuentes públicas.</span></p></div></footer>;
 }
-
-export default Footer;

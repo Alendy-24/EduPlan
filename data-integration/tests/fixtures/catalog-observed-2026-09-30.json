@@ -1,0 +1,390 @@
+{
+  "observedAt": "2026-09-30",
+  "dataset": "upr9-nkiz",
+  "source": "https://www.datos.gov.co/resource/upr9-nkiz.json",
+  "academicFormation": [
+    {
+      "count": "4"
+    },
+    {
+      "nombrenivelacademico": "Pregrado",
+      "nombrenivelformacion": "Especialización tecnológica",
+      "count": "1"
+    },
+    {
+      "nombrenivelacademico": "Posgrado",
+      "nombrenivelformacion": "Especialización técnico profesional",
+      "count": "65"
+    },
+    {
+      "nombrenivelacademico": "Pregrado",
+      "nombrenivelformacion": "Formación técnica profesional",
+      "count": "2214"
+    },
+    {
+      "nombrenivelacademico": "Pregrado",
+      "nombrenivelformacion": "Tecnológica",
+      "count": "5042"
+    },
+    {
+      "nombrenivelacademico": "Posgrado",
+      "nombrenivelformacion": "Doctorado",
+      "count": "434"
+    },
+    {
+      "nombrenivelacademico": "Pregrado",
+      "nombrenivelformacion": "Universitaria",
+      "count": "7788"
+    },
+    {
+      "nombrenivelacademico": "Posgrado",
+      "nombrenivelformacion": "Especialización médico quirúrgica",
+      "count": "587"
+    },
+    {
+      "nombrenivelacademico": "Posgrado",
+      "nombrenivelformacion": "Maestría",
+      "count": "2687"
+    },
+    {
+      "nombrenivelacademico": "Posgrado",
+      "nombrenivelformacion": "Especialización universitaria",
+      "count": "7632"
+    },
+    {
+      "nombrenivelacademico": "Posgrado",
+      "nombrenivelformacion": "Especialización tecnológica",
+      "count": "551"
+    }
+  ],
+  "nbcBroadArea": [
+    {
+      "count": "4"
+    },
+    {
+      "nombrenbc": "Otros programas asociados a bellas artes",
+      "nombreareaconocimiento": "Bellas artes",
+      "count": "74"
+    },
+    {
+      "nombrenbc": "Educación",
+      "nombreareaconocimiento": "Ciencias de la educación",
+      "count": "3104"
+    },
+    {
+      "nombrenbc": "Artes plásticas visuales y afines",
+      "nombreareaconocimiento": "Bellas artes",
+      "count": "181"
+    },
+    {
+      "nombrenbc": "Filosofía teología y afines",
+      "nombreareaconocimiento": "Ciencias sociales y humanas",
+      "count": "174"
+    },
+    {
+      "nombrenbc": "Ingeniería biomédica y afines",
+      "nombreareaconocimiento": "Ingeniería arquitectura urbanismo y afines",
+      "count": "63"
+    },
+    {
+      "nombrenbc": "Salud pública",
+      "nombreareaconocimiento": "Ciencias de la salud",
+      "count": "356"
+    },
+    {
+      "nombrenbc": "Bacteriología",
+      "nombreareaconocimiento": "Ciencias de la salud",
+      "count": "67"
+    },
+    {
+      "nombrenbc": "Diseño",
+      "nombreareaconocimiento": "Bellas artes",
+      "count": "578"
+    },
+    {
+      "nombrenbc": "Medicina",
+      "nombreareaconocimiento": "Ciencias de la salud",
+      "count": "946"
+    },
+    {
+      "nombrenbc": "Instrumentación quirúrgica",
+      "nombreareaconocimiento": "Ciencias de la salud",
+      "count": "27"
+    },
+    {
+      "nombrenbc": "Bibliotecología otros de ciencias sociales y humanas",
+      "nombreareaconocimiento": "Ciencias sociales y humanas",
+      "count": "91"
+    },
+    {
+      "nombrenbc": "Lenguas modernas literatura linguística y afines",
+      "nombreareaconocimiento": "Ciencias sociales y humanas",
+      "count": "127"
+    },
+    {
+      "nombrenbc": "Arquitectura",
+      "nombreareaconocimiento": "Ingeniería arquitectura urbanismo y afines",
+      "count": "252"
+    },
+    {
+      "nombrenbc": "Optometría otros programas de ciencias de la salud",
+      "nombreareaconocimiento": "Ciencias de la salud",
+      "count": "41"
+    },
+    {
+      "nombrenbc": "Geología otros programas de ciencias naturales",
+      "nombreareaconocimiento": "Matemáticas y ciencias naturales",
+      "count": "63"
+    },
+    {
+      "nombrenbc": "Ingeniería ambiental sanitaria y afines",
+      "nombreareaconocimiento": "Ingeniería arquitectura urbanismo y afines",
+      "count": "527"
+    },
+    {
+      "nombrenbc": "Ingeniería agroindustrial alimentos y afines",
+      "nombreareaconocimiento": "Ingeniería arquitectura urbanismo y afines",
+      "count": "257"
+    },
+    {
+      "nombrenbc": "Deportes educación física y recreación",
+      "nombreareaconocimiento": "Ciencias sociales y humanas",
+      "count": "133"
+    },
+    {
+      "nombrenbc": "Terapias",
+      "nombreareaconocimiento": "Ciencias de la salud",
+      "count": "197"
+    },
+    {
+      "nombrenbc": "Ingeniería agrícola forestal y afines",
+      "nombreareaconocimiento": "Ingeniería arquitectura urbanismo y afines",
+      "count": "121"
+    },
+    {
+      "nombrenbc": "Ingeniería civil y afines",
+      "nombreareaconocimiento": "Ingeniería arquitectura urbanismo y afines",
+      "count": "405"
+    },
+    {
+      "nombrenbc": "Ingeniería industrial y afines",
+      "nombreareaconocimiento": "Ingeniería arquitectura urbanismo y afines",
+      "count": "751"
+    },
+    {
+      "nombrenbc": "Comunicación social periodismo y afines",
+      "nombreareaconocimiento": "Ciencias sociales y humanas",
+      "count": "433"
+    },
+    {
+      "nombrenbc": "Psicología",
+      "nombreareaconocimiento": "Ciencias sociales y humanas",
+      "count": "443"
+    },
+    {
+      "nombrenbc": "Ingeniería mecánica y afines",
+      "nombreareaconocimiento": "Ingeniería arquitectura urbanismo y afines",
+      "count": "404"
+    },
+    {
+      "nombrenbc": "Enfermería",
+      "nombreareaconocimiento": "Ciencias de la salud",
+      "count": "175"
+    },
+    {
+      "nombrenbc": "Química y afines",
+      "nombreareaconocimiento": "Matemáticas y ciencias naturales",
+      "count": "128"
+    },
+    {
+      "nombrenbc": "Administración",
+      "nombreareaconocimiento": "Economía administración contaduría y afines",
+      "count": "6099"
+    },
+    {
+      "nombrenbc": "Física",
+      "nombreareaconocimiento": "Matemáticas y ciencias naturales",
+      "count": "67"
+    },
+    {
+      "nombrenbc": "Derecho y afines",
+      "nombreareaconocimiento": "Ciencias sociales y humanas",
+      "count": "1800"
+    },
+    {
+      "nombrenbc": "Biología microbiología y afines",
+      "nombreareaconocimiento": "Matemáticas y ciencias naturales",
+      "count": "274"
+    },
+    {
+      "nombrenbc": "Otras ingenierías",
+      "nombreareaconocimiento": "Ingeniería arquitectura urbanismo y afines",
+      "count": "140"
+    },
+    {
+      "nombrenbc": "Ingeniería electrónica telecomunicaciones y afines",
+      "nombreareaconocimiento": "Ingeniería arquitectura urbanismo y afines",
+      "count": "735"
+    },
+    {
+      "nombrenbc": "Geografía historia",
+      "nombreareaconocimiento": "Ciencias sociales y humanas",
+      "count": "93"
+    },
+    {
+      "nombrenbc": "Contaduría pública",
+      "nombreareaconocimiento": "Economía administración contaduría y afines",
+      "count": "1045"
+    },
+    {
+      "nombrenbc": "Nutrición y dietética",
+      "nombreareaconocimiento": "Ciencias de la salud",
+      "count": "35"
+    },
+    {
+      "nombrenbc": "Odontología",
+      "nombreareaconocimiento": "Ciencias de la salud",
+      "count": "226"
+    },
+    {
+      "nombrenbc": "Sociología trabajo social y afines",
+      "nombreareaconocimiento": "Ciencias sociales y humanas",
+      "count": "377"
+    },
+    {
+      "nombrenbc": "Antropología y  artes liberales",
+      "nombreareaconocimiento": "Ciencias sociales y humanas",
+      "count": "63"
+    },
+    {
+      "nombrenbc": "Ingeniería agronómica pecuaria y afines",
+      "nombreareaconocimiento": "Ingeniería arquitectura urbanismo y afines",
+      "count": "118"
+    },
+    {
+      "nombrenbc": "Ingeniería administrativa y afines",
+      "nombreareaconocimiento": "Ingeniería arquitectura urbanismo y afines",
+      "count": "92"
+    },
+    {
+      "nombrenbc": "Publicidad y afines",
+      "nombreareaconocimiento": "Bellas artes",
+      "count": "211"
+    },
+    {
+      "nombrenbc": "Zootecnia",
+      "nombreareaconocimiento": "Agronomía veterinaria y afines",
+      "count": "163"
+    },
+    {
+      "nombrenbc": "Artes representativas",
+      "nombreareaconocimiento": "Bellas artes",
+      "count": "61"
+    },
+    {
+      "nombrenbc": "Ingeniería eléctrica y afines",
+      "nombreareaconocimiento": "Ingeniería arquitectura urbanismo y afines",
+      "count": "213"
+    },
+    {
+      "nombrenbc": "Agronomía",
+      "nombreareaconocimiento": "Agronomía veterinaria y afines",
+      "count": "414"
+    },
+    {
+      "nombrenbc": "Ingeniería de sistemas telemática y afines",
+      "nombreareaconocimiento": "Ingeniería arquitectura urbanismo y afines",
+      "count": "1668"
+    },
+    {
+      "nombrenbc": "Ingeniería química y afines",
+      "nombreareaconocimiento": "Ingeniería arquitectura urbanismo y afines",
+      "count": "176"
+    },
+    {
+      "nombrenbc": "Ingeniería de minas metalurgia y afines",
+      "nombreareaconocimiento": "Ingeniería arquitectura urbanismo y afines",
+      "count": "132"
+    },
+    {
+      "nombrenbc": "Medicina veterinaria",
+      "nombreareaconocimiento": "Agronomía veterinaria y afines",
+      "count": "120"
+    },
+    {
+      "nombrenbc": "Formación relacionada con el campo militar o policial",
+      "nombreareaconocimiento": "Ciencias sociales y humanas",
+      "count": "82"
+    },
+    {
+      "nombrenbc": "Sin clasificar",
+      "nombreareaconocimiento": "Sin clasificar",
+      "count": "1350"
+    },
+    {
+      "nombrenbc": "Ciencia política relaciones internacionales",
+      "nombreareaconocimiento": "Ciencias sociales y humanas",
+      "count": "219"
+    },
+    {
+      "nombrenbc": "Economía",
+      "nombreareaconocimiento": "Economía administración contaduría y afines",
+      "count": "644"
+    },
+    {
+      "nombrenbc": "Matemáticas estadística y afines",
+      "nombreareaconocimiento": "Matemáticas y ciencias naturales",
+      "count": "185"
+    },
+    {
+      "nombrenbc": "Música",
+      "nombreareaconocimiento": "Bellas artes",
+      "count": "81"
+    }
+  ],
+  "periodicity": [
+    {
+      "nombreperiodicidad": "Periodos",
+      "count": "298"
+    },
+    {
+      "nombreperiodicidad": "Bimensual",
+      "count": "15"
+    },
+    {
+      "nombreperiodicidad": "Anual",
+      "count": "1795"
+    },
+    {
+      "nombreperiodicidad": "Cuatrimestral",
+      "count": "314"
+    },
+    {
+      "nombreperiodicidad": "Semestral",
+      "count": "22401"
+    },
+    {
+      "count": "4"
+    },
+    {
+      "nombreperiodicidad": "Sin definir",
+      "count": "287"
+    },
+    {
+      "nombreperiodicidad": "Mensual",
+      "count": "1168"
+    },
+    {
+      "nombreperiodicidad": "Trimestral",
+      "count": "714"
+    },
+    {
+      "nombreperiodicidad": "Bimestral",
+      "count": "8"
+    },
+    {
+      "nombreperiodicidad": "Por cohorte",
+      "count": "1"
+    }
+  ]
+}

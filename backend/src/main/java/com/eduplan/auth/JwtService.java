@@ -41,6 +41,16 @@ public class JwtService {
         return parseClaims(token).getSubject();
     }
 
+    public CuentaPrincipal extractPrincipal(String token) {
+        Claims claims = parseClaims(token);
+        Long userId = claims.get("userId", Long.class);
+        String identifier = claims.getSubject();
+        if (userId == null || userId <= 0 || identifier == null || identifier.isBlank()) {
+            throw new IllegalArgumentException("Identidad de sesión inválida");
+        }
+        return new CuentaPrincipal(userId, identifier);
+    }
+
     public boolean isValid(String token) {
         try {
             parseClaims(token);

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import InstitutionCard from "../components/InstitutionCard";
 import { getInstitutions } from "../services/institutions";
-import "./InstitutionsPage.css";
 
 const MODALITIES = ["Presencial", "A distancia", "Virtual", "Presencial-Virtual"];
 const SECTORS = ["Oficial", "Privado"];
@@ -14,13 +14,27 @@ const ACADEMIC_CHARACTERS = [
 const EMPTY_TEXT = { name: "", municipality: "", program: "" };
 
 function InstitutionsPage() {
-    const [name, setName] = useState("");
-    const [municipality, setMunicipality] = useState("");
-    const [program, setProgram] = useState("");
-    const [textFilters, setTextFilters] = useState(EMPTY_TEXT);
-    const [modality, setModality] = useState("");
-    const [sector, setSector] = useState("");
-    const [academicCharacter, setAcademicCharacter] = useState("");
+    const [params, setParams] = useSearchParams();
+    const name = params.get("q") || "";
+    const municipality = params.get("city") || "";
+    const program = params.get("program") || "";
+    const modality = params.get("modality") || "";
+    const sector = params.get("sector") || "";
+    const academicCharacter = params.get("academicCharacter") || "";
+    function updateParam(key, value) {
+        setParams(current => {
+            const next = new URLSearchParams(current);
+            if (value) next.set(key, value); else next.delete(key);
+            return next;
+        }, { replace: true });
+    }
+    const setName = value => updateParam("q", value);
+    const setMunicipality = value => updateParam("city", value);
+    const setProgram = value => updateParam("program", value);
+    const setModality = value => updateParam("modality", value);
+    const setSector = value => updateParam("sector", value);
+    const setAcademicCharacter = value => updateParam("academicCharacter", value);
+    const [textFilters, setTextFilters] = useState(() => ({ name, municipality, program }));
     const [institutions, setInstitutions] = useState([]);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -57,7 +71,7 @@ function InstitutionsPage() {
         getInstitutions(JSON.parse(criteriaKey), page, controller.signal)
             .then(({ institutions: fetched, hasMore: more }) => {
                 setInstitutions((current) => {
-                    if (page === 1) return fetched;
+                    if (page === 1) return [...new Map(fetched.map(institution => [institution.code, institution])).values()];
                     const seen = new Set(current.map((institution) => institution.code));
                     return [...current, ...fetched.filter((institution) => {
                         if (seen.has(institution.code)) return false;
@@ -80,13 +94,8 @@ function InstitutionsPage() {
     const hasFilters = Boolean(name || municipality || program || modality || sector || academicCharacter);
 
     function clearFilters() {
-        setName("");
-        setMunicipality("");
-        setProgram("");
+        setParams({});
         setTextFilters(EMPTY_TEXT);
-        setModality("");
-        setSector("");
-        setAcademicCharacter("");
         setPage(1);
     }
 
@@ -100,7 +109,7 @@ function InstitutionsPage() {
             <div className="institutions-panel">
                 <div className="institutions-intro">
                     <h1>Búsqueda de instituciones</h1>
-                    <p>Explora instituciones y universidades que ofrecen programas</p>
+                    <p>Explora universidades e instituciones de educación superior en Colombia. Filtra por ubicación, programas y tipo de institución.</p>
                 </div>
 
                 <form className="institutions-search" onSubmit={applyTextFilters} role="search">
@@ -113,18 +122,8 @@ function InstitutionsPage() {
                         value={name}
                         onChange={(event) => setName(event.target.value)}
                     />
+                    <button className="btn-primary" type="submit">Buscar</button>
                 </form>
-
-                <div className="institutions-match-banner">
-                    <strong>Explora instituciones según tus criterios de búsqueda</strong>
-                    <button
-                        className="btn-primary institutions-match-button"
-                        type="button"
-                        onClick={() => document.getElementById("institution-results")?.scrollIntoView({ behavior: "smooth" })}
-                    >
-                        Ver resultados
-                    </button>
-                </div>
 
                 <div className="institutions-filters" aria-label="Filtros de instituciones">
                     <label className="institution-filter-field">
@@ -178,7 +177,7 @@ function InstitutionsPage() {
 
                 <section id="institution-results" className="institutions-results" aria-live="polite">
                     {!error && institutions.length > 0 && (
-                        <p className="institutions-count">Mostrando {institutions.length} instituciones</p>
+                        <p className="institutions-count">Mostrando {institutions.length} {institutions.length === 1 ? 'institución' : 'instituciones'}</p>
                     )}
                     {institutions.length > 0 && (
                         <div className="institutions-grid">

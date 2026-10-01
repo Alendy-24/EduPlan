@@ -1,10 +1,22 @@
 {
   "name": "eduplan-dev",
   "private": true,
+  "workspaces": [
+    "frontend",
+    "data-integration"
+  ],
   "scripts": {
-    "dev": "concurrently --kill-others --names frontend,data-integration \"npm run dev --prefix frontend\" \"npm run dev --prefix data-integration\""
+    "dev": "node scripts/dev.mjs",
+    "dev:frontend": "node scripts/dev-frontend.mjs",
+    "dev:backend": "node scripts/dev-backend.mjs",
+    "doctor": "node scripts/doctor.mjs",
+    "dev:db:stop": "node scripts/stop-dev-db.mjs",
+    "test:dev": "node --test scripts/tests/*.test.mjs"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.4"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
   }
 }

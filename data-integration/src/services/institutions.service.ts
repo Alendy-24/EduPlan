@@ -13,6 +13,7 @@ interface InstitutionSourceRow {
   tel_fono_domicilio?: string;
   estado?: string;
   p_gina_web?: string;
+  principal_seccional?: string;
 }
 
 interface ProgramInstitutionRow {
@@ -31,6 +32,7 @@ const SELECT_FIELDS = [
   "tel_fono_domicilio",
   "estado",
   "p_gina_web",
+  "principal_seccional",
 ].join(",");
 
 function escapeSoql(value: string): string {
@@ -70,7 +72,27 @@ function transformInstitution(row: InstitutionSourceRow): Institution {
     phone: row.tel_fono_domicilio ?? "",
     status: row.estado ?? "",
     website: row.p_gina_web ?? "",
+    campus: row.principal_seccional ?? "",
   };
+}
+
+let catalogCache: { expiresAt: number; data: Map<string, Institution> } | undefined;
+let catalogRequest: Promise<Map<string, Institution>> | undefined;
+export function clearInstitutionCatalogCache() { catalogCache = undefined; catalogRequest = undefined; }
+export function getInstitutionCatalog(): Promise<Map<string, Institution>> {
+  if (catalogCache && catalogCache.expiresAt > Date.now()) return Promise.resolve(catalogCache.data);
+  if (catalogRequest) return catalogRequest;
+  catalogRequest = (async () => {
+    const url = new URL(SOURCES.institutions.resourceUrl);
+    url.searchParams.set('$select', SELECT_FIELDS);
+    url.searchParams.set('$limit', '50000');
+    const rows = await fetchJson<InstitutionSourceRow[]>(url);
+    if (!Array.isArray(rows) || rows.length >= 50000) throw new Error('Catálogo institucional incompleto');
+    const data = new Map(rows.filter(row => /^\d+$/.test(row.c_digo_instituci_n ?? '')).map(row => [row.c_digo_instituci_n!, transformInstitution(row)]));
+    catalogCache = { data, expiresAt: Date.now() + 5 * 60 * 1000 };
+    return data;
+  })().finally(() => { catalogRequest = undefined; });
+  return catalogRequest;
 }
 
 function exactText(field: string, value: string): string {

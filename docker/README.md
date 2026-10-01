@@ -1,115 +1,53 @@
-# PostgreSQL local con Docker
+# PostgreSQL de desarrollo
 
-Esta configuracion crea una base de datos de desarrollo aislada para EduPlan.
-No reemplaza ni modifica la instalacion nativa de PostgreSQL de Windows.
+Docker es infraestructura interna: solo ejecuta PostgreSQL. El frontend,
+data-integration y Spring Boot corren en el host para conservar hot reload.
 
-## Puertos
-
-- PostgreSQL instalado en Windows: `localhost:5432`.
-- PostgreSQL de Docker para EduPlan: `localhost:5433`.
-
-Se usan puertos distintos para que ambos puedan estar encendidos al mismo tiempo.
-
-## Primera ejecucion
-
-1. Tener Docker Engine activo en WSL. En este equipo ya quedo instalado como
-   servicio de Ubuntu, por lo que no es necesario abrir Docker Desktop.
-2. Desde la raiz del repositorio, entrar a la carpeta `docker`:
-
-   ```bash
-   cd docker
-   ```
-
-3. Crear los archivos locales a partir de los ejemplos:
-
-   ```bash
-   cp .env.example .env
-   cp backend.env.example backend.env
-   ```
-
-4. Reemplazar los valores `CHANGE_ME...` en ambos archivos. La contrasena de
-   `POSTGRES_PASSWORD` y `DB_PASSWORD` debe ser exactamente la misma.
-5. Levantar PostgreSQL:
-
-   ```bash
-   sudo docker compose up -d
-   sudo docker compose ps
-   ```
-
-Los archivos `.env` y `backend.env` son locales y Git los ignora. Nunca se
-deben subir contrasenas reales al repositorio.
-
-## Ejecutar el backend
-
-En Visual Studio Code, abrir la carpeta raiz `EduPlan`, ir a **Run and Debug** y
-elegir `EduPlan Backend (Docker PostgreSQL)`. La configuracion
-`.vscode/launch.json` carga automaticamente `docker/backend.env`.
-
-Desde una terminal tambien se puede cargar esas mismas variables y ejecutar el
-Maven Wrapper ubicado en `backend/src`.
-
-En WSL, desde la raiz de `EduPlan`, usar tres terminales:
+Desde la raíz, con Node compatible, JDK 21+ y Docker/Compose v2 disponibles:
 
 ```bash
-# Terminal 1: base de datos (puede cerrarse despues de levantarla)
-cd docker
-sudo docker compose up -d
+npm install
+npm run dev
 ```
+
+Abre **http://localhost:3005**. No copies `.env` ni `backend.env`.
+La configuración se genera en `.tools/local-dev/`, ignorada por Git. El arranque
+no carga los archivos antiguos `docker/.env` y `docker/backend.env`.
+La contraseña se conserva en `docker-database.json`; `postgres.env` se genera
+para Compose. Nunca compartas ni subas estos archivos.
+
+PostgreSQL escucha solo en loopback, puerto 5433; el volumen
+`eduplan_eduplan_postgres_data` conserva los datos. Ctrl+C detiene los procesos
+Node/Java y deja PostgreSQL disponible. `npm run dev:db:stop` lo detiene sin
+borrar datos. Una base externa configurada mediante las tres variables DB_*
+evita Docker por completo. Consulta el [inicio rápido y diagnóstico](../README.md).
+
+## Uso avanzado y troubleshooting
+
+Después del primer arranque, desde la raíz:
 
 ```bash
-# Terminal 2: API que consulta Socrata
-cd data-integration
-npm start
+docker compose --env-file .tools/local-dev/postgres.env -f docker/docker-compose.yml ps
+docker compose --env-file .tools/local-dev/postgres.env -f docker/docker-compose.yml logs postgres
+npm run dev:db:stop
 ```
 
-```bash
-# Terminal 3: backend conectado a la base Docker
-cd backend/src
-set -a
-source ../../docker/backend.env
-set +a
-./mvnw spring-boot:run
-```
+Para inspección con pgAdmin: host localhost, puerto 5433, base eduplan_db,
+usuario eduplan y contraseña del archivo local generado. Flyway crea el esquema;
+la sincronización administrativa del catálogo requiere tokens explícitos y no
+se ejecuta automáticamente. Consulta [la documentación de enlaces](../docs/program-links.md)
+y las variables administrativas en `backend.env.example`.
 
-Con los tres componentes activos, la sincronizacion completa se ejecuta desde
-una cuarta terminal en la raiz de `EduPlan`:
+En un uso manual independiente, `.env.example` documenta las variables Compose;
+exporta una contraseña aleatoria antes de `docker compose up -d --wait postgres`.
+No mezcles credenciales manuales con un volumen ya inicializado. No hay una
+contraseña predeterminada. Si faltan las credenciales de un volumen existente,
+el arranque falla para preservar los datos: recupera la contraseña original.
 
-```bash
-set -a
-source docker/backend.env
-set +a
-curl --request POST \
-  --header "X-Sync-Token: ${DATA_SYNC_ADMIN_TOKEN}" \
-  http://localhost:8080/api/admin/data-sync
-```
+El flujo anterior WSL conserva su volumen y contraseña mediante migración de
+`wsl-database.json`. La base nativa anterior de Windows permanece intacta y puede
+usarse como base externa. No se elimina ni se convierte automáticamente.
 
-Al iniciar correctamente, Flyway crea las tablas en la base `eduplan_db`. Los
-datos de instituciones y programas se insertan cuando se ejecuta la
-sincronizacion contra el servicio Node.js; levantar PostgreSQL por si solo crea
-la base, pero no descarga datos de Socrata.
-
-## Ver la base en pgAdmin
-
-Registrar un servidor adicional con estos datos:
-
-- Host: `localhost`
-- Puerto: `5433`
-- Base de mantenimiento: `eduplan_db`
-- Usuario y contrasena: los valores de `docker/.env`
-
-La conexion existente al puerto `5432` muestra la base nativa de Windows, no la
-base del contenedor.
-
-## Comandos utiles
-
-```bash
-sudo docker compose ps
-sudo docker compose logs postgres
-sudo docker compose stop
-sudo docker compose start
-sudo docker compose down
-```
-
-`sudo docker compose down` elimina el contenedor y la red, pero conserva los datos
-en el volumen. `sudo docker compose down -v` tambien borra el volumen y todos los
-datos, por lo que solo debe usarse si se desea reiniciar completamente la base.
+Para un error de daemon o de permisos ejecuta `npm run doctor`. No ejecutes
+Compose con sudo como parte del flujo del proyecto; resuelve primero el acceso
+a Docker según el diagnóstico. Nunca se cambian permisos del sistema.

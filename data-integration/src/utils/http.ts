@@ -1,8 +1,8 @@
 const DEFAULT_TIMEOUT_MS = 10_000;
 
-export async function fetchJson<T>(url: URL): Promise<T> {
+export async function fetchJson<T>(url: URL, timeoutMs = DEFAULT_TIMEOUT_MS): Promise<T> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   const headers: Record<string, string> = { Accept: "application/json" };
 
   if (process.env.SOCRATA_APP_TOKEN) {
