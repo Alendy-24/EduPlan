@@ -9,7 +9,7 @@ export default function ProgramCard({ program, searchQuery = '', children }) {
   return <article className={'list-item surface' + (program.image ? '' : ' program-no-image')}>
     {program.image && <img src={program.image} alt="Espacio de estudio de referencia" loading="lazy" />}
     <div><h3>{name}</h3><p className="program-institution">{program.institution} <span>— {program.city}{program.institutionCampus && ' · ' + program.institutionCampus}</span></p>
-      <div className="metadata">{[program.level, program.modality, program.duration].filter(Boolean).map((text, i) => <span key={i}>{text}</span>)}</div>
+      <div className="metadata">{[program.level, program.educationLevel, program.modality, program.duration].filter(Boolean).map((text, i) => <span key={i}>{text}</span>)}</div>
       {program.area && <p className="program-area">NBC: {program.area}</p>}
       {program.status && <p className="program-status">Estado: {program.status}</p>}
       {program.provenance === 'demo' && <p className="program-status">Demostración</p>}

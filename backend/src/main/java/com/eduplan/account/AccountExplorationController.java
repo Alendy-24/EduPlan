@@ -12,14 +12,21 @@ import java.util.List;
 public class AccountExplorationController {
     private final AccountExplorationService service;
     private final AcademicPreferencesService preferences;
+    private final MatchingPreferencesService matching;
 
-    public AccountExplorationController(AccountExplorationService service, AcademicPreferencesService preferences) { this.service = service; this.preferences = preferences; }
+    public AccountExplorationController(AccountExplorationService service, AcademicPreferencesService preferences, MatchingPreferencesService matching) { this.service = service; this.preferences = preferences; this.matching = matching; }
 
     @GetMapping("/preferences")
     public AcademicPreferences preferences(@AuthenticationPrincipal CuentaPrincipal principal) { return preferences.get(principal); }
 
     @PutMapping("/preferences")
     public AcademicPreferences preferences(@AuthenticationPrincipal CuentaPrincipal principal, @Valid @RequestBody AcademicPreferences request) { return preferences.put(principal, request); }
+
+    @GetMapping("/matching-preferences")
+    public MatchingPreferences matching(@AuthenticationPrincipal CuentaPrincipal principal) { return matching.get(principal); }
+
+    @PutMapping("/matching-preferences")
+    public MatchingPreferences matching(@AuthenticationPrincipal CuentaPrincipal principal, @Valid @RequestBody MatchingPreferences request) { return matching.put(principal,request); }
 
     public record SavedList(List<SavedOptionResponse> data) {}
 

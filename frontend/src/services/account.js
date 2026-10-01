@@ -1,3 +1,4 @@
+import {emptyRefinement,validRefinement} from '../utils/matching.js';
 import { validSavedItem } from '../utils/saved.js';
 import { validInterests } from '../utils/interests.js';
 import { validPreferences } from '../utils/preferences.js';
@@ -67,4 +68,15 @@ export async function putAccount(value, token, signal) {
   const result = await request('/account', token, { method: 'PUT', body: value, signal });
   if (!validAccount(result)) throw new Error('La respuesta de tu cuenta no es válida.');
   return result;
+}
+
+export async function getMatchingPreferences(token,signal) {
+  const value=await request('/matching-preferences',token,{signal});
+  if(!validRefinement(value))throw new Error('No pudimos leer tus respuestas de afinación.');
+  return {...emptyRefinement,...value};
+}
+export async function putMatchingPreferences(value,token,signal) {
+  const result=await request('/matching-preferences',token,{method:'PUT',body:value,signal});
+  if(!validRefinement(result))throw new Error('No pudimos confirmar el guardado de tu afinación.');
+  return {...emptyRefinement,...result};
 }

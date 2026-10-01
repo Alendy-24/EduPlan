@@ -13,6 +13,7 @@ export interface Program {
   sniesCode?: string;
   nameMatchMethod?: string;
   institutionWebsite?: string;
+  institutionSector?: string;
   institutionMunicipality?: string;
   institutionDepartment?: string;
   institutionCampus?: string;

@@ -1,5 +1,7 @@
 # Recomendaciones personalizadas V1
 
+Documento histórico del motor original. El comportamiento vigente, su diagnóstico y validación están en [Matching V2](matching-v2.md).
+
 ## Arquitectura y privacidad
 
 Spring persiste preferencias en `estudiante`, reutilizando su relación única `id_cuenta`. `GET/PUT /api/me/preferences` toma la identidad exclusivamente del JWT y comprueba cuenta existente/activa. La migración V7 añade únicamente `nivel_buscado` y `movilidad`; reutiliza `modalidad_preferida`, `municipio` y `departamento`. Conserva presupuesto, nombre, apellido y grado existentes. En esta pantalla, municipio/departamento expresan la ubicación preferida, no una ubicación inferida.

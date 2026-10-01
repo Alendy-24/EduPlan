@@ -1,5 +1,7 @@
 # Perfilamiento de EduPlan
 
+La estética y estructura descritas aquí se conservan. Orientación y formación evolucionaron con [Matching V2](matching-v2.md); la descripción de Orientación como función futura corresponde al rediseño inicial.
+
 Implementación del 30 de septiembre de 2026. La referencia visual del usuario guía los pasos numerados, las superficies blancas sobre fondo claro, los títulos serif, el resumen verde, la ilustración de orientación y la cuenta en dos bloques.
 
 ## Arquitectura y contratos

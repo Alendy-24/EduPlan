@@ -7,12 +7,12 @@ export function useRecommendations({ limit=20,sourceIds,excludedSourceIds=[] }={
   const { user } = useAuth(), profile = useAcademicProfile();
   const [result,setResult] = useState({ data:[],status:'INCOMPLETE_PROFILE' }), [state,setState] = useState('loading'), [error,setError] = useState(''), [retry,setRetry] = useState(0);
   const [activeSignature,setActiveSignature] = useState('');
-  const signature = JSON.stringify([user?.id,profile.preferences,profile.interests.areas,profile.state,limit,sourceIds,excludedSourceIds]);
+  const signature = JSON.stringify([user?.id,profile.preferences,profile.interests.areas,profile.interests.motivations,profile.refinement,profile.state,limit,sourceIds,excludedSourceIds]);
   useEffect(()=> {
     const request = new AbortController(); setActiveSignature(signature); setResult({data:[],status:'INCOMPLETE_PROFILE'}); setError('');
     if (profile.state==='loading') { setState('loading'); return ()=>request.abort(); }
     if (profile.state==='error') { setState('error'); setError(profile.error); return ()=>request.abort(); }
-    if (!user || !sufficientPreferences(profile.preferences,profile.interests) || sourceIds?.length===0) { setState('ready'); return ()=>request.abort(); }
+    if (!user || !sufficientPreferences(profile.preferences,profile.interests,profile.refinement) || sourceIds?.length===0) { setState('ready'); return ()=>request.abort(); }
     setState('loading');
     getRecommendations(profile,{limit,sourceIds,excludedSourceIds,signal:request.signal}).then(value=> { if (!request.signal.aborted) { setResult(value); setState('ready'); } }).catch(reason=> { if (!request.signal.aborted) { setError(reason.message); setState('error'); } });
     return ()=>request.abort();

@@ -17,3 +17,14 @@
 .comparison-personal { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; margin:1.5rem 0; }
 .comparison-personal > section { min-width:0; overflow-wrap:anywhere; }
 @media(max-width:767px) { .academic-preferences fieldset,.comparison-personal { grid-template-columns:minmax(0,1fr); } .recommendation-explanation { padding:1rem; } }
+
+.preliminary-match strong { font-size:1.1rem; display:block; }
+.preliminary-match > span { display:block; font-size:13px; color:#526681; margin:6px 0; }
+.preliminary-match > a { font-size:13px; }
+.recommendation-score.preliminary-match { flex-direction:column; align-items:flex-start; gap:0; }
+.recommendation-score.preliminary-match strong { font-size:17px; line-height:1.5; }
+.compatibility:not(.preliminary-match) > span { margin-left:6px; }
+.match-breakdown { list-style:none; padding:0!important; display:grid; gap:14px; }
+.match-breakdown li { border-top:1px solid #dbe4ee; padding-top:10px; }
+.match-breakdown strong,.match-breakdown span { display:block; }
+.match-breakdown span,.match-breakdown p { font-size:12px; }

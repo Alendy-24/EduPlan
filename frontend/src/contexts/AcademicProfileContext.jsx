@@ -1,6 +1,7 @@
+import {emptyRefinement} from '../utils/matching';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
-import { getInterests, getPreferences, putPreferences } from '../services/account';
+import { getInterests, getPreferences, putPreferences,getMatchingPreferences,putMatchingPreferences } from '../services/account';
 import { emptyPreferences, profileCompleteness } from '../utils/preferences';
 const Context = createContext(null);
 // Remount on account/token change: never render another account's preferences or requests.
@@ -10,12 +11,13 @@ export function AcademicProfileProvider({ children }) {
 }
 function AccountProfile({ token, children }) {
   const [preferences,setPreferences] = useState(emptyPreferences), [interests,setInterests] = useState({ areas: [], motivations: [] });
+  const [refinement,setRefinement]=useState(emptyRefinement);
   const [state,setState] = useState(token ? 'loading' : 'guest'), [error,setError] = useState(''), [revision,setRevision] = useState(0);
   useEffect(() => {
     if (!token) return;
     const request = new AbortController(); setState('loading'); setError('');
-    Promise.all([getPreferences(token,request.signal),getInterests(token,request.signal)]).then(([p,i]) => {
-      if (!request.signal.aborted) { setPreferences(p); setInterests(i); setState('ready'); }
+    Promise.all([getPreferences(token,request.signal),getInterests(token,request.signal),getMatchingPreferences(token,request.signal)]).then(([p,i,r]) => {
+      if (!request.signal.aborted) { setPreferences(p); setInterests(i); setRefinement(r); setState('ready'); }
     }).catch(reason => { if (!request.signal.aborted) { setState('error'); setError(reason.message); } });
     return () => request.abort();
   },[token,revision]);
@@ -29,6 +31,7 @@ function AccountProfile({ token, children }) {
     if (!signal?.aborted) setPreferences(result);
     return result;
   }
-  return <Context.Provider value={{ preferences,interests,state,error,savePreferences,reload:()=>setRevision(v=>v+1), completeness:profileCompleteness(preferences,interests) }}>{children}</Context.Provider>;
+  async function saveRefinement(value,signal) { const result=await putMatchingPreferences(value,token,signal);if(!signal?.aborted)setRefinement(result);return result; }
+  return <Context.Provider value={{ preferences,interests,refinement,state,error,savePreferences,saveRefinement,reload:()=>setRevision(v=>v+1), completeness:profileCompleteness(preferences,interests) }}>{children}</Context.Provider>;
 }
 export const useAcademicProfile = () => useContext(Context);

@@ -29,6 +29,7 @@ await context.route('**/api/institutions**', route => {
 const saved = { id:'program-upr9-nkiz:campus-0', type:'program', name:'INGENIERIA DE SISTEMAS', href:'/programas/2000?registro=upr9-nkiz%3Acampus-0', savedAt:'2026-09-30T10:00:00Z', snapshot:{nameOrigin:'SNIES_NAME',institution:'Pontificia Universidad Javeriana',city:'Bogotá D.C.',provenance:'real'} };
 await context.route('**/api/me/**', route => {
   const url = route.request().url();
+  if(url.includes('/matching-preferences'))return route.fulfill({json:{specificNbcs:[],activities:[],contexts:[],excludedNbcs:[],locationImportance:'',modalityImportance:'',duration:'',sector:'',exclusionsReviewed:false}});
   const json = url.includes('/interests') ? {areas:['Tecnología'],motivations:[],updatedAt:null}
     : url.includes('/preferences') ? {academicLevel:'',modality:'',municipality:'',department:'',mobility:''}
     : url.includes('/account') ? {userId:1,name:'Yua',email:'yua@example.test',phone:null}
@@ -63,7 +64,7 @@ try {
   }
   assert(network.some(url=>url.includes('/api/program-links/batch?')));
   await page.goto(base + '/dashboard'); await page.getByRole('heading',{name:'Hola, Yua'}).waitFor();
-  await page.getByText('17% de perfil académico',{exact:true}).waitFor();
+  await page.getByText('17% de perfil básico',{exact:true}).waitFor();
   assert.equal(await page.locator('.user-avatar').innerText(),'Y'); assert.equal(await page.locator('.saved-list > li').count(),1);
   assert.equal(await page.getByRole('link',{name:'Continuar comparación →'}).count(),0);
   await page.goto(base + '/perfil?seccion=cuenta');
@@ -88,7 +89,7 @@ try {
   await page.reload();await page.getByLabel('Nombre completo').waitFor(); assert.equal(await page.locator('.user-avatar').innerText(),'S');assert.equal(await page.locator('.user-avatar img').count(),0);
   await page.evaluate(()=>{const session=JSON.parse(sessionStorage.getItem('eduplan-session-v1'));session.user={id:1,name:'Yua',email:'yua@example.test'};sessionStorage.setItem('eduplan-session-v1',JSON.stringify(session));});
   await page.reload(); await page.getByRole('img',{name:'Foto de Yua'}).waitFor();
-  await page.getByRole('tab',{name:'Resultados',exact:true}).click();await page.getByRole('heading',{name:'Tus opciones empiezan contigo'}).waitFor();
+  await page.getByRole('tab',{name:'Resultados',exact:true}).click();await page.getByRole('heading',{name:'Encuentra tu siguiente camino'}).waitFor();
   await page.getByRole('tab',{name:'Cuenta',exact:true}).click();await page.getByRole('button',{name:'Cerrar sesión',exact:true}).waitFor();
   await page.getByRole('tab',{name:'Perfil académico',exact:true}).focus();await page.keyboard.press('ArrowRight');await page.waitForFunction(()=>document.querySelector('[role="tab"][aria-selected="true"]')?.textContent==='Orientación');
   let checks=0;

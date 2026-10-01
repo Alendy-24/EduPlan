@@ -31,6 +31,7 @@ await page.route('**/api/auth/**',async route=>{
 const savedFixture=new Map(); let interestsFixture={areas:[],motivations:[],updatedAt:null};
 await page.route('**/api/me/**',async route=>{
  const request=route.request(),url=new URL(request.url()),id=decodeURIComponent(url.pathname.split('/')[4]||'');
+ if(url.pathname.endsWith('/matching-preferences'))return route.fulfill({json:{specificNbcs:[],activities:[],contexts:[],excludedNbcs:[],locationImportance:'',modalityImportance:'',duration:'',sector:'',exclusionsReviewed:false}});
  if(url.pathname.endsWith('/preferences')) return route.fulfill({json:{academicLevel:'',modality:'',municipality:'',department:'',mobility:''}});
  if(url.pathname.endsWith('/interests')) {
   if(request.method()==='PUT') interestsFixture={...request.postDataJSON(),updatedAt:new Date().toISOString()};
@@ -62,7 +63,7 @@ try {
  await page.goto(`${base}/instituciones/1101/programas`);await page.getByRole('heading',{name:'Programa de prueba 0',exact:true}).waitFor();assert(requests.some(url=>url.searchParams.get('institutionCode')==='1101'));
  await page.goto(`${base}/programas?q=error`);await page.getByRole('alert').waitFor();await page.getByRole('button',{name:'Reintentar'}).waitFor();
  await page.goto(`${base}/programas?q=nada`);await page.getByRole('heading',{name:'Sin resultados'}).waitFor();
- await page.goto(`${base}/perfil`);await page.getByLabel('Nivel de formación').waitFor();await page.getByRole('button',{name:'Tecnología',exact:true}).click();await page.getByRole('button',{name:'Investigar',exact:true}).click();await page.getByRole('button',{name:'Guardar perfil'}).click();await page.getByText('Tu perfil académico está guardado.',{exact:false}).waitFor();await page.reload();await page.locator('button[aria-pressed=true]').filter({hasText:'Tecnología'}).waitFor();assert.equal(await page.getByRole('button',{name:'Investigar',exact:true}).getAttribute('aria-pressed'),'true');
+ await page.goto(`${base}/perfil`);await page.getByLabel('Nivel académico').waitFor();await page.getByRole('button',{name:'Tecnología',exact:true}).click();await page.getByRole('button',{name:'Investigar',exact:true}).click();await page.getByRole('button',{name:'Guardar perfil'}).click();await page.getByText('Tu perfil académico está guardado.',{exact:false}).waitFor();await page.reload();await page.locator('button[aria-pressed=true]').filter({hasText:'Tecnología'}).waitFor();assert.equal(await page.getByRole('button',{name:'Investigar',exact:true}).getAttribute('aria-pressed'),'true');
  const routes=['/','/programas','/programas/5?registro=upr9-nkiz%3Arow-0','/instituciones','/instituciones/1101','/instituciones/1101/programas','/comparar','/becas','/guias','/dashboard','/perfil','/ruta-inexistente'];
  let checked=0;
  for(const width of [1440,1024,768,390]){

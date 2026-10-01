@@ -102,7 +102,7 @@ async function enrichInstitutions(programs: Program[]): Promise<Program[]> {
     const catalog = await getInstitutionCatalog();
     return programs.map(program => {
       const institution = catalog.get(program.institutionCode);
-      return { ...program, institutionName: institution?.name || program.institutionName, institutionWebsite: institution?.website ?? '',
+      return { ...program, institutionName: institution?.name || program.institutionName, institutionWebsite: institution?.website ?? '', institutionSector: institution?.sector ?? '',
         institutionMunicipality: institution?.municipality ?? '',
         institutionDepartment: institution?.department ?? '',
         institutionCampus: institution?.campus ?? '' };
@@ -207,5 +207,5 @@ export async function getProgramsByCode(code: string): Promise<Program[]> {
 
 // Shared bounded, five-minute catalog cache: no catalog transfer to the browser.
 export async function getRecommendationCatalog(): Promise<Program[]> {
-  return getProgramCatalog<ProgramSourceRow>(SELECT_FIELDS, transformProgram);
+  return enrichInstitutions(await getProgramCatalog<ProgramSourceRow>(SELECT_FIELDS, transformProgram));
 }

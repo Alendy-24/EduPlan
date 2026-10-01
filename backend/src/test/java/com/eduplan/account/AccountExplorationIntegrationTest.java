@@ -117,9 +117,61 @@ class AccountExplorationIntegrationTest {
         assertEquals(200, request("PUT", "/api/me/preferences", data(longName).get("token").asText(), value).statusCode());
     }
 
+    private Map<String,Object> matching() {
+        return Map.of("specificNbcs",List.of("Ingeniería de sistemas telemática y afines"),
+            "activities",List.of("Resolver problemas","Analizar datos"),"contexts",List.of("Datos"),
+            "excludedNbcs",List.of("Administración"),"locationImportance","HIGH","modalityImportance","REQUIRED",
+            "duration","MEDIUM","sector","PUBLIC","exclusionsReviewed",true);
+    }
+
+    @Test void matchingV2PersistsInPostgresAndIsIsolatedAcrossAccountsAndRelogin() throws Exception {
+        Account first=register(),second=register();
+        assertEquals(401,request("GET","/api/me/matching-preferences",null,null).statusCode());
+        assertEquals(401,request("PUT","/api/me/matching-preferences",null,matching()).statusCode());
+        var result=request("PUT","/api/me/matching-preferences",first.token(),matching());
+        assertEquals(200,result.statusCode(),result.body());
+        var loaded=data(request("GET","/api/me/matching-preferences",first.token(),null));
+        assertEquals("HIGH",loaded.get("locationImportance").asText());
+        assertEquals("Analizar datos",loaded.get("activities").get(1).asText());
+        assertTrue(loaded.get("exclusionsReviewed").asBoolean());
+        assertEquals(0,data(request("GET","/api/me/matching-preferences?userId="+first.id(),second.token(),null)).get("specificNbcs").size());
+        var account=context.getBean(CuentaRepository.class).findById(first.id()).orElseThrow();
+        var login=data(request("POST","/api/auth/login",null,Map.of("identifier",account.getCorreo(),"password","Password123!")));
+        assertEquals(loaded,data(request("GET","/api/me/matching-preferences",login.get("token").asText(),null)));
+        var db=context.getBean(org.springframework.jdbc.core.JdbcTemplate.class);
+        assertEquals("matching-v2.0",db.queryForObject("SELECT taxonomy_version FROM account_matching_preferences WHERE id_cuenta=?",String.class,first.id()));
+        var basic=Map.of("academicLevel","Pregrado","educationLevel","UNIVERSITY","modality","Presencial","municipality","","department","","mobility","ANY");
+        assertEquals(200,request("PUT","/api/me/preferences",first.token(),basic).statusCode());
+        assertEquals("UNIVERSITY",data(request("GET","/api/me/preferences",first.token(),null)).get("educationLevel").asText());
+        var invalid=new java.util.HashMap<String,Object>(basic);invalid.put("academicLevel","Posgrado");
+        assertEquals(400,request("PUT","/api/me/preferences",first.token(),invalid).statusCode());
+        invalid.put("academicLevel","Pregrado");invalid.put("educationLevel","SPECIALIZATION");
+        assertEquals(400,request("PUT","/api/me/preferences",first.token(),invalid).statusCode());
+    }
+
+    @Test void matchingV2RejectsUnknownDuplicateContradictoryAndOversizedOptions() throws Exception {
+        Account account=register();
+        for(var invalid:List.of(Map.of("specificNbcs",List.of("toString")),Map.of("activities",List.of("Inventado")),
+            Map.of("contexts",List.of("Personalidad")),Map.of("locationImportance","FORCE"),
+            Map.of("specificNbcs",List.of("Administración")),Map.of("activities",List.of("Analizar datos","Analizar datos")),
+            Map.of("specificNbcs",java.util.Collections.nCopies(9,"Medicina")))) {
+            var body=new java.util.HashMap<String,Object>(matching());body.putAll(invalid);
+            assertEquals(400,request("PUT","/api/me/matching-preferences",account.token(),body).statusCode());
+        }
+        assertEquals(400,request("PUT","/api/me/matching-preferences",account.token(),Map.of("activities",List.of())).statusCode());
+        var normalized=new java.util.HashMap<String,Object>(matching());normalized.put("specificNbcs",List.of("  INGENIERIA DE SISTEMAS, TELEMATICA Y AFINES  "));
+        var result=request("PUT","/api/me/matching-preferences",account.token(),normalized);
+        assertEquals(200,result.statusCode(),result.body());assertEquals("Ingeniería de sistemas telemática y afines",data(result).get("specificNbcs").get(0).asText());
+        var entity=context.getBean(CuentaRepository.class).findById(account.id()).orElseThrow();entity.setEstado(false);context.getBean(CuentaRepository.class).save(entity);
+        assertEquals(403,request("GET","/api/me/matching-preferences",account.token(),null).statusCode());
+        assertEquals(403,request("PUT","/api/me/matching-preferences",account.token(),matching()).statusCode());
+    }
+
     @Test void requiresValidJwtAndExistingActiveAccount() throws Exception {
         assertEquals(401, request("GET", "/api/me/saved", null, null).statusCode());
         assertEquals(401, request("GET", "/api/me/interests", "invalid-token", null).statusCode());
+        assertEquals(401, request("GET", "/api/me/matching-preferences", null, null).statusCode());
+        assertEquals(401, request("PUT", "/api/me/matching-preferences", null, matching()).statusCode());
         assertEquals(401, request("PUT", "/api/me/saved/example", null, saved("Nombre")).statusCode());
         assertEquals(401, request("DELETE", "/api/me/saved/example", null, null).statusCode());
         String missing = context.getBean(JwtService.class).generateToken(new CuentaPrincipal(Long.MAX_VALUE, "missing@example.test"));

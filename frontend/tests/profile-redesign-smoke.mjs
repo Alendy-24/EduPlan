@@ -15,6 +15,7 @@ let failInterests=false,failPreferences=false,failRecommendations=false;const sa
 await context.addInitScript(()=>{if(!sessionStorage.getItem('eduplan-session-v1'))sessionStorage.setItem('eduplan-session-v1',JSON.stringify({token:'fixture-token',user:{id:42,name:'Sebastián Ramírez',email:'profile@example.test',phone:'3001234567'},expiresAt:Date.now()+3600000}));});
 await context.route('**/api/me/**',async route=>{
   const request=route.request(),path=new URL(request.url()).pathname,put=request.method()==='PUT';
+  if(path.endsWith('/matching-preferences'))return route.fulfill({json:{specificNbcs:[],activities:[],contexts:[],excludedNbcs:[],locationImportance:'',modalityImportance:'',duration:'',sector:'',exclusionsReviewed:false}});
   if(path.endsWith('/preferences')) {if(put&&failPreferences)return route.fulfill({status:503,json:{}});if(put)preferences=request.postDataJSON();return route.fulfill({json:preferences});}
   if(path.endsWith('/interests')) {if(put&&failInterests)return route.fulfill({status:503,json:{}});if(put)interests={...request.postDataJSON(),updatedAt:new Date().toISOString()};return route.fulfill({json:interests});}
   if(path.endsWith('/account')) {if(put)account={...account,...request.postDataJSON()};return route.fulfill({json:account});}
@@ -25,7 +26,7 @@ await context.route('**/api/recommendations',route=>{
   if(failRecommendations)return route.fulfill({status:503,json:{}});
   return route.fulfill({json:{status:'OK',data:[0,1].map(n=>({score:85,reasons:[],matchedCriteria:[],unmatchedCriteria:[],missingInformation:[],program:{sourceId:'upr9-nkiz:profile-fixture-'+n,code:String(900+n),name:n?'DISEÑO DIGITAL':'INGENIERÍA DE SISTEMAS',institutionCode:'42',institutionName:'Universidad de prueba',academicLevel:'Pregrado',educationLevel:'Universitaria',modality:'Presencial',municipality:'Medellín',department:'Antioquia',status:'Activo',nameOrigin:'SNIES_NAME',reviewRequired:false}}))}});
 });
-async function ready(){await page.getByLabel('Nivel de formación').waitFor();await page.getByRole('button',{name:'Tecnología',exact:true}).waitFor({state:'visible'});await page.waitForFunction(()=>!document.querySelector('.academic-steps')?.disabled);}
+async function ready(){await page.getByLabel('Nivel académico').waitFor();await page.getByRole('button',{name:'Tecnología',exact:true}).waitFor({state:'visible'});await page.waitForFunction(()=>!document.querySelector('.academic-steps')?.disabled);}
 async function save(){await page.getByRole('button',{name:'Guardar perfil',exact:true}).click();await page.getByText('Tu perfil académico está guardado. Ya puedes explorar tus recomendaciones.',{exact:true}).waitFor();}
 try{
   await page.goto(base+'/perfil');await ready();
@@ -46,7 +47,7 @@ try{
   failInterests=false;await save();assert(interests.areas.includes('Artes'));
   failPreferences=true;await page.getByLabel('Modalidad de estudio').selectOption('Presencial');await page.getByRole('button',{name:'Guardar perfil',exact:true}).click();await page.getByRole('alert').filter({hasText:'Tus cambios siguen aquí'}).waitFor();assert.equal(await page.getByLabel('Modalidad de estudio').inputValue(),'Presencial');failPreferences=false;await save();
   for(const alias of ['perfil','preferencias','intereses']) {await page.goto(base+'/perfil?seccion='+alias);await ready();assert.equal(await page.getByRole('tab',{name:'Perfil académico',exact:true}).getAttribute('aria-selected'),'true');}
-  await page.getByRole('tab',{name:'Perfil académico',exact:true}).focus();await page.keyboard.press('ArrowRight');await page.getByRole('heading',{name:'Descubre qué mueve tu curiosidad'}).waitFor();assert(await page.getByRole('button',{name:'Test disponible próximamente'}).isDisabled());
+  await page.getByRole('tab',{name:'Perfil académico',exact:true}).focus();await page.keyboard.press('ArrowRight');await page.getByRole('heading',{name:'Afina tus recomendaciones',level:1}).waitFor();await page.getByRole('link',{name:'Afinar mis recomendaciones',exact:true}).waitFor();await page.getByText('No es un examen, un diagnóstico',{exact:false}).waitFor();
   assert(!requests.some(url=>/aptitude|orientation|orientacion|test-/.test(url)));
   await page.getByRole('tab',{name:'Resultados',exact:true}).click();assert.equal(await page.getByRole('link',{name:'Ver mis recomendaciones'}).getAttribute('href'),'/recomendaciones');
   await page.getByRole('tab',{name:'Cuenta',exact:true}).click();await page.getByLabel('Nombre completo').fill('Sebastián Perfil');await page.getByLabel('Teléfono').fill('3017654321');assert(await page.getByLabel('Correo de acceso').evaluate(el=>el.readOnly));
@@ -62,7 +63,7 @@ try{
     await page.screenshot({path:out+section+'-'+width+'.png',fullPage:true});checked++;
   }}
   // A preview failure must not block editing.
-  failRecommendations=true;await page.goto(base+'/perfil');await ready();await page.getByText('No pudimos cargar tus opciones ahora.').waitFor();assert(await page.getByLabel('Nivel de formación').isEnabled());
+  failRecommendations=true;await page.goto(base+'/perfil');await ready();await page.getByText('No pudimos cargar tus opciones ahora.').waitFor();assert(await page.getByLabel('Nivel académico').isEnabled());
   failRecommendations=false;await page.getByRole('button',{name:'Volver a intentar',exact:true}).click();await page.locator('.preview-program').first().waitFor();
   assert.deepEqual(errors,[]);await writeFile(out+'report.json',JSON.stringify({widths,sections,checked,errors,checks:['location dependencies','all coverage modes','persist/reload','partial write retry','failed preference retry','legacy aliases','keyboard tabs','upcoming CTA','results link','account persistence','preview retry']},null,2));
   console.log(`PASS: profile dependencies, partial writes/retries, persistence, aliases, account, keyboard and ${checked} views at six widths.`);

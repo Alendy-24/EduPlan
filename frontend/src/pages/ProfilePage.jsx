@@ -13,7 +13,7 @@ export default function ProfilePage() {
   // Old profile/preferences/interests URLs open the integrated academic profile.
   const selected = sections.find(([key]) => key === params.get('seccion')) || sections[0];
   const academic = useAcademicProfile();
-  const ready = academic.state === 'ready' && sufficientPreferences(academic.preferences, academic.interests);
+  const ready = academic.state === 'ready' && sufficientPreferences(academic.preferences, academic.interests, academic.refinement);
   function changeTab(label) {
     const key = sections.find(([, text]) => text === label)[0];
     setParams(current => { const next = new URLSearchParams(current); if (key === 'academico') next.delete('seccion'); else next.set('seccion', key); return next; }, { replace: true });
