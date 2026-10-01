@@ -3,7 +3,7 @@ import {createRequire} from 'node:module';
 import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
 const {chromium}=createRequire(import.meta.url)(process.env.EDUPLAN_PLAYWRIGHT_PATH||'playwright');
-const base=process.env.EDUPLAN_TEST_URL||'http://127.0.0.1:5173';
+const base=process.env.EDUPLAN_TEST_URL||'http://localhost:3005';
 const browser=await chromium.launch({channel:'msedge',headless:true});
 const first=await browser.newContext(),second=await browser.newContext();
 const page=await first.newPage(),other=await second.newPage();

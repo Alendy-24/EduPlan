@@ -6,7 +6,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.EDUPLAN_PLAYWRIGHT_PATH || 'playwright');
-const base = process.env.EDUPLAN_TEST_URL || 'http://127.0.0.1:5173';
+const base = process.env.EDUPLAN_TEST_URL || 'http://localhost:3005';
 const out = fileURLToPath(new URL('../../.tools/qa/live/', import.meta.url));
 await mkdir(out, { recursive: true });
 const browser = await chromium.launch({ channel: 'msedge', headless: true });

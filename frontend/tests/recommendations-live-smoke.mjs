@@ -5,7 +5,7 @@ import { mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 const { chromium } = createRequire(import.meta.url)(process.env.EDUPLAN_PLAYWRIGHT_PATH || 'playwright');
-const base=process.env.EDUPLAN_TEST_URL||'http://127.0.0.1:5173';
+const base=process.env.EDUPLAN_TEST_URL||'http://localhost:3005';
 const out=fileURLToPath(new URL('../../.tools/qa/recommendations/',import.meta.url));await mkdir(out,{recursive:true});
 const browser=await chromium.launch({channel:process.env.EDUPLAN_BROWSER_CHANNEL||'msedge',headless:true});
 const context=await browser.newContext(),page=await context.newPage();page.setDefaultTimeout(70000);

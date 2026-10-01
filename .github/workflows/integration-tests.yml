@@ -17,17 +17,13 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-          cache-dependency-path: |
-            data-integration/package-lock.json
-            frontend/package-lock.json
-      - run: npm ci --workspaces=false
-        working-directory: data-integration
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - run: npm run test:dev
       - run: npm run typecheck
         working-directory: data-integration
       - run: npm test
         working-directory: data-integration
-      - run: npm ci --workspaces=false
-        working-directory: frontend
       - run: npm test
         working-directory: frontend
       - run: npm run lint

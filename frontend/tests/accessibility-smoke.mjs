@@ -4,7 +4,7 @@ const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.EDUPLAN_PLAYWRIGHT_PATH || 'playwright');
 const browser = await chromium.launch({ channel: 'msedge', headless: true });
 const page = await browser.newPage();
-const base = process.env.EDUPLAN_TEST_URL || 'http://127.0.0.1:5173';
+const base = process.env.EDUPLAN_TEST_URL || 'http://localhost:3005';
 // Layout/keyboard/contrast checks remain deterministic when the public source is offline.
 await page.route('**/api/institutions**', route => route.fulfill({ json: { data: [{ code:'1701', name:'Pontificia Universidad Javeriana', municipality:'Bogotá D.C.', sector:'Privado', academicCharacter:'Universidad', website:'www.javeriana.edu.co', campus:'Principal' }], hasMore:false } }));
 try {
@@ -39,8 +39,10 @@ try {
   }
   const contrast = await page.evaluate(() => {
     const lum = rgb => rgb.match(/[\d.]+/g).slice(0, 3).map(Number).map(n => n / 255).map(n => n <= .04045 ? n / 12.92 : ((n + .055) / 1.055) ** 2.4).reduce((sum, n, i) => sum + n * [.2126, .7152, .0722][i], 0);
-    return ['.institution-card-badge', '.institution-card-location', '.photo-credit'].map(selector => {
-      const el = document.querySelector(selector); let parent = el;
+    return ['.institution-card-badge', '.institution-card-location', '.footer-brand p'].map(selector => {
+      const el = document.querySelector(selector);
+      if (!el) throw new Error(`Elemento de contraste ausente: ${selector}`);
+      let parent = el;
       while (parent && getComputedStyle(parent).backgroundColor === 'rgba(0, 0, 0, 0)') parent = parent.parentElement;
       const a = lum(getComputedStyle(el).color), b = lum(parent ? getComputedStyle(parent).backgroundColor : 'rgb(255,255,255)');
       return { selector, ratio: (Math.max(a, b) + .05) / (Math.min(a, b) + .05) };

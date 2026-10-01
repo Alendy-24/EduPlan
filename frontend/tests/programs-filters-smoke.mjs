@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 const { chromium } = createRequire(import.meta.url)(process.env.EDUPLAN_PLAYWRIGHT_PATH || 'playwright');
-const base = process.env.EDUPLAN_TEST_URL || 'http://127.0.0.1:5173';
+const base = process.env.EDUPLAN_TEST_URL || 'http://localhost:3005';
 const browser = await chromium.launch({ channel: 'msedge', headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 page.setDefaultTimeout(45000);

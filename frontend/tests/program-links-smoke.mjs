@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
 const { chromium } = createRequire(import.meta.url)(process.env.EDUPLAN_PLAYWRIGHT_PATH || 'playwright');
 const browser=await chromium.launch({channel:'msedge',headless:true}), page=await browser.newPage();
-const base=process.env.EDUPLAN_TEST_URL || 'http://127.0.0.1:5173';
+const base=process.env.EDUPLAN_TEST_URL || 'http://localhost:3005';
 const sourceId='upr9-nkiz:row-links-test', requests=[], errors=[];
 page.on('request',request=>requests.push(request.url()));page.on('pageerror',error=>errors.push(error.message));
 let state='named', linkState='VERIFIED';
