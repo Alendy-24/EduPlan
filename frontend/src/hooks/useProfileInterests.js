@@ -62,7 +62,8 @@ export function useProfileInterests() {
       pendingMemory.current = null;
       writeStorage(browserStorage(), migratedKey, true);
       try { browserStorage()?.removeItem(pendingKey); } catch { /* unavailable storage */ }
-    } catch (error) { if (!request.signal.aborted) { setSyncState('error'); setMessage(persisted ? `${error.message} Reintenta para guardar tus intereses.` : 'No pudimos guardar en tu cuenta ni en este dispositivo. Tus cambios permanecen durante esta visita.'); } }
+      return true;
+    } catch (error) { if (!request.signal.aborted) { setSyncState('error'); setMessage(persisted ? `${error.message} Reintenta para guardar tus intereses.` : 'No pudimos guardar en tu cuenta ni en este dispositivo. Tus cambios permanecen durante esta visita.'); } return false; }
   }
   return { selections, toggle, save, message, updatedAt, syncState, retrySync: () => setRetry(v => v + 1), progress: interestProgress(selections) };
 }

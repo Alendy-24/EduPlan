@@ -20,6 +20,7 @@ import './styles/product.css'
 import './styles/authenticated.css'
 import './styles/recommendations.css'
 import './styles/authenticated-polish.css'
+import './styles/profile-redesign.css'
 
 import App from './App.jsx'
 

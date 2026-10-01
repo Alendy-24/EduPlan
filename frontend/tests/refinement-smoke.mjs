@@ -66,8 +66,8 @@ try {
   await page.getByText('17% de perfil académico',{exact:true}).waitFor();
   assert.equal(await page.locator('.user-avatar').innerText(),'Y'); assert.equal(await page.locator('.saved-list > li').count(),1);
   assert.equal(await page.getByRole('link',{name:'Continuar comparación →'}).count(),0);
-  await page.goto(base + '/perfil');
-  await page.getByRole('heading',{level:2,name:'Yua',exact:true}).waitFor();
+  await page.goto(base + '/perfil?seccion=cuenta');
+  await page.getByLabel('Nombre completo').waitFor();
   const image = await page.evaluate(() => { const canvas=document.createElement('canvas');canvas.width=1600;canvas.height=1200;const c=canvas.getContext('2d');c.fillStyle='#102653';c.fillRect(0,0,1600,1200); return canvas.toDataURL('image/png').split(',')[1]; });
   const file = {name:'photo.png',mimeType:'image/png',buffer:Buffer.from(image,'base64')};
   await page.getByLabel('Subir foto de perfil').setInputFiles(file);
@@ -85,12 +85,12 @@ try {
   assert.equal(await page.locator('.user-avatar').innerText(),'Y');
   await page.getByLabel('Subir foto de perfil').setInputFiles(file); await page.getByRole('img',{name:'Foto de Yua'}).waitFor();
   await page.evaluate(()=>{const session=JSON.parse(sessionStorage.getItem('eduplan-session-v1'));session.user={id:2,name:'Sebastián',email:'sebastian@example.test'};sessionStorage.setItem('eduplan-session-v1',JSON.stringify(session));});
-  await page.reload();await page.getByRole('heading',{level:2,name:'Sebastián'}).waitFor(); assert.equal(await page.locator('.user-avatar').innerText(),'S');assert.equal(await page.locator('.user-avatar img').count(),0);
+  await page.reload();await page.getByLabel('Nombre completo').waitFor(); assert.equal(await page.locator('.user-avatar').innerText(),'S');assert.equal(await page.locator('.user-avatar img').count(),0);
   await page.evaluate(()=>{const session=JSON.parse(sessionStorage.getItem('eduplan-session-v1'));session.user={id:1,name:'Yua',email:'yua@example.test'};sessionStorage.setItem('eduplan-session-v1',JSON.stringify(session));});
   await page.reload(); await page.getByRole('img',{name:'Foto de Yua'}).waitFor();
-  await page.getByRole('tab',{name:'Resultados',exact:true}).click();await page.getByRole('heading',{name:'Primero, construyamos tu perfil'}).waitFor();
+  await page.getByRole('tab',{name:'Resultados',exact:true}).click();await page.getByRole('heading',{name:'Tus opciones empiezan contigo'}).waitFor();
   await page.getByRole('tab',{name:'Cuenta',exact:true}).click();await page.getByRole('button',{name:'Cerrar sesión',exact:true}).waitFor();
-  await page.getByRole('tab',{name:'Perfil',exact:true}).focus();await page.keyboard.press('ArrowRight');await page.waitForFunction(()=>document.querySelector('[role="tab"][aria-selected="true"]')?.textContent==='Preferencias académicas');
+  await page.getByRole('tab',{name:'Perfil académico',exact:true}).focus();await page.keyboard.press('ArrowRight');await page.waitForFunction(()=>document.querySelector('[role="tab"][aria-selected="true"]')?.textContent==='Orientación');
   let checks=0;
   for (const width of [1440,1024,768,390]) {
     await page.setViewportSize({width,height:900});
