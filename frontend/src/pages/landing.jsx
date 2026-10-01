@@ -7,6 +7,7 @@ import guideIcon from "../assets/Images/guia.svg";
 import PerfilamientoIcon from "../assets/Images/perfilamiento.svg";
 import OrientacionIcon from "../assets/Images/orientacion.svg";
 import { featuredOpportunities } from "../data/mock/catalog";
+import Noticias from "../components/Noticias";
 
 const categories = [
     [
@@ -140,6 +141,10 @@ export default function Landing() {
                         ))}
                     </div>
                 </section>
+
+                <hr className="news-divider" />
+
+                <Noticias />
             </div>
         </main>
     );
