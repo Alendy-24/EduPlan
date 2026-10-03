@@ -3,7 +3,7 @@ import test, { beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { get as httpGet } from "node:http";
 import { app } from "../dist/app.js";
-import { transformProgram, getPrograms, getProgramsByCode, getProgramFilterOptions } from "../dist/services/programs.service.js";
+import { transformProgram, getPrograms, getProgramsByCode, getProgramFilterOptions, getProgramSearchPage } from "../dist/services/programs.service.js";
 import { getInstitutions, clearInstitutionCatalogCache } from "../dist/services/institutions.service.js";
 import { clearProgramCatalogCache, selectPrograms, getProgramCatalog, searchProgramOffers, groupProgramOffers } from '../dist/services/program-catalog.js';
 beforeEach(() => { clearInstitutionCatalogCache(); clearProgramCatalogCache(); });
@@ -141,9 +141,9 @@ test("official filter options group the complete source, reject invalid codes, a
   const options = await getProgramFilterOptions();
   assert.deepEqual(options.academicLevels, ["Pregrado"]);
   assert.deepEqual(options.institutions, [{ code: "1101", name: "Universidad oficial" }]);
-  assert.equal(requests.length, 5);
+  assert.equal(requests.length, 6);
   assert.equal(await getProgramFilterOptions(), options);
-  assert.equal(requests.length, 5);
+  assert.equal(requests.length, 6);
   const server = app.listen(0); t.after(() => server.close());
   const response = await new Promise((resolve, reject) => {
     httpGet(`http://127.0.0.1:${server.address().port}/api/programs/filters`, res => {
@@ -379,4 +379,58 @@ test('empty search alternatives keep the career and other filters and count actu
   assert.equal(result.total,0);
   assert.deepEqual(result.alternatives,[{remove:['municipality'],count:1},{remove:['department','municipality'],count:1}]);
   assert.equal(searchProgramOffers([base],{name:'arquitectura',department:'Antioquia',page:1,limit:12}).alternatives.length,0);
+});
+
+
+test('multiple modalities use OR within the filter and AND with formation and sector before pagination',()=>{
+  const base={...transformProgram(namedRow),name:'Psicología',nameOrigin:'SNIES_NAME',reviewRequired:false,academicLevel:'Pregrado',educationLevel:'Universitaria',institutionSector:'Oficial',modality:'Presencial'};
+  const programs=[base,{...base,sourceId:'upr9-nkiz:virtual',modality:'Virtual'},
+    {...base,sourceId:'upr9-nkiz:distance',modality:'Distancia'},
+    {...base,sourceId:'upr9-nkiz:private',institutionCode:'1702',institutionSector:'Privada'},
+    {...base,sourceId:'upr9-nkiz:technical',educationLevel:'Técnica profesional'}];
+  const filters={modality:['Presencial','Virtual'],institutionSector:'Oficial',educationLevel:'Universitaria',page:1,limit:1};
+  const result=searchProgramOffers(programs,filters);
+  assert.equal(result.total,2); assert.equal(result.data.length,1); assert.equal(result.hasMore,true);
+  assert.equal(searchProgramOffers(programs,{...filters,page:2}).hasMore,false);
+  assert.deepEqual(result.facets.modality.map(item=>[item.value,item.count]),[['Distancia',1],['Presencial',1],['Virtual',1]]);
+  assert.deepEqual(result.facets.institutionSector.map(item=>[item.value,item.count]),[['Oficial',2],['Privada',1]]);
+  assert.equal(result.facets.educationLevel.find(item=>item.value==='Técnica profesional').count,1);
+  const empty=searchProgramOffers(programs,{...filters,educationLevel:'Doctorado'});
+  assert.equal(empty.total,0);
+  assert.deepEqual(empty.alternatives.find(item=>item.remove[0]==='educationLevel'),{remove:['educationLevel'],count:3});
+  assert.equal(searchProgramOffers(programs,{...filters,modality:'Virtual',limit:12}).total,1);
+});
+
+test('program endpoint accepts repeated modalities and rejects malformed arrays and sector filters',async t=>{
+  t.mock.method(globalThis,'fetch',async url=>Response.json(url.searchParams.get('$select').includes('source_row_id') ? [namedRow,{...namedRow,source_row_id:'virtual-row',nombremetodologia:'Virtual'}] : []));
+  const server=app.listen(0);t.after(()=>server.close());
+  const get=path=>new Promise((resolve,reject)=>httpGet(`http://127.0.0.1:${server.address().port}/api/programs${path}`,res=>{
+    let text='';res.on('data',chunk=>text+=chunk);res.on('end',()=>resolve({status:res.statusCode,body:JSON.parse(text)}));res.on('error',reject);
+  }).on('error',reject));
+  const result=await get('?modality=Presencial&modality=Virtual');
+  assert.equal(result.status,200);
+  assert(result.body.data.every(program=>['Presencial','Virtual'].includes(program.modality)));
+  assert.equal((await get('?modality=&modality=Virtual')).status,400);
+  assert.equal((await get('?'+Array(13).fill('modality=Virtual').join('&'))).status,400);
+  assert.equal((await get('?institutionSector=Oficial&institutionSector=Privada')).status,400);
+});
+
+
+test('sector search uses institution data across the full catalog and reports an outage instead of false empty results',async t=>{
+  let available=true;
+  t.mock.method(globalThis,'fetch',async url=>{
+    if (url.searchParams.get('$select').includes('source_row_id')) return Response.json([namedRow]);
+    if (!available) throw new Error('institution outage');
+    return Response.json([{c_digo_instituci_n:namedRow.codigoinstitucion,nombre_instituci_n:'Institución oficial de prueba',sector:'Oficial'}]);
+  });
+  const filters={institutionSector:'Oficial',page:1,limit:12};
+  const page=await getProgramSearchPage(filters);
+  assert.equal(page.total,1);
+  assert.equal(page.data[0].institutionSector,'Oficial');
+  assert.deepEqual(page.facets.institutionSector,[{value:'Oficial',count:1}]);
+  available=false;clearInstitutionCatalogCache();
+  await assert.rejects(getProgramSearchPage(filters),/tipo de institución/);
+  const fallback=await getProgramSearchPage({page:1,limit:12});
+  assert.equal(fallback.total,1);
+  assert.equal(fallback.data[0].institutionEnrichmentUnavailable,true);
 });

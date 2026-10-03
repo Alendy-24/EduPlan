@@ -61,7 +61,8 @@ function matchesFilters(program: Program, filters: ProgramFilters): boolean {
   return (!filters.department?.trim() || locationKey(program.department) === locationKey(filters.department))
     && (filters.department?.trim() && filters.municipality?.trim()
       ? locationKey(program.municipality) === locationKey(filters.municipality) : contains(program.municipality, filters.municipality))
-    && exact(program.modality, filters.modality) && exact(program.academicLevel, filters.academicLevel)
+    && (Array.isArray(filters.modality) ? !filters.modality.length || filters.modality.some(value => exact(program.modality,value)) : exact(program.modality, filters.modality))
+    && exact(program.educationLevel, filters.educationLevel) && exact(program.institutionSector ?? '', filters.institutionSector) && exact(program.academicLevel, filters.academicLevel)
     && exact(program.knowledgeArea, filters.knowledgeArea)
     && (!filters.institutionCode?.trim() || program.institutionCode === filters.institutionCode.trim());
 }
@@ -126,7 +127,7 @@ export function searchProgramOffers(programs: Program[], filters: ProgramFilters
   const ranked = rankedPrograms(groupProgramOffers(programs), filters.name ?? '');
   const matching = ranked.filter(({program}) => matchesFilters(program, filters));
   const facets = {} as ProgramFacets;
-  const keys: (keyof ProgramFacets)[] = ['academicLevel','modality','knowledgeArea','institutionCode','department','municipality'];
+  const keys: (keyof ProgramFacets)[] = ['academicLevel','modality','knowledgeArea','institutionCode','department','municipality','educationLevel','institutionSector'];
   for (const key of keys) {
     const relaxed = { ...filters, [key]: '' };
     if (key === 'department') relaxed.municipality = '';
@@ -140,8 +141,8 @@ export function searchProgramOffers(programs: Program[], filters: ProgramFilters
   }
   const alternatives: ProgramSearchPage['alternatives'] = [];
   if (!matching.length) {
-    for (const key of ['municipality','modality','institutionCode','knowledgeArea','department','academicLevel'] as const) {
-      if (!filters[key]?.trim()) continue;
+    for (const key of ['municipality','modality','institutionCode','knowledgeArea','department','academicLevel','educationLevel','institutionSector'] as const) {
+      if (Array.isArray(filters[key]) ? !filters[key].length : !(filters[key] as string | undefined)?.trim()) continue;
       const remove: (keyof ProgramFilters)[] = key === 'department' ? ['department','municipality'] : [key];
       const relaxed = { ...filters }; remove.forEach(field => { delete relaxed[field]; });
       const count = ranked.filter(({program}) => matchesFilters(program, relaxed)).length;

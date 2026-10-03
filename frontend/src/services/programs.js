@@ -12,7 +12,10 @@ async function requestPayload(path, signal) {
 }
 export function getPrograms(filters, page, signal) {
   const query = new URLSearchParams({ page: String(page), limit: String(PROGRAM_PAGE_SIZE) });
-  for (const [key, value] of Object.entries(filters)) if (value?.trim()) query.set(key, value.trim());
+  for (const [key, value] of Object.entries(filters)) {
+    if (Array.isArray(value)) value.filter(item=>typeof item === 'string' && item.trim()).forEach(item=>query.append(key,item.trim()));
+    else if (value?.trim()) query.set(key, value.trim());
+  }
   return requestPayload(`/api/programs?${query}`, signal).then(normalizeProgramPage);
 }
 export function getProgramsByCode(code, signal) {
@@ -23,7 +26,8 @@ export function getProgramsByCode(code, signal) {
 export async function getProgramFilterOptions(signal) {
   const payload = await requestPayload('/api/programs/filters', signal), data = payload?.data;
   if (!data || !['academicLevels','knowledgeAreas','modalities'].every(key => Array.isArray(data[key]) && data[key].every(value => typeof value === 'string' && value.trim())) || !Array.isArray(data.institutions) || !data.institutions.every(item => item && typeof item.code === 'string' && /^\d+$/.test(item.code) && typeof item.name === 'string' && item.name.trim())) throw new Error('Los filtros del catálogo no son válidos. Inténtalo de nuevo.');
-  return data;
+  if (!['educationLevels','institutionSectors'].every(key => data[key] === undefined || Array.isArray(data[key]) && data[key].every(value => typeof value === 'string' && value.trim()))) throw new Error('Los filtros del catálogo no son válidos. Inténtalo de nuevo.');
+  return { ...data, educationLevels:data.educationLevels || [], institutionSectors:data.institutionSectors || [] };
 }
 
 export async function getProgramSuggestions(query, filters, signal) {

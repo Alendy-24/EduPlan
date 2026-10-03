@@ -17,5 +17,14 @@ export const relaxationLabels = {
   municipality: 'Buscar en todo el departamento', department: 'Buscar en toda Colombia',
   modality: 'Ver todas las modalidades', institutionCode: 'Ver otras universidades',
   knowledgeArea: 'Ver todas las áreas', academicLevel: 'Ver todos los niveles',
+  educationLevel:'Ver todos los niveles de formación', institutionSector:'Ver instituciones públicas y privadas',
 };
-export const filterParams = { municipality:'city', department:'department', modality:'modality', institutionCode:'institution', knowledgeArea:'area', academicLevel:'level' };
+export const filterParams = { municipality:'city', department:'department', modality:'modality', institutionCode:'institution', knowledgeArea:'area', academicLevel:'level', educationLevel:'formation', institutionSector:'sector' };
+
+export function selectedModalities(params) {
+  return [...new Set(params.getAll('modality').map(value=>value.trim()).filter(Boolean))];
+}
+export function institutionSectorLabel(value) {
+  const key = fold(value);
+  return ['OFICIAL','PUBLICA','PUBLICO'].includes(key) ? 'Pública' : ['PRIVADA','PRIVADO'].includes(key) ? 'Privada' : value;
+}

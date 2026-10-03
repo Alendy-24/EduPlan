@@ -31,7 +31,7 @@ try {
   await page.getByRole('heading',{name:program.name,exact:true}).waitFor();
   assert.equal(await page.getByLabel('Ciudad o municipio',{exact:true}).isDisabled(),true);
   assert.equal(await page.getByLabel('Departamento',{exact:true}).inputValue(),'');
-  assert.equal(await page.getByLabel('Modalidad',{exact:true}).isVisible(),true);
+  assert.equal(await page.getByRole('checkbox',{name:'Virtual',exact:true}).isVisible(),true);
   assert.equal(await page.getByLabel('Universidad o institución',{exact:true}).isVisible(),false);
   assert.equal(await page.getByLabel('Área de conocimiento',{exact:true}).isVisible(),false);
   const career = page.getByRole('combobox',{name:'Carrera',exact:true});
@@ -50,7 +50,7 @@ try {
   assert.equal(new URL(page.url()).searchParams.has('city'),false);
   await page.getByLabel('Ciudad o municipio',{exact:true}).selectOption('Santiago de Cali');
   await page.getByLabel('Nivel académico',{exact:true}).selectOption('Pregrado');
-  await page.getByLabel('Modalidad',{exact:true}).selectOption('Virtual');
+  await page.getByRole('checkbox',{name:'Virtual',exact:true}).check();
   await page.getByLabel('Ordenar por',{exact:true}).selectOption('institution-asc');
   await page.waitForResponse(response => response.url().includes('/api/programs?') && new URL(response.url()).searchParams.get('order') === 'institution-asc');
   assert.equal(requests.at(-1).get('municipality'),'Santiago de Cali');

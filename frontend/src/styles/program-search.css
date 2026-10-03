@@ -1,5 +1,5 @@
 .program-search-panel { display:grid; gap:20px; padding:20px; margin-bottom:20px; background:#fff; border:1px solid var(--line-card); border-radius:12px; }
-.program-search-primary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+.program-search-primary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
 .program-search-university { display:flex; align-items:flex-end; gap:16px; }
 .program-search-university > .field { flex:1; min-width:0; }
 .program-fixed-institution { flex:1; margin:0; align-self:center; }
@@ -45,6 +45,16 @@
 
 .program-empty-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin:20px 0; }
 .program-visible-count { margin-bottom:16px; }
+.program-modalities { grid-column:1/-1; border:0; padding:0; margin:0; min-width:0; }
+.program-modalities legend { font-weight:600; color:var(--navy); }
+.program-modalities > p { font-size:13px; margin:6px 0 12px; }
+.program-modality-choices { display:flex; flex-wrap:wrap; gap:10px; }
+.program-modality-choices label { display:flex; align-items:center; gap:10px; min-height:44px; padding:10px 14px; border:1px solid var(--line-card); border-radius:8px; cursor:pointer; color:var(--navy); font-size:14px; }
+.program-modality-choices label:has(input:checked) { background:#eef3f8; border-color:var(--blue-dark); }
+.program-modality-choices label:has(input:disabled) { color:var(--muted); cursor:default; }
+.program-search-panel .program-modality-choices input { width:18px; min-height:18px; height:18px; flex-shrink:0; accent-color:var(--navy); }
+.program-search-extra small { color:var(--muted); line-height:1.5; }
+.program-modality-choices input:focus-visible { outline:3px solid var(--blue-dark); outline-offset:3px; }
 .program-comparison-bar { position:sticky; bottom:16px; z-index:30; padding:16px; margin:24px 0 0; border:1px solid var(--blue-dark); box-shadow:0 6px 28px #10254a26; background:#fff; }
 .program-comparison-heading { display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; justify-content:space-between; }
 .program-comparison-heading span { font-size:13px; color:var(--muted); }

@@ -97,13 +97,22 @@ el volumen para resolver un error de contraseña. Consulta [Docker](docker/READM
 
 EduPlan usa React/Vite y el catálogo real
 de instituciones. Programas consulta data-integration; universidad, área, nivel,
-departamento, ciudad, modalidad y orden se aplican a todo el catálogo antes de paginar.
+departamento, ciudad, modalidades, nivel de formación, tipo de institución y orden
+se aplican a todo el catálogo antes de paginar. Las modalidades admiten selección
+múltiple (cualquiera de las elegidas), combinada con los demás filtros. Se envían
+como parámetros repetidos `modality=Presencial&modality=Virtual`; los enlaces
+anteriores con una sola modalidad siguen funcionando.
 `GET /api/programs/filters` obtiene las opciones oficiales y las conserva cinco
 minutos. La búsqueda prioriza nombre/título exacto, variantes similares y área.
 La búsqueda ofrece hasta ocho sugerencias de nombres oficiales, tolera omisiones
 y letras intercambiadas, y conserva los nombres publicados. Las sugerencias se filtran por
 nivel e institución. Departamento y ciudad se seleccionan de DIVIPOLA; al cambiar
-de departamento se limpia la ciudad. Universidad y área están en «Más filtros».
+de departamento se limpia la ciudad; al cambiar el nivel académico se restablece
+la formación. Universidad, área, formación y tipo de institución están en «Más
+filtros». El sector se obtiene del catálogo institucional: «Oficial» se muestra
+como pública y «Privado» como privada. Si esa fuente falla, una búsqueda por
+sector informa el error en lugar de mostrar un falso resultado vacío. Los filtros
+se conservan en la URL y cada etiqueta permite quitar una selección individual.
 El orden predeterminado es por relevancia; también se puede ordenar por nombre
 o universidad A–Z, sobre todo el catálogo antes de paginar.
 Los resultados incluyen el total de ofertas y cantidades por filtro sobre todo

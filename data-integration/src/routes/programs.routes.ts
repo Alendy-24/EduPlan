@@ -23,13 +23,24 @@ programsRouter.get("/", async (request, response) => {
     return response.status(400).json({ error: true, message: "order no es válido" });
   }
 
+  const rawModalities = request.query.modality;
+  const modality = typeof rawModalities === 'string' ? rawModalities : Array.isArray(rawModalities) && rawModalities.every(value => typeof value === 'string') ? rawModalities as string[] : undefined;
+  if (rawModalities !== undefined && (modality === undefined || (Array.isArray(modality) && modality.length > 12) || (Array.isArray(modality) ? modality : [modality]).some(value => !value.trim() || value.length > 100))) {
+    return response.status(400).json({ error:true, message:'Las modalidades no son válidas' });
+  }
+  for (const key of ['educationLevel','institutionSector'] as const) {
+    const value = request.query[key];
+    if (value !== undefined && (typeof value !== 'string' || value.length > 200)) return response.status(400).json({ error:true, message:`${key} no es válido` });
+  }
   try {
     const result = await getProgramSearchPage({
       name: typeof request.query.name === "string" ? request.query.name : undefined,
       municipality:
         typeof request.query.municipality === "string" ? request.query.municipality : undefined,
       department: typeof request.query.department === "string" ? request.query.department : undefined,
-      modality: typeof request.query.modality === "string" ? request.query.modality : undefined,
+      modality,
+      educationLevel: typeof request.query.educationLevel === "string" ? request.query.educationLevel : undefined,
+      institutionSector: typeof request.query.institutionSector === "string" ? request.query.institutionSector : undefined,
       institutionCode,
       academicLevel: typeof request.query.academicLevel === "string" ? request.query.academicLevel : undefined,
       knowledgeArea: typeof request.query.knowledgeArea === "string" ? request.query.knowledgeArea : undefined,

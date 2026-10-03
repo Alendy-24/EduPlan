@@ -23,8 +23,9 @@ export function normalizeProgramPage(payload) {
   if (payload.facets !== undefined && (!payload.facets || typeof payload.facets !== 'object'
     || !['academicLevel','modality','knowledgeArea','institutionCode','department','municipality'].every(key =>
       Array.isArray(payload.facets[key]) && payload.facets[key].every(item => item && typeof item.value === 'string' && Number.isInteger(item.count) && item.count >= 0)))) throw new Error('Cantidades de filtros no válidas');
+  if (payload.facets !== undefined && !['educationLevel','institutionSector'].every(key => payload.facets[key] === undefined || Array.isArray(payload.facets[key]) && payload.facets[key].every(item => item && typeof item.value === 'string' && Number.isInteger(item.count) && item.count >= 0))) throw new Error('Cantidades de filtros no válidas');
   const alternatives = Array.isArray(payload.alternatives) ? payload.alternatives.filter(item => item && Array.isArray(item.remove)
-    && item.remove.every(key => ['municipality','department','modality','institutionCode','knowledgeArea','academicLevel'].includes(key)) && Number.isInteger(item.count) && item.count > 0) : [];
+    && item.remove.every(key => ['municipality','department','modality','institutionCode','knowledgeArea','academicLevel','educationLevel','institutionSector'].includes(key)) && Number.isInteger(item.count) && item.count > 0) : [];
   return { total: payload.total, hasMore: payload.hasMore, facets: payload.facets, alternatives, programs, receivedCount: payload.data.length, unusableCount, incompleteCount: programs.filter(p => p.recordQuality === 'incomplete').length };
 }
 export function withOfficialProgram(program, link) {

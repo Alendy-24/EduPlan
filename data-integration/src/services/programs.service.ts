@@ -109,14 +109,20 @@ export async function getPrograms(filters: ProgramFilters): Promise<Program[]> {
   // Resolve names and exclude unavailable records before pagination for every
   // listing, including the default view and searches by knowledge area.
   const catalog = await getProgramCatalog<ProgramSourceRow>(SELECT_FIELDS, transformProgram);
+  if (filters.institutionSector) {
+    const enriched = await enrichInstitutions(catalog);
+    if (enriched.some(program => program.institutionEnrichmentUnavailable)) throw new Error('No fue posible confirmar el tipo de institución');
+    return selectPrograms(enriched, filters);
+  }
   if (filters.order === 'institution-asc') return selectPrograms(await enrichInstitutions(catalog), filters);
   return enrichInstitutions(selectPrograms(catalog, filters));
 }
 
 export async function getProgramSearchPage(filters: ProgramFilters): Promise<ProgramSearchPage> {
   const catalog = await getProgramCatalog<ProgramSourceRow>(SELECT_FIELDS, transformProgram);
-  const result = searchProgramOffers(filters.order === 'institution-asc' ? await enrichInstitutions(catalog) : catalog, filters);
-  return { ...result, data: filters.order === 'institution-asc' ? result.data : await enrichInstitutions(result.data) };
+  const enriched = await enrichInstitutions(catalog);
+  if (filters.institutionSector && enriched.some(program => program.institutionEnrichmentUnavailable)) throw new Error('No fue posible confirmar el tipo de institución');
+  return searchProgramOffers(enriched, filters);
 }
 
 const FILTER_CACHE_MS = 5 * 60 * 1000;
@@ -145,8 +151,8 @@ export function getProgramFilterOptions(): Promise<ProgramFilterOptions> {
     institutionUrl.searchParams.set("$where", "codigoinstitucion IS NOT NULL AND nombreinstitucion IS NOT NULL");
     institutionUrl.searchParams.set("$order", "nombreinstitucion,codigoinstitucion");
     institutionUrl.searchParams.set("$limit", "50000");
-    const [academicLevels, knowledgeAreas, modalities, institutionRows, catalog] = await Promise.all([
-      groupedValues("nombrenivelacademico"), groupedValues("nombrenbc"), groupedValues("nombremetodologia"),
+    const [academicLevels, knowledgeAreas, modalities, educationLevels, institutionRows, catalog] = await Promise.all([
+      groupedValues("nombrenivelacademico"), groupedValues("nombrenbc"), groupedValues("nombremetodologia"), groupedValues("nombrenivelformacion"),
       fetchJson<{ code?: string; name?: string }[]>(institutionUrl),
       getInstitutionCatalog().catch(() => new Map()),
     ]);
@@ -157,7 +163,8 @@ export function getProgramFilterOptions(): Promise<ProgramFilterOptions> {
       const institution = catalog.get(code);
       if (/^\d+$/.test(code) && name && !byCode.has(code)) byCode.set(code, { code, name, ...(institution ? { municipality: institution.municipality, department: institution.department, campus: institution.campus } : {}) });
     }
-    const data = { academicLevels, knowledgeAreas, modalities, institutions: [...byCode.values()] };
+    const institutionSectors = [...new Set([...catalog.values()].map(institution => institution.sector).filter((value): value is string => Boolean(value?.trim())))].sort();
+    const data = { academicLevels, knowledgeAreas, modalities, educationLevels, institutionSectors, institutions: [...byCode.values()] };
     filterCache = { data, expiresAt: Date.now() + FILTER_CACHE_MS };
     return data;
   })().finally(() => { filterRequest = undefined; });

@@ -39,7 +39,9 @@ export interface ProgramFilters {
   name?: string;
   municipality?: string;
   department?: string;
-  modality?: string;
+  modality?: string | string[];
+  institutionSector?: string;
+  educationLevel?: string;
   institutionCode?: string;
   academicLevel?: string;
   knowledgeArea?: string;
@@ -52,11 +54,13 @@ export interface ProgramFilterOptions {
   academicLevels: string[];
   knowledgeAreas: string[];
   modalities: string[];
+  educationLevels: string[];
+  institutionSectors: string[];
   institutions: { code: string; name: string; municipality?: string; department?: string; campus?: string }[];
 }
 
 export interface ProgramFacet { value: string; count: number }
-export type ProgramFacets = Record<'academicLevel' | 'modality' | 'knowledgeArea' | 'institutionCode' | 'department' | 'municipality', ProgramFacet[]>;
+export type ProgramFacets = Record<'academicLevel' | 'modality' | 'knowledgeArea' | 'institutionCode' | 'department' | 'municipality' | 'educationLevel' | 'institutionSector', ProgramFacet[]>;
 export interface ProgramSearchPage {
   data: Program[];
   total: number;
