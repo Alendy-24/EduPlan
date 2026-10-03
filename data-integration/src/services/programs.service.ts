@@ -1,9 +1,9 @@
 import { SOURCES } from "../config/sources.js";
-import type { Program, ProgramFilters, ProgramFilterOptions } from "../models/program.js";
+import type { Program, ProgramFilters, ProgramFilterOptions, ProgramSearchPage } from "../models/program.js";
 import { fetchJson } from "../utils/http.js";
 import { getInstitutionCatalog } from './institutions.service.js';
 import { resolveOfficialProgramName } from './snies-names.js';
-import { getProgramCatalog, selectPrograms } from './program-catalog.js';
+import { getProgramCatalog, selectPrograms, hasPublishedProgramName, searchProgramOffers, groupProgramOffers } from './program-catalog.js';
 
 interface ProgramSourceRow {
   search_rank?: string;
@@ -48,14 +48,6 @@ const SELECT_FIELDS = [
 
 function escapeSoql(value: string): string {
   return value.replaceAll("'", "''");
-}
-
-function searchText(value: string): string {
-  return value.normalize("NFKD").replace(/\p{M}/gu, "").trim().toUpperCase();
-}
-
-function containsText(field: string, value: string): string {
-  return `upper(unaccent(${field})) like '%${escapeSoql(searchText(value))}%'`;
 }
 
 export function transformProgram(row: ProgramSourceRow): Program {
@@ -114,39 +106,17 @@ async function enrichInstitutions(programs: Program[]): Promise<Program[]> {
 }
 
 export async function getPrograms(filters: ProgramFilters): Promise<Program[]> {
-  if (filters.name?.trim() || filters.order === 'asc' || filters.order === 'desc') {
-    const catalog = await getProgramCatalog<ProgramSourceRow>(SELECT_FIELDS, transformProgram);
-    return enrichInstitutions(selectPrograms(catalog, filters));
-  }
-  const url = new URL(SOURCES.programs.resourceUrl);
-  const conditions: string[] = [];
+  // Resolve names and exclude unavailable records before pagination for every
+  // listing, including the default view and searches by knowledge area.
+  const catalog = await getProgramCatalog<ProgramSourceRow>(SELECT_FIELDS, transformProgram);
+  if (filters.order === 'institution-asc') return selectPrograms(await enrichInstitutions(catalog), filters);
+  return enrichInstitutions(selectPrograms(catalog, filters));
+}
 
-  if (filters.municipality?.trim()) {
-    conditions.push(`(${containsText("nombremunicipioprograma", filters.municipality)})`);
-  }
-  if (filters.modality?.trim()) {
-    conditions.push(`(${containsText("nombremetodologia", filters.modality)})`);
-  }
-  if (filters.institutionCode?.trim()) {
-    conditions.push(`codigoinstitucion = ${filters.institutionCode}`);
-  }
-  if (filters.academicLevel?.trim()) {
-    conditions.push(`upper(unaccent(nombrenivelacademico)) = '${escapeSoql(searchText(filters.academicLevel))}'`);
-  }
-  if (filters.knowledgeArea?.trim()) {
-    conditions.push(`upper(unaccent(nombrenbc)) = '${escapeSoql(searchText(filters.knowledgeArea))}'`);
-  }
-
-  url.searchParams.set("$select", SELECT_FIELDS);
-  url.searchParams.set("$limit", String(filters.limit));
-  url.searchParams.set("$offset", String((filters.page - 1) * filters.limit));
-  url.searchParams.set("$order", ":id");
-  if (conditions.length > 0) {
-    url.searchParams.set("$where", conditions.join(" AND "));
-  }
-
-  const rows = await fetchJson<ProgramSourceRow[]>(url);
-  return enrichInstitutions(rows.map(transformProgram));
+export async function getProgramSearchPage(filters: ProgramFilters): Promise<ProgramSearchPage> {
+  const catalog = await getProgramCatalog<ProgramSourceRow>(SELECT_FIELDS, transformProgram);
+  const result = searchProgramOffers(filters.order === 'institution-asc' ? await enrichInstitutions(catalog) : catalog, filters);
+  return { ...result, data: filters.order === 'institution-asc' ? result.data : await enrichInstitutions(result.data) };
 }
 
 const FILTER_CACHE_MS = 5 * 60 * 1000;
@@ -202,7 +172,9 @@ export async function getProgramsByCode(code: string): Promise<Program[]> {
   url.searchParams.set("$order", ":id");
 
   const rows = await fetchJson<ProgramSourceRow[]>(url);
-  return enrichInstitutions(rows.map(transformProgram));
+  const programs = rows.map(transformProgram).filter(hasPublishedProgramName);
+  const identities = new Map(groupProgramOffers(programs).flatMap(group => (group.groupedSourceIds ?? [group.sourceId]).map(id => [id, group.offerId] as const)));
+  return enrichInstitutions(programs.map(program => ({ ...program, offerId: identities.get(program.sourceId) })));
 }
 
 // Shared bounded, five-minute catalog cache: no catalog transfer to the browser.

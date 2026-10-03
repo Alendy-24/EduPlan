@@ -25,3 +25,11 @@ export async function getProgramFilterOptions(signal) {
   if (!data || !['academicLevels','knowledgeAreas','modalities'].every(key => Array.isArray(data[key]) && data[key].every(value => typeof value === 'string' && value.trim())) || !Array.isArray(data.institutions) || !data.institutions.every(item => item && typeof item.code === 'string' && /^\d+$/.test(item.code) && typeof item.name === 'string' && item.name.trim())) throw new Error('Los filtros del catálogo no son válidos. Inténtalo de nuevo.');
   return data;
 }
+
+export async function getProgramSuggestions(query, filters, signal) {
+  const params = new URLSearchParams({ q: query });
+  for (const [key, value] of Object.entries(filters)) if (value?.trim()) params.set(key, value.trim());
+  const payload = await requestPayload(`/api/programs/suggestions?${params}`, signal);
+  if (!Array.isArray(payload?.data) || !payload.data.every(name => typeof name === 'string' && name.trim())) throw new Error('Sugerencias no válidas');
+  return payload.data;
+}
