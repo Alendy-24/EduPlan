@@ -61,11 +61,11 @@ export function addComparison(current, program) {
   return current.some(p => offerIsSelected(p, program)) || current.length >= 3 ? current : [...current, comparisonSnapshot(program)];
 }
 export function comparisonSnapshot(program) {
-  return Object.fromEntries(['id','sourceId','offerId','groupedSourceIds','code','name','nameOrigin','awardedTitle','institution','city','level','duration','modality','status','provenance'].filter(key => program[key] !== undefined).map(key => [key,program[key]]));
+  return Object.fromEntries(['id','sourceId','offerId','groupedSourceIds','code','name','nameOrigin','awardedTitle','institution','city','level','educationLevel','department','area','credits','periodCount','periodicity','institutionWebsite','institutionSector','institutionCampus','sniesCode','duration','modality','status','provenance'].filter(key => program[key] !== undefined).map(key => [key,program[key]]));
 }
 export function validStoredProgram(program) {
   return program && ['id','name'].every(key => typeof program[key] === 'string')
-    && ['sourceId','offerId','code','nameOrigin','awardedTitle','institution','city','level','duration','modality','status'].every(key => program[key] === undefined || typeof program[key] === 'string')
+    && ['sourceId','offerId','code','nameOrigin','awardedTitle','institution','city','level','educationLevel','department','area','credits','periodCount','periodicity','institutionWebsite','institutionSector','institutionCampus','sniesCode','duration','modality','status'].every(key => program[key] === undefined || typeof program[key] === 'string')
     && (program.groupedSourceIds === undefined || Array.isArray(program.groupedSourceIds) && program.groupedSourceIds.every(id => typeof id === 'string' && id.startsWith('upr9-nkiz:')))
     && (program.provenance === 'demo' || program.provenance === 'real' && program.id === program.sourceId && typeof program.code === 'string' && typeof program.sourceId === 'string' && program.sourceId.startsWith('upr9-nkiz:'));
 }

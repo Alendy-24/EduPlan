@@ -113,6 +113,22 @@ ofrecen acciones con cantidades verificadas para ampliar los filtros conservando
 la carrera. Las filas con la misma identidad oficial SNIES y los mismos datos de
 oferta se agrupan antes de paginar; sedes, modalidades, estados y planes diferentes
 se conservan por separado. El detalle mantiene todas las filas de fuente.
+El comparador organiza ubicación, modalidad/tiempo y formación, resalta diferencias
+y conserva visibles los datos pendientes. Consulta las filas actuales por su identidad
+exacta al abrir o actualizar; si una fila desaparece o la consulta falla, conserva el
+resumen guardado y señala su estado. Incluye créditos, sector, sede, título y formación,
+y accesos a fuentes oficiales para confirmar costos, admisión y plan de estudios.
+«Mis prioridades» destaca ubicación, modalidad, duración y formación; las filas
+prioritarias siguen visibles al ocultar coincidencias. Las notas por programa son
+personales, están limitadas a 2000 caracteres y se guardan solo en el navegador,
+separadas por cuenta e invitado. No se envían a las API ni se presentan como datos oficiales.
+La favorita de la comparación también es local y se conserva por cuenta; quitar
+esa opción o limpiar la comparación borra la favorita. El resumen destaca hasta
+cuatro diferencias publicadas, prioriza los criterios elegidos y señala los datos
+pendientes sin inferir cuál universidad es mejor. «Compartir comparación» permite
+copiar o descargar un archivo de texto con las ofertas y sus enlaces exactos,
+sin incluir notas ni la favorita. Si el portapapeles no está disponible, la vista
+previa permite copiar manualmente. Los enlaces usan el origen actual del sitio.
 Una barra de comparación en el catálogo y el detalle muestra hasta tres opciones,
 permite quitarlas y reconoce distintas filas de la misma oferta agrupada.
 Los resúmenes mantienen los nombres publicados y su procedencia. Las filas se
@@ -202,4 +218,3 @@ cambiar programas a una URL de otro origen sin preparar ese transporte.
 # Diagrama de Componentes 
 
 <img width="1667" height="886" alt="Diagrama_de_Componentes_EduPlan" src="https://github.com/user-attachments/assets/79628769-47d6-415b-9e11-fe3d106ece6b" />
-
