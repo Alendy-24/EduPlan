@@ -2,6 +2,8 @@
 node_modules/
 .pnpm-store/
 .env
+.env.local
+.env.*.local
 *.log
 docker/.env
 docker/backend.env

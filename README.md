@@ -147,6 +147,11 @@ El navegador usa rutas del mismo origen. Vite envía instituciones, programas y
 recomendaciones a data-integration; autenticación, cuenta y enlaces oficiales
 al backend. Flyway aplica migraciones y Hibernate valida el esquema.
 
+Las tarjetas de instituciones admiten logos de Logo.dev con una clave publicable
+opcional, identidades compartidas entre sedes y excepciones manuales. Sin clave
+o ante errores conservan el icono genérico. Consulta la
+[configuración y revisión de logos](docs/institution-logos.md).
+
 Login y registro usan autenticación real. Registro requiere `name`, `email`
 y `password` desde la interfaz; la API conserva soporte de teléfono.
 `expiresIn` está expresado en milisegundos. La sesión se conserva en

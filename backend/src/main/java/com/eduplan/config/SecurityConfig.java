@@ -47,6 +47,7 @@ public class SecurityConfig {
                                 "/api/admin/program-links/**",
                                 "/api/admin/data-sync",
                                 "/api/admin/data-sync/**",
+                                "/api/noticias/**",
                                 "/error"
                         ).permitAll()
                         .anyRequest().authenticated()
