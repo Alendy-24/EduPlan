@@ -10,12 +10,13 @@ export default defineConfig({
     strictPort: true,
     // Internal targets use IPv4 loopback; the public browser URL stays localhost.
     proxy: {
-      '/api/institutions': process.env.EDUPLAN_CATALOG_URL || 'http://127.0.0.1:3001',
-      '/api/programs': process.env.EDUPLAN_CATALOG_URL || 'http://127.0.0.1:3001',
-      '/api/recommendations': process.env.EDUPLAN_CATALOG_URL || 'http://127.0.0.1:3001',
-      '/api/program-links': process.env.EDUPLAN_BACKEND_URL || 'http://127.0.0.1:8080',
-      '/api/auth': process.env.EDUPLAN_BACKEND_URL || 'http://127.0.0.1:8080',
-      '/api/me': process.env.EDUPLAN_BACKEND_URL || 'http://127.0.0.1:8080',
+  '/api/institutions': process.env.EDUPLAN_CATALOG_URL || 'http://127.0.0.1:3001',
+  '/api/programs': process.env.EDUPLAN_CATALOG_URL || 'http://127.0.0.1:3001',
+  '/api/recommendations': process.env.EDUPLAN_CATALOG_URL || 'http://127.0.0.1:3001',
+  '/api/program-links': process.env.EDUPLAN_BACKEND_URL || 'http://127.0.0.1:8080',
+  '/api/auth': process.env.EDUPLAN_BACKEND_URL || 'http://127.0.0.1:8080',
+  '/api/me': process.env.EDUPLAN_BACKEND_URL || 'http://127.0.0.1:8080',
+  '/api/assistant': process.env.EDUPLAN_BACKEND_URL || 'http://127.0.0.1:8080', // asistente (Spring)
     },
   },
 })
