@@ -1,10 +1,16 @@
-import { careerWords, fuzzyCareerMatch } from '../utils/career-search.js';
+import { careerWords, fuzzyCareerMatch, literalCareerMatch } from '../utils/career-search.js';
 import { readFileSync } from 'node:fs';
 
 type OfficialRecord = [string, string, string, string, string, string, string];
 interface NameIndex { schemaVersion: number; source: string; field: string; importedAt: string; records: OfficialRecord[] }
 const index: NameIndex = JSON.parse(readFileSync(new URL('../../data/snies-program-names.json', import.meta.url), 'utf8'));
 if (index.schemaVersion !== 2) throw new Error('El índice SNIES requiere una nueva importación');
+const knownCareerWords = new Set(index.records.flatMap(record => careerWords(record[2]).concat(careerWords(record[3]))));
+// Repeated vocabulary protects correct words in mixed typo queries. Isolated
+// published spelling errors remain correctable when another query word is unknown.
+const wordSupport = new Map<string, number>();
+for (const record of index.records) for (const word of new Set([...careerWords(record[2]), ...careerWords(record[3])])) wordSupport.set(word,(wordSupport.get(word) ?? 0) + 1);
+export const commonCareerWords = new Set([...wordSupport].filter(([,count]) => count >= 3).map(([word]) => word));
 const fold = (text: string) => text.normalize('NFKD').replace(/\p{M}/gu, '').trim().replace(/\s+/g, ' ').toUpperCase();
 const cityKey = (text: string) => fold(text).replace(/[\p{P}\p{Z}]/gu, '');
 interface PublishedContext { institutionCode: string; awardedTitle: string; academicLevel: string; modality: string; municipality: string }
@@ -43,8 +49,8 @@ export function suggestProgramNames(query: string, filters: { academicLevel?: st
     if (filters.academicLevel && fold(record[4]) !== fold(filters.academicLevel)
       || filters.institutionCode && record[1] !== filters.institutionCode) continue;
     const name = record[2].trim(), normalized = fold(name);
-    if ((words.every(word => normalized.includes(word)) || fuzzyCareerMatch(words, normalized)) && !names.has(normalized)) names.set(normalized, name);
+    if ((literalCareerMatch(term, normalized, knownCareerWords, true) || fuzzyCareerMatch(words, normalized, knownCareerWords, commonCareerWords)) && !names.has(normalized)) names.set(normalized, name);
   }
-  const rank = (name: string) => fold(name) === term ? 0 : fold(name).startsWith(term) ? 1 : words.every(word => fold(name).includes(word)) ? 2 : 3;
+  const rank = (name: string) => fold(name) === term ? 0 : fold(name).startsWith(term) && literalCareerMatch(term,name,knownCareerWords,true) ? 1 : literalCareerMatch(term,name,knownCareerWords,true) ? 2 : 3;
   return [...names.values()].sort((a,b) => rank(a) - rank(b) || a.length - b.length || a.localeCompare(b, 'es')).slice(0, 8);
 }

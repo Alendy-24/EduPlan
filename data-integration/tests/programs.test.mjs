@@ -261,6 +261,41 @@ test("institution endpoint returns hasMore without exposing the lookahead row", 
   assert.deepEqual(limits, [["13", "0"], ["13", "12"], ["13", "24"]]);
 });
 
+test('medicine search separates animal health before counts, filters and pagination', () => {
+  const base = {...transformProgram(row),reviewRequired:false,nameOrigin:'SNIES_NAME',awardedTitle:'',academicLevel:'Posgrado',modality:'Virtual',institutionCode:'1701',municipality:'Bogotá'};
+  const programs = [
+    ['Especialización en Salud Pública Veterinaria','Medicina veterinaria'],
+    ['Maestría en Epidemiología','Medicina'],
+    ['Especialización en Bienestar Animal y Etología','Medicina veterinaria'],
+    ['Especialización en Medicina Interna','Medicina'],
+    ['Especialización en Medicina Interna','Medicina', 'Presencial'],
+  ].map(([name,knowledgeArea,modality],index) => ({...base,name,knowledgeArea,modality:modality || base.modality,sourceId:`upr9-nkiz:medical-${index}`,sniesCode:String(9000+index)}));
+  const filters={name:'medicina',academicLevel:'Posgrado',modality:'Virtual',page:1,limit:1};
+  assert.equal(selectPrograms(programs,filters)[0].name,'Especialización en Medicina Interna');
+  assert.equal(selectPrograms(programs,{...filters,page:2})[0].name,'Maestría en Epidemiología');
+  assert.equal(selectPrograms(programs,{...filters,page:3}).length,0);
+  const page=searchProgramOffers(programs,{...filters,limit:12});
+  assert.equal(page.total,2);
+  assert.equal(page.hasMore,false);
+  assert.equal(selectPrograms(programs,{...filters,name:'medicina veterinaria',limit:12}).length,2);
+  assert.equal(selectPrograms(programs,{...filters,name:'bienestar animal',limit:12})[0].name,'Especialización en Bienestar Animal y Etología');
+});
+
+test('medicine search excludes explicit nursing degrees even when their published NBC is Medicina', () => {
+  const base={...transformProgram(row),reviewRequired:false,nameOrigin:'SNIES_NAME',academicLevel:'Posgrado',modality:'Virtual',knowledgeArea:'Medicina',institutionCode:'1701',municipality:'Bogotá'};
+  const programs=[
+    {...base,sourceId:'upr9-nkiz:nursing',sniesCode:'9901',name:'MAESTRÍA EN ENFERMERIA',awardedTitle:'MAGISTER EN ENFERMERÍA'},
+    {...base,sourceId:'upr9-nkiz:epidemiology',sniesCode:'9902',name:'MAESTRÍA EN EPIDEMIOLOGÍA',awardedTitle:'MAGÍSTER EN EPIDEMIOLOGÍA'},
+  ];
+  const filters={name:'medicina',academicLevel:'Posgrado',modality:'Virtual',page:1,limit:12};
+  const page=searchProgramOffers(programs,filters);
+  assert.equal(page.total,1);
+  assert.equal(page.data[0].sourceId,'upr9-nkiz:epidemiology');
+  assert.equal(selectPrograms(programs,{...filters,name:'enfermeria'})[0].sourceId,'upr9-nkiz:nursing');
+  const titleOnly={...programs[0],name:'Maestría en Cuidado Clínico',awardedTitle:'MAGÍSTER EN ENFERMERÍA'};
+  assert.equal(selectPrograms([titleOnly],filters).length,0);
+});
+
  test('career search matches expanded and reordered names across disciplines in both directions', () => {
   const pairs = [
     ['Ingeniería de Sistemas', 'Ingeniería de Sistemas y Computación'],
@@ -333,13 +368,31 @@ test('institution alphabetical order is global before pagination and keeps name 
   assert.deepEqual([1,2,3].map(page=>selectPrograms(programs,{order:'institution-asc',page,limit:1})[0].sourceId),['upr9-nkiz:a','upr9-nkiz:b','upr9-nkiz:z']);
 });
 
+test('correct catalog words do not expand into similar words from unrelated disciplines', () => {
+  const base={...transformProgram(namedRow),awardedTitle:'',academicLevel:'Posgrado',modality:'Virtual'};
+  const entries=[
+    ['Maestría en Epidemiología','Medicina'],
+    ['Especialización en Medición y Evaluación en Ciencias Sociales','Ciencias sociales'],
+    ['Especialización en Gerencia del Control Interno y la Auditoría Médica','Contaduría pública'],
+    ['Especialización en Dirección y Gestión de la Pequeña y Mediana Empresa','Administración'],
+  ];
+  const programs=entries.map(([name,knowledgeArea],i)=>({...base,name,knowledgeArea,sourceId:`upr9-nkiz:exact-word-${i}`,sniesCode:String(9800+i)}));
+  const filters={name:'medicina',academicLevel:'Posgrado',modality:'Virtual',page:1,limit:12};
+  assert.deepEqual(selectPrograms(programs,filters).map(p=>p.name),['Maestría en Epidemiología']);
+  assert.equal(searchProgramOffers(programs,filters).total,1);
+  assert.equal(selectPrograms(programs,{...filters,name:'medición'})[0].sourceId,'upr9-nkiz:exact-word-1');
+  assert.equal(selectPrograms(programs,{...filters,name:'auditoria medica'})[0].sourceId,'upr9-nkiz:exact-word-2');
+  const mixed=[...programs,{...base,name:'Ingeniería Civil',knowledgeArea:'Ingeniería',sourceId:'upr9-nkiz:civil',sniesCode:'9899'}, {...base,name:'Ingeniería Química',knowledgeArea:'Ingeniería',sourceId:'upr9-nkiz:quimica',sniesCode:'9898'}];
+  assert.deepEqual(selectPrograms(mixed,{...filters,name:'ingenieria cviil'}).map(p=>p.name),['Ingeniería Civil']);
+});
+
 test('typo search matches omissions and swapped letters without crossing unrelated careers', () => {
   const base = {...transformProgram(namedRow),awardedTitle:'',knowledgeArea:''};
   const programs = ['Psicología','Ingeniería de Sistemas','Ingeniería Civil','Ingeniería Química'].map((name,i)=>({...base,name,sourceId:`upr9-nkiz:typo-${i}`}));
   for (const query of ['sicologia','psciologia','psiclogia']) {
     const matches=selectPrograms(programs,{name:query,page:1,limit:12});
     assert.deepEqual(matches.map(p=>p.name),['Psicología']);
-    assert.equal(matches[0].searchMatch,query === 'sicologia' ? 'SIMILAR_NAME_OR_TITLE' : 'SPELLING_VARIANT');
+    assert.equal(matches[0].searchMatch,'SPELLING_VARIANT');
   }
   assert.deepEqual(selectPrograms(programs,{name:'ingeneria de sitemas',page:1,limit:12}).map(p=>p.name),['Ingeniería de Sistemas']);
   assert.deepEqual(selectPrograms(programs,{name:'ingenieria civil',page:1,limit:12}).map(p=>p.name),['Ingeniería Civil']);

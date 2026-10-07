@@ -38,7 +38,8 @@ const careerWords = text => [...new Set(comparable(text).replace(/ingeniero\(a\)
   .filter(word => word && !['de','del','la','las','el','los','y','en','a','al','para'].includes(word)))];
 const relatedCareerNames = (query, candidate) => {
   const left = careerWords(query), right = careerWords(candidate);
-  return left.length > 0 && right.length > 0 && (left.every(word => right.includes(word)) || right.every(word => left.includes(word)));
+  const generic = new Set(['ingenieria','maestria','magister','especializacion','especialista','doctorado','doctor','tecnologia','tecnologo','tecnico','tecnica','profesional','ciencias','estudios','licenciatura']);
+  return left.length > 0 && right.length > 0 && (left.every(word => right.includes(word)) || right.length >= 2 && right.some(word => !generic.has(word)) && right.every(word => left.includes(word)));
 };
 export function programSearchMatches(program, query) {
   if (!query?.trim()) return [];
@@ -46,7 +47,10 @@ export function programSearchMatches(program, query) {
   const variants = /\bingenieria\b/.test(term)
     ? [term, ...['ingeniero','ingeniera','ingeniero(a)'].map(word => term.replace(/\bingenieria\b/g, word))] : [term];
   return [...(['SNIES_NAME','OFFICIAL_PAGE'].includes(program.nameOrigin) ? [['name','Nombre del programa']] : []),['rawName',program.reviewRequired ? 'Nombre publicado (sin verificar)' : 'Nombre publicado'],['awardedTitle','Título otorgado'],['area','Área publicada']]
-    .filter(([key]) => typeof program[key] === 'string' && ((key === 'area' ? [term] : variants).some(value => comparable(program[key]).includes(value)) || key !== 'area' && relatedCareerNames(term, program[key])))
+    .filter(([key]) => typeof program[key] === 'string' && ((key === 'area' ? [term] : variants).some(value => {
+      const words = careerWords(value), candidate = careerWords(program[key]);
+      return words.length > 0 && words.every(word => candidate.includes(word));
+    }) || key !== 'area' && relatedCareerNames(term, program[key])))
     .map(([key,label]) => ({ key, label, value: program[key] }));
 }
 export function programHref(program) {

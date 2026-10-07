@@ -69,7 +69,17 @@ test('career suggestions are bounded official names, accent insensitive and filt
   assert(names.every(name => index.records.some(row => row[2]===name && row[1]==='1701' && row[4]==='Pregrado')));
 });
 
+test('correct medicine suggestions do not reinterpret the query as measurement or business words', () => {
+  const names=suggestProgramNames('medicina',{academicLevel:'Posgrado'});
+  assert(names.length>0);
+  assert(names.every(name => /MEDICINA/.test(name.normalize('NFKD').replace(/\p{M}/gu,'').toUpperCase())));
+});
+
 test('official suggestions tolerate common spelling mistakes', () => {
   for (const query of ['sicologia','psciologia']) assert(suggestProgramNames(query).some(name => name.normalize('NFKD').replace(/\p{M}/gu,'').toUpperCase()==='PSICOLOGIA'));
   assert(suggestProgramNames('ingeneria de sitemas').some(name => /INGENIER[IÍ]A DE SISTEMAS$/.test(name)));
+});
+
+test('suggestions remain available from a two-letter final specialty fragment', () => {
+  for(const query of ['ingenieria de si','ingenieria de sis']) assert(suggestProgramNames(query).some(name => /INGENIER[IÍ]A DE SISTEMAS$/.test(name)),query);
 });

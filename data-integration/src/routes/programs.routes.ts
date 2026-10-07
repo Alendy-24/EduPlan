@@ -2,8 +2,16 @@ import { Router } from "express";
 import { getProgramSearchPage, getProgramsByCode, getProgramFilterOptions } from "../services/programs.service.js";
 import { suggestProgramNames } from '../services/snies-names.js';
 import { parsePagination } from "../utils/http.js";
+import { getCareerPhoto } from '../services/program-images.js';
 
 export const programsRouter = Router();
+
+programsRouter.get('/photo', async (request, response) => {
+  const name = request.query.name;
+  if (typeof name !== 'string' || !name.trim() || name.length > 512) return response.status(400).json({ error: true });
+  try { return response.json({ data: await getCareerPhoto(name) }); }
+  catch { return response.status(503).json({ data: null }); }
+});
 
 programsRouter.get("/", async (request, response) => {
   let pagination: { page: number; limit: number };

@@ -152,6 +152,11 @@ opcional, identidades compartidas entre sedes y excepciones manuales. Sin clave
 o ante errores conservan el icono genérico. Consulta la
 [configuración y revisión de logos](docs/institution-logos.md).
 
+Las tarjetas y el detalle de programas muestran fotografías reales de referencia
+por disciplina, con selección consistente por nombre oficial, guardadas
+localmente y sin otra API key. Consulta las
+[fuentes y personalización por programa](docs/program-images.md).
+
 Login y registro usan autenticación real. Registro requiere `name`, `email`
 y `password` desde la interfaz; la API conserva soporte de teléfono.
 `expiresIn` está expresado en milisegundos. La sesión se conserva en
@@ -185,6 +190,10 @@ cerradas y las fechas desconocidas exigen consultar vigencia. Las rutas
 históricas de demostración mantienen datos ficticios aislados y avisos.
 
 ## Pruebas
+
+La [verificación general de búsqueda](docs/search-quality.md) comprueba todos
+los nombres del índice SNIES y variantes de escritura mediante
+`npm run search-quality --prefix data-integration`.
 
 Desde la raíz: `npm run test:dev`, `npm run typecheck --prefix data-integration`,
 `npm run lint --prefix frontend`,
