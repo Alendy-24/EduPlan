@@ -3,7 +3,7 @@ import { campusDescription, institutionLabel } from '../utils/institutions';
 
 const fold = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es');
 
-export default function InstitutionSearch({ institutions, value, selectedName, disabled, onChange }) {
+export default function InstitutionSearch({ institutions, value, selectedName, disabled, onChange, counts }) {
   const selected = institutions.find(item => item.code === value);
   const selectedText = value ? institutionLabel(selected || { name: selectedName, code: value }) : '';
   const [draft, setDraft] = useState(null);
@@ -37,7 +37,7 @@ export default function InstitutionSearch({ institutions, value, selectedName, d
       <ul id="institution-options" role="listbox" aria-label="Instituciones disponibles" ref={list}>
         {choices.map((item, position) => <li key={item.code} id={`institution-option-${position}`} role="option" aria-selected={item.code === value} className={position === index ? 'is-active' : ''}
           onMouseDown={event => event.preventDefault()} onClick={() => choose(item)}>
-          <strong>{item.name}</strong>{item.code && <small>{campusDescription(item)}</small>}
+          <strong>{item.name}{item.code && counts !== undefined ? ` (${counts[item.code] || 0})` : ''}</strong>{item.code && <small>{campusDescription(item)}</small>}
         </li>)}
       </ul>
       {!matches.length && <p role="status">No hay instituciones con ese nombre o código.</p>}

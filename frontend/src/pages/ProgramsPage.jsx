@@ -3,6 +3,10 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import ProgramCard from '../components/ProgramCard';
 import PageHeader from '../components/PageHeader';
 import AsyncState from '../components/AsyncState';
+import ProgramComparisonBar from '../components/ProgramComparisonBar';
+import { facetCount, filterParams, relaxationLabels, selectedModalities, institutionSectorLabel } from '../utils/program-search';
+import CareerSearch from '../components/CareerSearch';
+import { departments, findDepartment, findCity } from '../utils/profile-location';
 import InstitutionSearch from '../components/InstitutionSearch';
 import { getPrograms, getProgramFilterOptions, PROGRAM_PAGE_SIZE } from '../services/programs';
 import { getInstitutionByCode } from '../services/institutions';
@@ -10,12 +14,15 @@ import { mergePrograms } from '../utils/programs';
 import { useOfficialPrograms } from '../hooks/useOfficialPrograms';
 import { demoInstitution, programs as demos } from '../data/mock/catalog';
 import '../styles/program-search.css';
-const emptyOptions = { academicLevels: [], knowledgeAreas: [], modalities: [], institutions: [] };
+const emptyOptions = { academicLevels: [], knowledgeAreas: [], modalities: [], educationLevels: [], institutionSectors: [], institutions: [] };
 const withSelection = (options, selected) => [...new Set([...options, ...(selected ? [selected] : [])])];
 export default function ProgramsPage({ institutionOnly = false }) {
   const { institutionId } = useParams();
   const [params, setParams] = useSearchParams();
-  const query = params.get('q') || '', city = params.get('city') || '', modality = params.get('modality') || '';
+  const query = params.get('q') || '', city = params.get('city') || '';
+  const modalities = selectedModalities(params), modalityKey = JSON.stringify(modalities);
+  const formation = params.get('formation') || '', sector = params.get('sector') || '';
+  const department = params.get('department') || '';
   const area = params.get('area') || '', level = params.get('level') || '', order = params.get('order') || 'source';
   const university = institutionOnly ? institutionId || '' : params.get('institution') || '';
   const demo = institutionOnly && institutionId === demoInstitution.id;
@@ -24,11 +31,14 @@ export default function ProgramsPage({ institutionOnly = false }) {
   const [institution, setInstitution] = useState(null);
   const [optionsState, setOptionsState] = useState({ data: emptyOptions, loading: true, error: '' });
   const [optionsRetry, setOptionsRetry] = useState(0);
-  const criteria = JSON.stringify({ name: query, municipality: city, modality, institutionCode: university, academicLevel: level, knowledgeArea: area, order });
+  const criteria = JSON.stringify({ name: query, municipality: city, department, modality:modalities, educationLevel:formation, institutionSector:sector, institutionCode: university, academicLevel: level, knowledgeArea: area, order });
   const page = catalog.key === criteria ? catalog.page : 1;
   const records = useOfficialPrograms(demo ? demos.map(p => ({ ...p, provenance: 'demo' })) : catalog.key === criteria ? catalog.programs : []);
   const hasMore = !demo && (catalog.key === criteria ? catalog.hasMore : true);
-  function update(key, value) { setParams(current => { const next = new URLSearchParams(current); if (value && !(key === 'order' && value === 'source')) next.set(key, value); else next.delete(key); return next; }, { replace: true }); }
+  function update(key, value) { setParams(current => { const next = new URLSearchParams(current); if (value && !(key === 'order' && value === 'source')) next.set(key, value); else next.delete(key); if (key === 'department') next.delete('city'); if (key === 'level') next.delete('formation'); return next; }, { replace: true }); }
+  function toggleModality(value) {
+    setParams(current => { const next = new URLSearchParams(current); const values = selectedModalities(current); next.delete('modality'); (values.includes(value) ? values.filter(item=>item!==value) : [...values,value]).forEach(item=>next.append('modality',item)); return next; }, {replace:true});
+  }
   useEffect(() => {
     if (!institutionOnly || demo) { setInstitution(demo ? demoInstitution : null); return; }
     const controller = new AbortController(); setInstitution(null);
@@ -36,7 +46,7 @@ export default function ProgramsPage({ institutionOnly = false }) {
     return () => controller.abort();
   }, [institutionId, institutionOnly, demo]);
   useEffect(() => {
-    if (demo) { setOptionsState({ data: { academicLevels: [...new Set(demos.map(p => p.level))], knowledgeAreas: [...new Set(demos.map(p => p.area))], modalities: [...new Set(demos.map(p => p.modality))], institutions: [] }, loading: false, error: '' }); return; }
+    if (demo) { setOptionsState({ data: { academicLevels: [...new Set(demos.map(p => p.level))], knowledgeAreas: [...new Set(demos.map(p => p.area))], modalities: [...new Set(demos.map(p => p.modality))], educationLevels: [], institutionSectors: [], institutions: [] }, loading: false, error: '' }); return; }
     const controller = new AbortController();
     setOptionsState(current => ({ ...current, loading: true, error: '' }));
     getProgramFilterOptions(controller.signal).then(data => { if (!controller.signal.aborted) setOptionsState({ data, loading: false, error: '' }); }).catch(reason => { if (!controller.signal.aborted) setOptionsState(current => ({ ...current, loading: false, error: reason.message })); });
@@ -49,48 +59,78 @@ export default function ProgramsPage({ institutionOnly = false }) {
     const timer = setTimeout(() => {
       getPrograms(JSON.parse(criteria), page, controller.signal).then(incoming => {
         if (controller.signal.aborted) return;
-        setCatalog(current => ({ key: criteria, programs: mergePrograms(page === 1 || current.key !== criteria ? [] : current.programs, incoming.programs), unusableCount: (page === 1 || current.key !== criteria ? 0 : current.unusableCount || 0) + incoming.unusableCount, page, hasMore: incoming.receivedCount === PROGRAM_PAGE_SIZE }));
+        setCatalog(current => ({ key: criteria, programs: mergePrograms(page === 1 || current.key !== criteria ? [] : current.programs, incoming.programs), unusableCount: (page === 1 || current.key !== criteria ? 0 : current.unusableCount || 0) + incoming.unusableCount, page, hasMore: incoming.hasMore ?? incoming.receivedCount === PROGRAM_PAGE_SIZE, total: incoming.total, facets: incoming.facets, alternatives: incoming.alternatives }));
         setLoading(false);
       }).catch(reason => { if (!controller.signal.aborted) { setError(reason.message); setLoading(false); } });
     }, 350);
     return () => { clearTimeout(timer); controller.abort(); };
   }, [criteria, page, retry, demo]);
-  const filtered = useMemo(() => demo ? records.filter(p => (!area || p.area === area) && (!level || p.level === level) && (!query || p.name.toLocaleLowerCase('es').includes(query.toLocaleLowerCase('es'))) && (!city || p.city.toLocaleLowerCase('es').includes(city.toLocaleLowerCase('es'))) && (!modality || p.modality === modality)).sort((a,b) => order === 'asc' ? a.name.localeCompare(b.name,'es') : order === 'desc' ? b.name.localeCompare(a.name,'es') : 0) : records, [records, area, level, order, demo, query, city, modality]);
+  const filtered = useMemo(() => demo ? records.filter(p => (!area || p.area === area) && (!level || p.level === level) && (!query || p.name.toLocaleLowerCase('es').includes(query.toLocaleLowerCase('es'))) && (!department || findCity(department, p.city)) && (!city || p.city.toLocaleLowerCase('es').includes(city.toLocaleLowerCase('es'))) && (!modalities.length || modalities.includes(p.modality)) && (!formation || p.educationLevel === formation) && (!sector || p.institutionSector === sector)).sort((a,b) => order === 'asc' ? a.name.localeCompare(b.name,'es') : order === 'desc' ? b.name.localeCompare(a.name,'es') : order === 'institution-asc' ? a.institution.localeCompare(b.institution,'es') || a.name.localeCompare(b.name,'es') : 0) : records, [records, area, level, order, demo, query, city, department, modalityKey, formation, sector]);
   const options = optionsState.data;
+  const cities = findDepartment(department)?.cities || [];
+  const demoNames = useMemo(() => demo ? [...new Set(demos.map(program => program.name))] : undefined, [demo]);
+  const metadata = !demo && catalog.key === criteria ? catalog : {};
+  const facets = metadata.facets;
+  function option(name, key, selected) {
+    const count = facetCount(facets, key, name);
+    return <option key={name} value={name} disabled={count === 0 && name !== selected}>{name}{count === undefined ? '' : ` (${count})`}</option>;
+  }
+  function relaxFilters(remove) {
+    setParams(current => {
+      const next = new URLSearchParams(current);
+      remove.forEach(key => next.delete(filterParams[key]));
+      return next;
+    }, { replace: true });
+  }
+  const alternatives = (metadata.alternatives || []).filter(item => !institutionOnly || !item.remove.includes('institutionCode'));
+  const orderLabels = { source: 'Más relacionados con tu búsqueda', asc: 'Nombre A–Z', desc: 'Nombre Z–A', 'institution-asc': 'Universidad A–Z' };
   const selectedUniversity = institutionOnly ? institution?.name || `Institución ${university}` : options.institutions.find(item => item.code === university)?.name || `Institución ${university}`;
-  const activeFilters = [['q',query,'Búsqueda'],['city',city,'Ciudad'],['level',level,'Nivel'],...(!institutionOnly ? [['institution',university,'Universidad']] : []),['area',area,'Área'],['modality',modality,'Modalidad'],['order',order !== 'source' ? order : '','Orden']].filter(([,value]) => value).map(([key,value,label]) => ({ key, label, value: key === 'institution' ? selectedUniversity : key === 'order' ? value === 'asc' ? 'Nombre A–Z' : 'Nombre Z–A' : value }));
+  const activeFilters = [['q',query,'Carrera'],['department',department,'Departamento'],['city',city,'Ciudad'],['level',level,'Nivel'],...(!institutionOnly ? [['institution',university,'Universidad']] : []),['area',area,'Área'],['formation',formation,'Formación'],['sector',sector,'Tipo de institución'],...modalities.map(value=>['modality',value,'Modalidad']),['order',order !== 'source' ? order : '','Orden']].filter(([,value]) => value).map(([key,value,label]) => ({ key, label, value: key === 'institution' ? selectedUniversity : key === 'order' ? orderLabels[value] : key === 'sector' ? institutionSectorLabel(value) : value }));
   return <main className="page programs-search-page"><div className="container">
     {institutionOnly && <Link className="back-link" to={`/instituciones/${encodeURIComponent(institutionId)}`}>← Volver a la institución</Link>}
     <PageHeader title={institutionOnly ? `Programas de ${institution?.name || 'esta institución'}` : 'Programas académicos'}>Explora la información publicada y compara las opciones que te interesan.</PageHeader>
     <p className="notice">{demo ? 'Demostración con datos ficticios. No representa una oferta académica verificada.' : 'Catálogo público del Ministerio de Educación. Confirma con la institución el estado y la información publicados.'}</p>
     <section className="program-search-panel" aria-label="Filtros de programas">
+      {institutionOnly && <p className="program-fixed-institution"><strong>Universidad o institución:</strong> {selectedUniversity}</p>}
       <div className="program-search-primary">
-        <label className="field">Buscar programas<input type="search" value={query} onChange={e => update('q',e.target.value)} placeholder="Nombre, título o área de conocimiento" /></label>
-        <label className="field">Ciudad o municipio<input type="search" value={city} onChange={e => update('city',e.target.value)} placeholder="Por ejemplo, Bogotá" /></label>
-        <div className="field"><label htmlFor="program-level">Nivel académico</label><select id="program-level" value={level} onChange={e => update('level',e.target.value)} disabled={optionsState.loading && !level}><option value="">Todos</option>{withSelection(options.academicLevels,level).map(v => <option key={v}>{v}</option>)}</select></div>
+        <CareerSearch value={query} onChange={value => update('q', value)} academicLevel={level} institutionCode={university} demoNames={demoNames} />
+        <div className="field"><label htmlFor="program-department">Departamento</label><select id="program-department" value={department} onChange={e => update('department',e.target.value)}><option value="">Toda Colombia</option>{withSelection(departments.map(item => item.name), department).map(name => option(name, 'department', department))}</select></div>
+        <div className="field"><label htmlFor="program-city">Ciudad o municipio</label><select id="program-city" value={city} disabled={!department && !city} onChange={e => update('city',e.target.value)}><option value="">{department ? 'Todas las ciudades' : 'Elige un departamento'}</option>{withSelection(cities.map(item => item.name), city).map(name => option(name, 'municipality', city))}</select></div>
+        <div className="field"><label htmlFor="program-level">Nivel académico</label><select id="program-level" value={level} onChange={e => update('level',e.target.value)} disabled={optionsState.loading && !level}><option value="">Todos los niveles</option>{withSelection(options.academicLevels,level).map(v => option(v, 'academicLevel', level))}</select></div>
+        <fieldset className="program-modalities"><legend>Modalidades que te interesan</legend><p className="subtle">Puedes elegir varias. Sin selección, buscamos en todas.</p><div className="program-modality-choices">{[...new Set([...options.modalities,...modalities])].map(value=>{
+          const count = facetCount(facets,'modality',value), selected = modalities.includes(value);
+          return <label key={value}><input type="checkbox" checked={selected} disabled={!selected && (optionsState.loading || count === 0)} onChange={()=>toggleModality(value)} /><span>{value}{count === undefined ? '' : ` (${count})`}</span></label>;
+        })}</div></fieldset>
       </div>
-      <div className="program-search-university">
-        {institutionOnly ? <p className="program-fixed-institution"><strong>Universidad o institución:</strong> {selectedUniversity}</p> : <InstitutionSearch institutions={options.institutions} value={university} selectedName={selectedUniversity} disabled={optionsState.loading && !university} onChange={value => update('institution',value)} />}
-        <button className="btn btn-secondary" type="button" disabled={!activeFilters.length} onClick={() => setParams({})}>Limpiar filtros</button>
-      </div>
-      <details className="program-more-filters" open={area || modality || order !== 'source' ? true : undefined}>
+      <div className="program-search-hint"><p className="subtle">Escribe una carrera o elige una sugerencia. Incluimos programas con nombres relacionados.</p><button className="btn btn-secondary" type="button" disabled={!activeFilters.length} onClick={() => setParams({})}>Limpiar filtros</button></div>
+      <details className="program-more-filters" open={area || formation || sector || !institutionOnly && university ? true : undefined}>
         <summary>Más filtros</summary>
         <div className="program-search-extra">
-          <div className="field"><label htmlFor="program-area">Área de conocimiento</label><select id="program-area" value={area} onChange={e => update('area',e.target.value)} disabled={optionsState.loading && !area}><option value="">Todas</option>{withSelection(options.knowledgeAreas,area).map(v => <option key={v}>{v}</option>)}</select></div>
-          <div className="field"><label htmlFor="program-modality">Modalidad</label><select id="program-modality" value={modality} onChange={e => update('modality',e.target.value)} disabled={optionsState.loading && !modality}><option value="">Todas</option>{withSelection(options.modalities,modality).map(v => <option key={v}>{v}</option>)}</select></div>
-          <div className="field"><label htmlFor="program-order">Ordenar por</label><select id="program-order" value={order} onChange={e => update('order',e.target.value)}><option value="source">{query.trim() && !demo ? 'Relevancia de búsqueda' : 'Orden del catálogo'}</option><option value="asc">Nombre A–Z</option><option value="desc">Nombre Z–A</option></select></div>
+          {!institutionOnly && <InstitutionSearch institutions={options.institutions} counts={facets ? Object.fromEntries(facets.institutionCode.map(item => [item.value,item.count])) : undefined} value={university} selectedName={selectedUniversity} disabled={optionsState.loading && !university} onChange={value => update('institution',value)} />}
+          <div className="field"><label htmlFor="program-area">Área de conocimiento</label><select id="program-area" value={area} onChange={e => update('area',e.target.value)} disabled={optionsState.loading && !area}><option value="">Todas las áreas</option>{withSelection(options.knowledgeAreas,area).map(v => option(v, 'knowledgeArea', area))}</select></div>
+          <div className="field"><label htmlFor="program-formation">Nivel de formación</label><select id="program-formation" value={formation} onChange={e=>update('formation',e.target.value)} disabled={optionsState.loading && !formation}><option value="">Todos los niveles de formación</option>{withSelection(options.educationLevels,formation).map(value=>option(value,'educationLevel',formation))}</select><small>{level === 'Posgrado' ? 'Por ejemplo, especialización, maestría o doctorado.' : 'Por ejemplo, técnica profesional, tecnológica o universitaria.'}</small></div>
+          {!demo && <div className="field"><label htmlFor="program-sector">Tipo de institución</label><select id="program-sector" value={sector} onChange={e=>update('sector',e.target.value)} disabled={optionsState.loading && !sector || !options.institutionSectors.length && !sector}><option value="">Públicas y privadas</option>{withSelection(options.institutionSectors,sector).map(value=>{
+            const count = facetCount(facets,'institutionSector',value);
+            return <option key={value} value={value} disabled={count === 0 && value !== sector}>{institutionSectorLabel(value)}{count === undefined ? '' : ` (${count})`}</option>;
+          })}</select>{!optionsState.loading && !options.institutionSectors.length && <small>No pudimos confirmar los tipos de institución disponibles.</small>}</div>}
         </div>
       </details>
       {optionsState.loading && <p className="subtle" role="status">Cargando filtros del catálogo…</p>}
       {optionsState.error && <div className="program-filter-error" role="alert"><p>{optionsState.error}</p><button className="btn btn-secondary" type="button" onClick={() => setOptionsRetry(v => v + 1)}>Reintentar filtros</button></div>}
     </section>
-    {activeFilters.length > 0 && <ul className="program-active-filters" aria-label="Filtros activos">{activeFilters.map(filter => <li key={filter.key}><button type="button" onClick={() => update(filter.key,'')} aria-label={`Quitar filtro ${filter.label}: ${filter.value}`}><span>{filter.label}: {filter.value}</span><span aria-hidden="true">×</span></button></li>)}</ul>}
-    {!demo && <p className="subtle">Los filtros y el orden se aplican a todo el catálogo. El conteo corresponde a los registros cargados.</p>}
-    {query.trim() && !demo && order === 'source' && <p className="subtle">La búsqueda prioriza nombres y títulos coincidentes, después similares y finalmente coincidencias solo por área.</p>}
-    <div className="results-line"><strong>{!records.length && (error || loading) ? loading ? 'Consultando el catálogo…' : 'No se pudieron cargar resultados.' : `${filtered.length} ${filtered.length === 1 ? 'programa cargado' : 'programas cargados'}`}</strong><Link to="/comparar">Abrir comparador →</Link></div>
+    {activeFilters.length > 0 && <ul className="program-active-filters" aria-label="Filtros activos">{activeFilters.map(filter => <li key={filter.key+filter.value}><button type="button" onClick={() => filter.key === 'modality' ? toggleModality(filter.value) : update(filter.key,'')} aria-label={`Quitar filtro ${filter.label}: ${filter.value}`}><span>{filter.label}: {filter.value}</span><span aria-hidden="true">×</span></button></li>)}</ul>}
+    {!demo && <p className="subtle">Las cantidades corresponden a ofertas de todo el catálogo. Sedes y modalidades distintas se muestran por separado.</p>}
+    {query.trim() && !demo && order === 'source' && <p className="subtle">La búsqueda prioriza nombres y títulos coincidentes, después similares y coincidencias por área y variantes de escritura.</p>}
+    <div className="results-line program-results-toolbar"><strong>{!records.length && (error || loading) ? loading ? 'Consultando el catálogo…' : 'No se pudieron cargar resultados.' : metadata.total !== undefined ? `${metadata.total} ${metadata.total === 1 ? 'oferta encontrada' : 'ofertas encontradas'}` : `${filtered.length} ${filtered.length === 1 ? 'programa cargado' : 'programas cargados'}`}</strong><div className="field program-order-field"><label htmlFor="program-order">Ordenar por</label><select id="program-order" value={order} onChange={e => update('order',e.target.value)}>{Object.entries(orderLabels).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></div><Link to="/comparar">Abrir comparador →</Link></div>
     {catalog.key === criteria && catalog.unusableCount > 0 && <p className="subtle" role="status">{catalog.unusableCount} {catalog.unusableCount === 1 ? 'registro recibido no puede mostrarse porque le falta' : 'registros recibidos no pueden mostrarse porque les falta'} identidad o información utilizable. Las demás opciones siguen disponibles.</p>}
+    {metadata.total > 0 && <p className="subtle program-visible-count" role="status">Mostrando {filtered.length} de {metadata.total} ofertas.</p>}
     <div className="listing">{filtered.map(p => <ProgramCard key={p.id} program={p} searchQuery={query} />)}</div>
-    <AsyncState loading={loading} error={error} onRetry={() => setRetry(v => v+1)} empty={!filtered.length}><p>Prueba otra búsqueda o cambia los filtros.</p></AsyncState>
+    <AsyncState loading={loading} error={error} onRetry={() => setRetry(v => v+1)} empty={!filtered.length}><p>{query.trim() ? `No encontramos ofertas para «${query.trim()}» con estos filtros.` : 'No encontramos ofertas con estos filtros.'}</p>
+      {alternatives.length > 0 && <div className="program-empty-actions">{alternatives.map(item => <button key={item.remove[0]} className="btn btn-secondary" type="button" onClick={() => relaxFilters(item.remove)}>{item.remove[0] === 'municipality' && !department ? 'Ver todas las ciudades' : relaxationLabels[item.remove[0]]} ({item.count})</button>)}</div>}
+      {activeFilters.some(filter => !['q','order'].includes(filter.key)) && <button type="button" className="plain-button text-link" onClick={() => setParams(query ? { q: query } : {})}>Quitar los demás filtros y conservar la carrera</button>}
+      <p className="subtle">También puedes probar otro nombre de carrera. La búsqueda reconoce errores de escritura frecuentes.</p>
+    </AsyncState>
     {hasMore && !loading && !error && <button className="btn btn-secondary load-more" type="button" onClick={() => { setLoading(true); setCatalog(current => ({ ...current, page: current.page + 1 })); }}>Cargar más programas</button>}
+    <ProgramComparisonBar />
   </div></main>;
 }

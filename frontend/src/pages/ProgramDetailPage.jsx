@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import BookmarkButton from '../components/BookmarkButton';
+import ProgramComparisonBar from '../components/ProgramComparisonBar';
+import '../styles/program-search.css';
 import CompareButton from '../components/CompareButton';
 import AsyncState from '../components/AsyncState';
 import SectionTabs from '../components/SectionTabs';
@@ -60,5 +62,6 @@ export default function ProgramDetailPage() {
       <aside className="facts surface"><h2>Información oficial</h2><p>Consulta la oferta y las condiciones de admisión directamente con {program.institution}.</p>{official && <p><a className="text-link" href={official} target="_blank" rel="noopener noreferrer">Sitio oficial de la institución ↗</a></p>}{institutionHref && <Link className="text-link" to={institutionHref}>Ver institución →</Link>}{!demo && <><p><a href="https://hecaa.mineducacion.gov.co/consultaspublicas/programas" target="_blank" rel="noopener noreferrer">Consulta pública SNIES ↗</a></p><p><a href="https://www.datos.gov.co/d/upr9-nkiz" target="_blank" rel="noopener noreferrer">Catálogo del Ministerio de Educación ↗</a></p></>}</aside>
       </div></SectionTabs>
     </>}
+    <ProgramComparisonBar />
   </div></main>;
 }
