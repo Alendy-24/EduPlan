@@ -97,9 +97,49 @@ el volumen para resolver un error de contraseña. Consulta [Docker](docker/READM
 
 EduPlan usa React/Vite y el catálogo real
 de instituciones. Programas consulta data-integration; universidad, área, nivel,
-ciudad, modalidad y orden se aplican a todo el catálogo antes de paginar.
+departamento, ciudad, modalidades, nivel de formación, tipo de institución y orden
+se aplican a todo el catálogo antes de paginar. Las modalidades admiten selección
+múltiple (cualquiera de las elegidas), combinada con los demás filtros. Se envían
+como parámetros repetidos `modality=Presencial&modality=Virtual`; los enlaces
+anteriores con una sola modalidad siguen funcionando.
 `GET /api/programs/filters` obtiene las opciones oficiales y las conserva cinco
 minutos. La búsqueda prioriza nombre/título exacto, variantes similares y área.
+La búsqueda ofrece hasta ocho sugerencias de nombres oficiales, tolera omisiones
+y letras intercambiadas, y conserva los nombres publicados. Las sugerencias se filtran por
+nivel e institución. Departamento y ciudad se seleccionan de DIVIPOLA; al cambiar
+de departamento se limpia la ciudad; al cambiar el nivel académico se restablece
+la formación. Universidad, área, formación y tipo de institución están en «Más
+filtros». El sector se obtiene del catálogo institucional: «Oficial» se muestra
+como pública y «Privado» como privada. Si esa fuente falla, una búsqueda por
+sector informa el error en lugar de mostrar un falso resultado vacío. Los filtros
+se conservan en la URL y cada etiqueta permite quitar una selección individual.
+El orden predeterminado es por relevancia; también se puede ordenar por nombre
+o universidad A–Z, sobre todo el catálogo antes de paginar.
+Los resultados incluyen el total de ofertas y cantidades por filtro sobre todo
+el catálogo. Cada cantidad permite cambiar ese filtro conservando los demás;
+el departamento ignora la ciudad porque cambiarlo la limpia. Las búsquedas vacías
+ofrecen acciones con cantidades verificadas para ampliar los filtros conservando
+la carrera. Las filas con la misma identidad oficial SNIES y los mismos datos de
+oferta se agrupan antes de paginar; sedes, modalidades, estados y planes diferentes
+se conservan por separado. El detalle mantiene todas las filas de fuente.
+El comparador organiza ubicación, modalidad/tiempo y formación, resalta diferencias
+y conserva visibles los datos pendientes. Consulta las filas actuales por su identidad
+exacta al abrir o actualizar; si una fila desaparece o la consulta falla, conserva el
+resumen guardado y señala su estado. Incluye créditos, sector, sede, título y formación,
+y accesos a fuentes oficiales para confirmar costos, admisión y plan de estudios.
+«Mis prioridades» destaca ubicación, modalidad, duración y formación; las filas
+prioritarias siguen visibles al ocultar coincidencias. Las notas por programa son
+personales, están limitadas a 2000 caracteres y se guardan solo en el navegador,
+separadas por cuenta e invitado. No se envían a las API ni se presentan como datos oficiales.
+La favorita de la comparación también es local y se conserva por cuenta; quitar
+esa opción o limpiar la comparación borra la favorita. El resumen destaca hasta
+cuatro diferencias publicadas, prioriza los criterios elegidos y señala los datos
+pendientes sin inferir cuál universidad es mejor. «Compartir comparación» permite
+copiar o descargar un archivo de texto con las ofertas y sus enlaces exactos,
+sin incluir notas ni la favorita. Si el portapapeles no está disponible, la vista
+previa permite copiar manualmente. Los enlaces usan el origen actual del sitio.
+Una barra de comparación en el catálogo y el detalle muestra hasta tres opciones,
+permite quitarlas y reconoce distintas filas de la misma oferta agrupada.
 Los resúmenes mantienen los nombres publicados y su procedencia. Las filas se
 identifican por `sourceId`, porque un código de programa puede repetirse.
 
@@ -192,4 +232,3 @@ cambiar programas a una URL de otro origen sin preparar ese transporte.
 # Diagrama de Componentes 
 
 <img width="1667" height="886" alt="Diagrama_de_Componentes_EduPlan" src="https://github.com/user-attachments/assets/79628769-47d6-415b-9e11-fe3d106ece6b" />
-

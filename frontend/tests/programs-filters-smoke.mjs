@@ -4,7 +4,7 @@ import { mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 const { chromium } = createRequire(import.meta.url)(process.env.EDUPLAN_PLAYWRIGHT_PATH || 'playwright');
 const base = process.env.EDUPLAN_TEST_URL || 'http://localhost:3005';
-const browser = await chromium.launch({ channel: 'msedge', headless: true });
+const browser = await chromium.launch({ channel: process.env.EDUPLAN_BROWSER_CHANNEL || 'msedge', headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 page.setDefaultTimeout(45000);
 const errors = []; page.on('pageerror', error => errors.push(error.message));
@@ -24,8 +24,7 @@ try {
   assert(initial.length > 0 && initial.every(program => program.academicLevel === 'Pregrado' && program.institutionCode === '1101'));
   await page.waitForFunction(() => document.querySelector('#program-university')?.value.includes('NACIONAL'));
   assert.equal(await page.getByLabel('Nivel académico', { exact: true }).inputValue(), 'Pregrado');
-  assert.equal(await page.getByLabel('Área de conocimiento', { exact: true }).isVisible(), false);
-  await page.locator('.program-more-filters summary').click();
+  assert.equal(await page.getByLabel('Área de conocimiento', { exact: true }).isVisible(), true);
   const area = 'Ingeniería de sistemas telemática y afines';
   const areaResponse = responseFor({ knowledgeArea: area });
   await page.getByLabel('Área de conocimiento', { exact: true }).selectOption(area);
@@ -40,7 +39,7 @@ try {
   await page.getByLabel('Ordenar por', { exact: true }).selectOption('asc');
   const sortedRows = await rendered(await sortedResponse);
   assert(sortedRows.length > 0 && sortedRows.every(program => program.academicLevel === 'Pregrado' && program.knowledgeArea === area));
-  assert.equal(await page.getByText('Los filtros y el orden se aplican a todo el catálogo. El conteo corresponde a los registros cargados.', { exact: true }).count(), 1);
+  assert.equal(await page.getByText('Las cantidades corresponden a ofertas de todo el catálogo. Sedes y modalidades distintas se muestran por separado.', { exact: true }).count(), 1);
   if (sortedRows.length === 12) {
     const moreResponse = responseFor({ order: 'asc', page: '2' });
     await page.getByRole('button', { name: 'Cargar más programas', exact: true }).click();
@@ -76,6 +75,7 @@ try {
   await fixture.getByRole('button', { name: 'Reintentar filtros', exact: true }).click();
   await fixture.getByText('Cargando filtros del catálogo…', { exact: true }).waitFor({ state: 'hidden' });
   await fixture.getByRole('button', { name: 'Reintentar filtros', exact: true }).waitFor({ state: 'hidden' });
+  await fixture.locator('.program-more-filters summary').click();
   const universityInput = fixture.getByLabel('Universidad o institución', { exact: true });
   await universityInput.fill('oficial');
   await fixture.getByRole('option').filter({ hasText:'Código 1101' }).waitFor();

@@ -1,3 +1,4 @@
+import { careerWords, fuzzyCareerMatch } from '../utils/career-search.js';
 import { readFileSync } from 'node:fs';
 
 type OfficialRecord = [string, string, string, string, string, string, string];
@@ -30,3 +31,20 @@ export function createSniesResolver(data: NameIndex) {
 // Match literal official titles as identifiers with independent institution/level/modality;
 // the display name itself is always read from NOMBRE_DEL_PROGRAMA, never derived.
 export const resolveOfficialProgramName = createSniesResolver(index);
+
+// Only a bounded set of official names is sent to the browser, not the catalog.
+export function suggestProgramNames(query: string, filters: { academicLevel?: string; institutionCode?: string } = {}): string[] {
+  const term = fold(query);
+  if (term.length < 2) return [];
+  const words = careerWords(term);
+  if (!words.length) return [];
+  const names = new Map<string, string>();
+  for (const record of index.records) {
+    if (filters.academicLevel && fold(record[4]) !== fold(filters.academicLevel)
+      || filters.institutionCode && record[1] !== filters.institutionCode) continue;
+    const name = record[2].trim(), normalized = fold(name);
+    if ((words.every(word => normalized.includes(word)) || fuzzyCareerMatch(words, normalized)) && !names.has(normalized)) names.set(normalized, name);
+  }
+  const rank = (name: string) => fold(name) === term ? 0 : fold(name).startsWith(term) ? 1 : words.every(word => fold(name).includes(word)) ? 2 : 3;
+  return [...names.values()].sort((a,b) => rank(a) - rank(b) || a.length - b.length || a.localeCompare(b, 'es')).slice(0, 8);
+}

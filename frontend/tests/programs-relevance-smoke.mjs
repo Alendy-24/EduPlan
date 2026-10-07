@@ -5,11 +5,11 @@ import { fileURLToPath } from 'node:url';
 
 const { chromium } = createRequire(import.meta.url)(process.env.EDUPLAN_PLAYWRIGHT_PATH || 'playwright');
 const base = process.env.EDUPLAN_TEST_URL || 'http://localhost:3005';
-const browser = await chromium.launch({ channel: 'msedge', headless: true });
+const browser = await chromium.launch({ channel: process.env.EDUPLAN_BROWSER_CHANNEL || 'msedge', headless: true });
 const page = await browser.newPage();
 const errors = []; page.on('pageerror', error => errors.push(error.message));
 const query = 'ingenieria de sistemas';
-const tier = { EXACT_NAME_OR_TITLE: 0, SIMILAR_NAME_OR_TITLE: 1, KNOWLEDGE_AREA: 2 };
+const tier = { EXACT_NAME_OR_TITLE: 0, SIMILAR_NAME_OR_TITLE: 1, KNOWLEDGE_AREA: 2, SPELLING_VARIANT: 3 };
 try {
   await page.goto(`${base}/programas?q=${encodeURIComponent(query)}`);
   await page.locator('.list-item').first().waitFor();
@@ -20,7 +20,7 @@ try {
   assert(names.every(name => !name.startsWith('INGENIERO')));
   assert(names.every(name => !name.includes('DOCTOR EN')));
   assert.equal(await page.getByLabel('Ordenar por', { exact: true }).inputValue(), 'source');
-  assert.equal(await page.locator('option[value="source"]').textContent(), 'Relevancia de búsqueda');
+  assert.equal(await page.locator('option[value="source"]').textContent(), 'Más relacionados con tu búsqueda');
   await page.getByRole('button', { name: 'Cargar más programas' }).click();
   await page.waitForFunction(() => document.querySelectorAll('.list-item').length === 24);
   names = await page.locator('.list-item h3').allTextContents();
@@ -50,14 +50,14 @@ try {
   }
   // A fixture verifies the explicit explanation for an area-only match.
   await page.route('**/api/programs?**', route => route.fulfill({ json: { data: [{
-    sourceId: 'upr9-nkiz:area-fixture', code: '11', name: 'DOCTOR EN INGENIERIA',
-    rawName: 'Bogotá D.C.', awardedTitle: 'DOCTOR EN INGENIERIA', nameOrigin: 'AWARDED_TITLE',
-    reviewRequired: true, institutionName: 'Institución de prueba', academicLevel: 'Posgrado',
+    sourceId: 'upr9-nkiz:area-fixture', code: '11', name: 'Doctorado en Ingeniería',
+    rawName: 'Bogotá D.C.', awardedTitle: 'DOCTOR EN INGENIERIA', nameOrigin: 'SNIES_NAME',
+    reviewRequired: false, institutionName: 'Institución de prueba', academicLevel: 'Posgrado',
     knowledgeArea: 'Ingeniería de sistemas telemática y afines', searchMatch: 'KNOWLEDGE_AREA',
   }] } }));
   await page.reload();
   await page.getByText('Coincidencia por área de conocimiento.', { exact: true }).waitFor();
-  await page.getByRole('heading',{name:'Nombre del programa no disponible',exact:true}).waitFor();
+  await page.getByRole('heading',{name:'Doctorado en Ingeniería',exact:true}).waitFor();
   assert.deepEqual(errors, []);
-  console.log(`PASS: exact names first; ${total} real rows ordered across pages, ${areaOnly} area-only rows last; load more, explanation, desktop/mobile`);
+  console.log(`PASS: exact names first; ${total} real rows ordered across pages, ${areaOnly} area-only rows before spelling variants; load more, explanation, desktop/mobile`);
 } finally { await browser.close(); }
