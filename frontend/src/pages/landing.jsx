@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import students from "../assets/Images/estudiantess.avif";
+import students from "../assets/Images/landing-students.png";
 import institutionIcon from "../assets/Images/instituciones.svg";
 import programIcon from "../assets/Images/explorar-programas.svg";
 import scholarshipIcon from "../assets/Images/becas.svg";
@@ -57,12 +57,18 @@ const steps = [
 export default function Landing() {
     return (
         <main>
-            <section className="hero">
-                <img
-                    className="hero-photo"
-                    src={students}
-                    alt="Estudiantes conversan sobre sus opciones académicas"
-                />
+            <section className="hero hero--organic">
+                <div className="hero-art">
+                    <span className="hero-orbit" aria-hidden="true" />
+                    <span className="hero-circle hero-circle--blue" aria-hidden="true" />
+                    <img
+                        className="hero-photo"
+                        src={students}
+                        alt="Estudiantes conversan sobre sus opciones académicas"
+                        fetchPriority="high"
+                    />
+                    <span className="hero-circle hero-circle--amber" aria-hidden="true" />
+                </div>
                 <div className="container hero-content">
                     <span className="eyebrow">
                         Tu futuro, con más información

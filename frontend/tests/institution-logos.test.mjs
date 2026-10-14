@@ -38,6 +38,7 @@ test('different campus codes and domains share the same brand URL without alteri
   assert.equal(cali.code, 1702);
   assert.equal(resolveInstitutionLogo({ code: '9933', website: 'delapaz.unal.edu.co' }, token).src,
     resolveInstitutionLogo({ code: '1101', website: 'unal.edu.co' }, token).src);
+  assert.equal(resolveInstitutionLogo({ code: '1101' }, '').src, '/logos/unal.png');
   // Similar names must not implicitly group unrelated institutions.
   assert.notEqual(resolveInstitutionLogo({ code: '9999', name: 'Pontificia Universidad Javeriana', website: 'other.edu.co' }, token).src,
     resolveInstitutionLogo(bogota, token).src);

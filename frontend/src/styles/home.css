@@ -57,6 +57,79 @@
   color: var(--body);
 }
 
+/* Fotografía y formas de la propuesta aprobada; el resto del inicio conserva su diseño. */
+.hero--organic {
+  background: #e0eef8;
+}
+
+.hero--organic:after {
+  content: none;
+}
+
+.hero-art {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 57%;
+}
+
+.hero--organic .hero-photo {
+  width: 96%;
+  height: 100%;
+  top: 0;
+  bottom: auto;
+  border-radius: 53% 47% 0 0 / 78% 66% 0 0;
+  object-position: center 44%;
+  z-index: 2;
+}
+
+.hero-circle {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+}
+
+.hero-circle--blue {
+  width: 280px;
+  aspect-ratio: 1;
+  left: 9%;
+  top: 8%;
+  background: #95c5d2;
+}
+
+.hero-circle--amber {
+  width: 68px;
+  aspect-ratio: 1;
+  left: 6%;
+  top: 63%;
+  background: #f2b12b;
+  z-index: 3;
+}
+
+.hero-orbit {
+  position: absolute;
+  width: 138%;
+  height: 80%;
+  left: -14%;
+  top: 30%;
+  border: 2px solid var(--navy);
+  border-radius: 50%;
+  transform: rotate(-3deg);
+}
+
+.hero--organic .hero-content h1,
+.hero--organic .hero-content p {
+  max-width: min(520px, 39vw);
+}
+
+@media (max-width: 768px) {
+  .hero--organic .hero-content { padding: 48px 0 325px; }
+  .hero--organic .hero-content h1,
+  .hero--organic .hero-content p { max-width: 100%; }
+  .hero-art { top: auto; width: min(100%, 540px); height: 290px; }
+  .hero-circle--blue { width: 180px; }
+  .hero-circle--amber { width: 45px; }
+}
+
 
 /* ============================= */
 /* BUSCADOR DEL HERO */

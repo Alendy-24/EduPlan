@@ -10,6 +10,8 @@ import {
     studyImage,
 } from "../data/mock/catalog";
 import { getInstitutionByCode } from "../services/institutions";
+import InstitutionLogo from "../components/InstitutionLogo";
+import InstitutionContact from "../components/InstitutionContact";
 
 const tabs = [
     "Información",
@@ -92,16 +94,14 @@ export default function InstitutionDetailPage() {
     }
     return (
         <main>
-            <div className={`detail-banner${demo ? "" : " is-empty"}`}>
+            <div className={`detail-banner${demo ? "" : " detail-banner--identity"}`}>
                 {demo ? (
                     <img
                         src={demoInstitution.image}
                         alt="Campus universitario de referencia"
                     />
                 ) : (
-                    <div className="detail-banner-placeholder">
-                        Imagen institucional no disponible en el catálogo
-                    </div>
+                    <InstitutionLogo institution={institution} className="institution-detail-logo" alt={`Logo de ${name}`} loading="eager" />
                 )}
             </div>
             <div className="container">
@@ -175,12 +175,7 @@ export default function InstitutionDetailPage() {
                                         {institution.address}
                                     </p>
                                 )}
-                                {institution.phone && (
-                                    <p>
-                                        <strong>Teléfono:</strong>{" "}
-                                        {institution.phone}
-                                    </p>
-                                )}
+                                <InstitutionContact institution={institution} />
                                 <p>
                                     Revisa su ubicación y carácter académico
                                     antes de comparar opciones.
