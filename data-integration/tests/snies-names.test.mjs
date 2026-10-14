@@ -6,6 +6,15 @@ import { transformProgram, getPrograms } from '../dist/services/programs.service
 import { clearProgramCatalogCache } from '../dist/services/program-catalog.js';
 import { clearInstitutionCatalogCache } from '../dist/services/institutions.service.js';
 const index = JSON.parse(readFileSync(new URL('../data/snies-program-names.json', import.meta.url), 'utf8'));
+test('explicit active status disambiguates historical codes but never replaces an inactive or unknown selection',()=>{
+  const old=['1','1702','NOMBRE ANTIGUO','TITULO','Pregrado','Presencial','Santiago de Cali'];
+  const current=['2','1702','NOMBRE VIGENTE','TITULO','Pregrado','Presencial','Santiago de Cali'];
+  const resolve=createSniesResolver({schemaVersion:2,source:'official',field:'NOMBRE_DEL_PROGRAMA',importedAt:'2026-10-14',records:[old,current],activeRecords:[current]});
+  const context={institutionCode:'1702',awardedTitle:'TITULO',academicLevel:'Pregrado',modality:'Presencial',municipality:'Cali'};
+  assert.equal(resolve({...context,status:'Activo'}).sniesCode,'2');
+  assert.equal(resolve(context),null);assert.equal(resolve({...context,status:'Inactivo'}),null);
+  assert.equal(resolve({...context,status:'Activo',municipality:'Palmira'}),null);
+});
 test('same program name at different campuses resolves the local SNIES code and tuition', async () => {
   const { createTuitionResolver } = await import('../dist/services/snies-tuition.js');
   const resolve = createSniesResolver({schemaVersion:2,source:'official',field:'NOMBRE_DEL_PROGRAMA',importedAt:'2026-10-14',records:[
@@ -97,4 +106,38 @@ test('official suggestions tolerate common spelling mistakes', () => {
 
 test('suggestions remain available from a two-letter final specialty fragment', () => {
   for(const query of ['ingenieria de si','ingenieria de sis']) assert(suggestProgramNames(query).some(name => /INGENIER[IÍ]A DE SISTEMAS$/.test(name)),query);
+});
+
+test('literal complete alternative titles resolve without generating gender or subject variants',()=>{
+ const r=['1','2812','ADMINISTRACION DE EMPRESAS','Administrador de Empresas / Administradora de Empresas / Administradore de Empresas','Pregrado','Presencial','Bogotá, D.C.'];
+ const context={institutionCode:'2812',awardedTitle:'ADMINISTRADOR DE EMPRESAS',academicLevel:'Pregrado',modality:'Presencial',municipality:'Bogotá, D.C.',status:'Activo'};
+ const resolve=createSniesResolver({schemaVersion:2,records:[r],activeRecords:[r]});
+ assert.equal(resolve(context).sniesCode,'1');
+ assert.equal(resolve({...context,awardedTitle:'ADMINISTRADOR EMPRESARIAL'}),null);
+ assert.equal(resolve({...context,municipality:'Medellín'}),null);
+ const partial={schemaVersion:2,records:[['2','2812','LENGUAS','Licenciado en Español / Inglés','Pregrado','Presencial','Bogotá, D.C.']]};
+ assert.equal(createSniesResolver(partial)({...context,status:'',awardedTitle:'Inglés'}),null);
+ assert.equal(createSniesResolver({...partial,records:[['2','2812','INGENIERIA','Ingeniero/a','Pregrado','Presencial','Bogotá, D.C.']]})({...context,status:'',awardedTitle:'Ingeniero'}),null);
+});
+
+test('active codes require complete exact official credit, duration, formation and periodicity evidence',()=>{
+ const a=['1','1701','PROGRAMA A','TITULO','Pregrado','Presencial','Bogotá, D.C.'];
+ const b=['2','1701','PROGRAMA B','TITULO','Pregrado','Presencial','Bogotá, D.C.'];
+ const details=[['1','1701','Presencial','Bogotá, D.C.','Universitario','160.0','10.0','Semestral'],['2','1701','Presencial','Bogotá, D.C.','Universitario','150.0','9.0','Semestral']];
+ const data={schemaVersion:2,records:[a,b],activeRecords:[a,b],activeDetails:details};
+ const context={institutionCode:'1701',awardedTitle:'TITULO',academicLevel:'Pregrado',modality:'Presencial',municipality:'Bogotá D.C.',status:'Activo',educationLevel:'Universitaria',credits:'160',periodCount:'10',periodicity:'Semestral'};
+ const resolve=createSniesResolver(data);
+ assert.equal(resolve(context).sniesCode,'1');
+ for(const change of [{credits:''},{periodCount:''},{periodicity:''},{educationLevel:''},{credits:'161'},{credits:'160.5'},{periodCount:'9'},{periodicity:'Anual'},{educationLevel:'Tecnológica'},{status:'Inactivo'},{municipality:'Cali'},{modality:'Virtual'},{awardedTitle:'OTRO TITULO'}])assert.equal(resolve({...context,...change}),null);
+ for(const activeDetails of [details.slice(0,1),[details[0],[...details[1].slice(0,5),'',...details[1].slice(6)]],[...details,[...details[1].slice(0,5),'160','10','Semestral']]])assert.equal(createSniesResolver({...data,activeDetails})(context),null);
+ assert.equal(createSniesResolver({...data,activeDetails:undefined})(context),null);
+ assert.equal(createSniesResolver({...data,activeDetails:[details[0],['2','1701','Presencial','Bogotá, D.C.','Universitario','160','10','Semestral']]})(context),null);
+});
+
+test('unmatched additional metadata does not erase an already verified shared name',()=>{
+ const a=['1','1701','NOMBRE OFICIAL','TITULO','Pregrado','Presencial','Bogotá, D.C.'];
+ const b=['2',...a.slice(1)];
+ const resolve=createSniesResolver({schemaVersion:2,records:[a,b],activeRecords:[a,b],activeDetails:[['1','1701','Presencial','Bogotá, D.C.','Universitario','160','10','Semestral'],['2','1701','Presencial','Bogotá, D.C.','Universitario','150','9','Semestral']]});
+ const result=resolve({institutionCode:'1701',awardedTitle:'TITULO',academicLevel:'Pregrado',modality:'Presencial',municipality:'Bogotá, D.C.',status:'Activo',educationLevel:'Universitaria',credits:'140',periodCount:'8',periodicity:'Semestral'});
+ assert.equal(result.name,'NOMBRE OFICIAL');assert.equal(result.sniesCode,'');
 });

@@ -1,5 +1,6 @@
 import { load } from 'cheerio';
 import { createHash } from 'node:crypto';
+import { municipalityKey } from '../dist/utils/municipality-key.js';
 export const fold = s => s.normalize('NFKD').replace(/\p{M}/gu, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 
 // Deliberately limited to a verified university template. Never scan the entire
@@ -49,8 +50,68 @@ export function discoverProgramUrls(xml) {
   }))].sort();
 }
 
+export function discoverJaverianaCaliUrls(html) {
+  const $=load(html);
+  return [...new Set($('a[href]').map((_,el)=>{
+    try {const u=new URL($(el).attr('href'),'https://www.javerianacali.edu.co');return u.origin==='https://www.javerianacali.edu.co' && /^\/programas\/carreras\/[^/]+\/?$/.test(u.pathname)&&!u.search ? u.href : null;}catch{return null;}
+  }).get().filter(Boolean))].sort();
+}
+
+export function extractJaverianaCaliTuition(html, source, names, checkedAt) {
+  const url=new URL(source);
+  if(url.origin!=='https://www.javerianacali.edu.co'||!/^\/programas\/carreras\/[^/]+\/?$/.test(url.pathname))return {reason:'UNTRUSTED_SOURCE'};
+  const $=load(html);$('script,style,nav,footer').remove();
+  const labels=$('h6').filter((_,el)=>fold($(el).text())==='REGSNIES');
+  if(labels.length!==1)return {reason:'AMBIGUOUS_SNIES'};
+  const code=labels.first().siblings('p').text().trim();
+  if(!/^\d+$/.test(code))return {reason:'AMBIGUOUS_SNIES'};
+  const matches=names.filter(n=>n[0]===code&&n[1]==='1702');
+  if(matches.length!==1)return {reason:'AMBIGUOUS_OFFER'};
+  const n=matches[0];
+  const modalities=$('li > p').filter((_,el)=>fold($(el).text())==='MODALIDAD');
+  if(modalities.length!==1||fold(modalities.first().siblings('p').text())!==fold(n[5]))return {reason:'MODALITY_MISMATCH'};
+  const prices=$('li.paragraph--type--price').filter((_,el)=>/^Costo semestre\s+20\d{2}$/i.test($(el).children('p').first().text().trim()));
+  if(prices.length!==1)return {reason:'MISSING_SEMESTER_PRICE'};
+  const block=prices.first(), year=Number(block.children('p').first().text().match(/20\d{2}/)[0]);
+  if(year!==Number(checkedAt.slice(0,4)))return {reason:'OUTDATED_PRICE'};
+  const cop=block.find('.price-tags [data-target]').filter((_,el)=>$(el).text().trim()==='COP');
+  if(cop.length!==1)return {reason:'UNCONFIRMED_CURRENCY'};
+  const target=cop.attr('data-target');
+  const pane=block.find('.tab-pane').filter((_,el)=>'#'+$(el).attr('id')===target);
+  const text=pane.text().replace(/\s+/g,' ').trim();
+  if(pane.length!==1||!/^\$\s*\d{1,3}(?:\.\d{3})+\s*\*?$/.test(text))return {reason:'AMBIGUOUS_PRICE_BLOCK'};
+  const amount=Number(text.replace(/[^\d]/g,''));
+  const note='Costo semestral publicado para '+year+'. '+(/no incluyen la Estampilla ProCultura/i.test($.root().text())?'No incluye la Estampilla ProCultura. ':'')+'Confirma otros derechos y condiciones con la institución.';
+  return {record:{sniesCode:code,institutionCode:n[1],programName:n[2],modality:n[5],municipality:n[6],amount,source,checkedAt,priceYear:year,billingPeriod:'SEMESTER',note,
+    evidence:`SNIES ${code}; Costo semestre ${year}; ${text} COP`,contentSha256:createHash('sha256').update(html).digest('hex'),collector:'JAVERIANA_CALI_SEMESTER_V1'}};
+}
+
+export const SENA_POLICY_SOURCE='https://ape.sena.edu.co/Paginas/PreguntasFrecuentesUsuarios.aspx';
+export const SENA_CONFIRMATION_SOURCE='https://historico.sena.edu.co/es-co/Noticias/Paginas/noticia.aspx?IdNoticia=9485';
+export function extractSenaFreeTraining(policyHtml, confirmationHtml, activeNames, checkedAt) {
+  const text=html=>{const $=load(html);$('script,style,nav,footer').remove();return $.root().text().replace(/\s+/g,' ').trim();};
+  const policy=text(policyHtml), confirmation=text(confirmationHtml);
+  if(!/todos los servicios del SENA son p[uú]blicos gratuitos/i.test(policy))return {records:[],reason:'UNCONFIRMED_UNIVERSAL_FREE_POLICY'};
+  // The year comes from the news article body/title, never an HTTP timestamp,
+  // a navigation calendar or the current clock substituted for missing evidence.
+  const $=load(confirmationHtml);$('script,style,nav,footer').remove();
+  const article=$('.noticia').text() || confirmation;
+  const year=Number(checkedAt.slice(0,4));
+  if(!new RegExp('(?:Presencial y a Distancia|tecnol[oó]gica)[^.!?]{0,80}'+year,'i').test(article)
+    || !/todos los procesos de registro, inscripci[oó]n y acceso a la formaci[oó]n son completamente gratuitos/i.test(article))return {records:[],reason:'UNCONFIRMED_CURRENT_YEAR_FREE_TRAINING'};
+  const unique=new Map();
+  for(const n of activeNames.filter(n=>n[1]==='9110')) {
+    const record={sniesCode:n[0],institutionCode:n[1],programName:n[2],modality:n[5],municipality:n[6],amount:0,source:SENA_POLICY_SOURCE,checkedAt,priceYear:year,billingPeriod:'FREE_TRAINING',
+      note:'Formación gratuita según la política institucional del SENA, corroborada en una publicación oficial de '+year+'. La admisión depende de la oferta y los requisitos de cada convocatoria.',
+      confirmationSource:SENA_CONFIRMATION_SOURCE,evidence:'Todos los servicios del SENA son públicos gratuitos; registro, inscripción y acceso a la formación completamente gratuitos.',
+      contentSha256:createHash('sha256').update(policyHtml+'\n'+confirmationHtml).digest('hex'),collector:'SENA_FREE_TRAINING_V1'};
+    unique.set(JSON.stringify([n[0],n[1],n[5],n[6]]),record);
+  }
+  return {records:[...unique.values()]};
+}
+
 export function mergeCollectedPrices(current, incoming) {
-  const key=r=>JSON.stringify([r.sniesCode,r.institutionCode,fold(r.modality),fold(r.municipality),r.priceYear]);
+  const key=r=>JSON.stringify([r.sniesCode,r.institutionCode,fold(r.modality),municipalityKey(r.municipality),r.priceYear]);
   const grouped=new Map();
   for(const r of incoming){const id=key(r);const rows=grouped.get(id)||[];rows.push(r);grouped.set(id,rows);}
   const result=new Map(), conflicts=[], blocked=new Set();

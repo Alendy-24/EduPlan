@@ -22,6 +22,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: npm ci
+      - run: python3 -m pip install -r data-integration/tools/tuition-requirements.txt
       - run: python3 -m unittest discover -s data-integration/tests -p 'test_*.py'
       - name: Refresh national official reported prices
         run: npm run tuition:refresh:snies --workspace=data-integration
@@ -29,6 +30,9 @@ jobs:
         id: institutions
         continue-on-error: true
         run: npm run tuition:collect --workspace=data-integration
+      - name: Collect verified official PDF tuition tables
+        continue-on-error: true
+        run: npm run tuition:collect:tables --workspace=data-integration
       - name: Measure active offering coverage
         run: npm run tuition:coverage --workspace=data-integration
       - run: npm test --workspace=data-integration

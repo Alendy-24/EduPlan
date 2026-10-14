@@ -3,6 +3,13 @@ import assert from 'node:assert/strict';
 import { normalizeTuition, tuitionChartRows } from '../src/utils/tuition.js';
 const tuition = { amount:4500000,currency:'COP',basis:'NEW_STUDENT_REPORTED',source:'https://hecaa.mineducacion.gov.co/consultaspublicas/programas',sourceField:'COSTO_MATRÍCULA_ESTUD_NUEVOS',importedAt:'2026-10-07' };
 const program = { provenance:'real',comparisonState:'current',tuition };
+test('explicit universal free training is preserved as zero only for its official source',()=>{
+  const value={amount:0,currency:'COP',basis:'INSTITUTION_PUBLISHED',source:'https://ape.sena.edu.co/Paginas/PreguntasFrecuentesUsuarios.aspx',sourceField:'OFFICIAL_FREE_TRAINING_POLICY',billingPeriod:'FREE_TRAINING',priceYear:new Date().getUTCFullYear(),importedAt:'2026-10-14',note:'Formación gratuita verificada'};
+  assert.equal(normalizeTuition(value).amount,0);
+  assert.equal(normalizeTuition({...value,source:'https://otra.edu.co/'}),undefined);
+  assert.equal(normalizeTuition({...value,amount:100}),undefined);
+  assert.equal(normalizeTuition({...value,sourceField:'OFFICIAL_TUITION_SCHEDULE'}),undefined);
+});
 test('institutional prices retain their year, conditions and period while expired prices are hidden', () => {
   const value={amount:16733000,currency:'COP',basis:'INSTITUTION_PUBLISHED',source:'https://www.uexternado.edu.co/admision-pregrado/',sourceField:'OFFICIAL_TUITION_SCHEDULE',importedAt:'2026-10-14',priceYear:new Date().getUTCFullYear(),billingPeriod:'SEMESTER',note:'Primer semestre, sin descuentos'};
   assert.deepEqual(normalizeTuition(value),{...value,sourcePage:undefined});
@@ -20,4 +27,14 @@ test('missing and invalid amounts cannot become zero, zero is preserved if repor
   assert.equal(normalizeTuition({...tuition,source:'javascript:alert(1)'}),undefined);
   const rows = tuitionChartRows([{...program,tuition:{...tuition,amount:0}}]);
   assert.equal(rows[0].tuition.amount,0);assert.equal(rows[0].width,0);
+});
+
+test('unresolved academic identity does not hide a verified universal SENA training policy',async()=>{
+ const {normalizeProgram}=await import('../src/utils/programs.js');
+ const tuition={amount:0,currency:'COP',basis:'INSTITUTION_PUBLISHED',source:'https://ape.sena.edu.co/Paginas/PreguntasFrecuentesUsuarios.aspx',sourceField:'OFFICIAL_FREE_TRAINING_POLICY',billingPeriod:'FREE_TRAINING',priceYear:new Date().getUTCFullYear(),importedAt:'2026-10-14',note:'Formación gratuita verificada'};
+ const p=normalizeProgram({sourceId:'upr9-nkiz:sena-unresolved',institutionCode:'9110',institutionName:'SENA',nameOrigin:'UNAVAILABLE',reviewRequired:true,status:'Activo',tuition});
+ assert.equal(p.name,'Nombre del programa no disponible');
+ assert.equal(p.reviewRequired,true);
+ const row=tuitionChartRows([{...p,comparisonState:'current'}])[0];
+ assert.equal(row.tuition.amount,0);assert.equal(row.tuition.billingPeriod,'FREE_TRAINING');
 });

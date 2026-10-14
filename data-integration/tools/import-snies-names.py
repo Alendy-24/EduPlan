@@ -1,4 +1,4 @@
-"""Import only academic names from the official HECAA 'Descargar programas' XLSX.
+"""Import academic names and literal identity metadata from the official HECAA 'Descargar programas' XLSX.
 
 Usage: python tools/import-snies-names.py download.xlsx --date YYYY-MM-DD
 No network requests, university scraping, title conversion, or Excel dependencies.
@@ -13,7 +13,7 @@ from zipfile import ZipFile
 NS = {'m': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
 SOURCE = 'https://hecaa.mineducacion.gov.co/consultaspublicas/programas'
 
-def extract(path):
+def extract(path, active_only=False, include_details=False):
     with ZipFile(path) as archive:
         shared = []
         if 'xl/sharedStrings.xml' in archive.namelist():
@@ -50,14 +50,18 @@ def extract(path):
     level_column = column('NIVEL_ACADÉMICO') if 'NIVEL_ACADÉMICO' in headers.values() else column('NIVEL_ACAD�MICO')
     modality_column = column('MODALIDAD')
     city_column = column('MUNICIPIO_OFERTA_PROGRAMA')
+    status_column = column('ESTADO_PROGRAMA') if active_only else None
+    detail_columns = [column(label) for label in ['NIVEL_DE_FORMACIÓN', 'NÚMERO_CRÉDITOS', 'NÚMERO_PERIODOS_DE_DURACIÓN', 'PERIODICIDAD']] if include_details else []
     records = set()
     for row in data:
+        if active_only and row.get(status_column, '').strip().upper() != 'ACTIVO':
+            continue
         code, institution, name = (row.get(key, '').strip() for key in (code_column, institution_column, name_column))
         if code.endswith('.0'): code = code[:-2]
         if institution.endswith('.0'): institution = institution[:-2]
         if code.isdigit() and institution.isdigit() and name and '�' not in name:
             context = tuple(row.get(key, '').strip() for key in (title_column, level_column, modality_column, city_column))
-            records.add((code, institution, name, *context))
+            records.add((code, institution, context[2], context[3], *(row.get(key, '').strip() for key in detail_columns)) if include_details else (code, institution, name, *context))
     if len(records) < 1000:
         raise ValueError('Incomplete export; refusing to replace the index')
     return len(data), sorted(records)
@@ -68,10 +72,12 @@ if __name__ == '__main__':
     parser.add_argument('--date', required=True)
     args = parser.parse_args()
     count, records = extract(args.file)
+    _, active_records = extract(args.file, active_only=True)
+    _, active_details = extract(args.file, active_only=True, include_details=True)
     output = Path(__file__).resolve().parents[1] / 'data/snies-program-names.json'
     output.parent.mkdir(exist_ok=True)
     payload = dict(schemaVersion=2, source=SOURCE, field='NOMBRE_DEL_PROGRAMA', importedAt=args.date,
                    sha256=hashlib.sha256(args.file.read_bytes()).hexdigest(), sourceRows=count,
-                   records=records)
+                   records=records, activeRecords=active_records, activeDetails=active_details)
     output.write_text(json.dumps(payload, ensure_ascii=False, separators=(',', ':')) + '\n', encoding='utf-8')
     print(f'{count} official rows; {len(records)} unique names imported to {output}')

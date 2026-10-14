@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import{extractGuajiraTuition,GUAJIRA_SOURCE}from'../tools/guajira-tuition.mjs';
+const card=(label,amount,count=amount.replaceAll('.',''))=>`<div class="ug-stats__card"><span class="ug-stats__label">${label}</span><span class="ug-stats__amount" data-ug-count="${count}">${amount}</span></div>`;
+const fixture=(year=2026)=>`<div class="ug-stats"><h2>Para la vigencia ${year}</h2>${card('Matrícula ordinaria maestrías','9.454.887')}${card('Valor matrícula ordinaria especializaciones','6.303.258')}${card('Valor matrícula ordinaria doctorados','17.509.050')}${card('Valor matrícula extraordinaria maestrías','10.400.376')}</div>`;
+const names=[['1','1218','MAESTRIA EN FINANZAS','','Posgrado','Presencial','Riohacha']];
+const details=[['1','1218','Presencial','Riohacha','Maestría','50','4','Semestral']];
+const extract=(html=fixture(),n=names,d=details)=>extractGuajiraTuition(html,GUAJIRA_SOURCE,n,d,'2026-10-14');
+test('Guajira selects explicit ordinary postgraduate fee by official formation',()=>{assert.equal(extract().records[0].amount,9454887);assert.equal(extract().records[0].billingPeriod,'ACADEMIC_PERIOD');});
+test('Guajira does not use expired, contradictory or duplicate fee cards',()=>{assert.throws(()=>extract(fixture(2025)));assert.throws(()=>extract(fixture().replace('data-ug-count="9454887"','data-ug-count="1"')));assert.throws(()=>extract(fixture().replace('</div></div>',card('Matrícula ordinaria maestrías','1.000.000')+'</div></div>')));});
+test('Guajira never guesses formation or extends institutional tuition elsewhere',()=>{assert.equal(extract(fixture(),names,[]).records.length,0);assert.equal(extract(fixture(),names,[...details,['1','1218','Presencial','Riohacha','Doctorado','50','4','Semestral']]).records.length,0);assert.equal(extract(fixture(),[['1','1112','MAESTRIA EN FINANZAS','','Posgrado','Presencial','Manizales']],details).records.length,0);});

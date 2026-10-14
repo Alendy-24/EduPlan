@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import type { Program } from '../models/program.js';
+import { municipalityKey } from '../utils/municipality-key.js';
 
 type TuitionRecord = [string, string, string, string, number];
 interface TuitionIndex { schemaVersion: number; source: string; field: string; importedAt: string; records: TuitionRecord[] }
@@ -7,7 +8,7 @@ const index: TuitionIndex = JSON.parse(readFileSync(new URL('../../data/snies-tu
 const fold = (value: string) => value.normalize('NFKD').replace(/\p{M}/gu, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 export function createTuitionResolver(data: TuitionIndex) {
   if (data.schemaVersion !== 1) throw new Error('Formato de costos SNIES no válido');
-  const key = (code: string, institution: string, modality: string, city: string) => JSON.stringify([code, institution, fold(modality), fold(city)]);
+  const key = (code: string, institution: string, modality: string, city: string) => JSON.stringify([code, institution, fold(modality), municipalityKey(city)]);
   const records = new Map<string, Set<number>>();
   for (const [code, institution, modality, city, amount] of data.records) {
     if (!Number.isFinite(amount) || amount < 0) continue;

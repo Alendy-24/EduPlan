@@ -86,6 +86,8 @@ def main():
         name_module = importlib.util.module_from_spec(name_spec)
         name_spec.loader.exec_module(name_module)
         name_count, name_records = name_module.extract(path)
+        _, active_records = name_module.extract(path, active_only=True)
+        _, active_details = name_module.extract(path, active_only=True, include_details=True)
     previous = json.loads((ROOT / 'data/snies-tuition.json').read_text())
     if count < previous.get('sourceRows', count) * 0.9 or len(records) < len(previous['records']) * 0.9:
         raise ValueError('Caída superior al 10% en el catálogo; requiere revisión y no reemplaza datos')
@@ -98,7 +100,7 @@ def main():
     if len(name_records) < len(previous_names['records']) * 0.9:
         raise ValueError('Caída superior al 10% en identidades oficiales; requiere revisión')
     name_payload = dict(schemaVersion=2, source=SOURCE, field='NOMBRE_DEL_PROGRAMA',
-                        importedAt=payload['importedAt'], sha256=payload['sha256'], sourceRows=name_count, records=name_records)
+                        importedAt=payload['importedAt'], sha256=payload['sha256'], sourceRows=name_count, records=name_records, activeRecords=active_records, activeDetails=active_details)
     name_candidate = args.output_dir / 'snies-program-names.json'
     name_candidate.write_text(json.dumps(name_payload, ensure_ascii=False, separators=(',', ':')) + '\n')
     if args.apply:

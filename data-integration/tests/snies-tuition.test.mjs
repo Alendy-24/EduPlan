@@ -14,6 +14,11 @@ test('conflicting reported values are not selected arbitrarily, explicit zero is
   assert.equal(createTuitionResolver({...index,records:[...index.records,['1','1101','Presencial','Bogotá D.C.',6000000]]})(context),undefined);
   assert.equal(createTuitionResolver({...index,records:[['1','1101','Presencial','Bogotá D.C.',0]]})(context).amount,0);
 });
+test('exact municipality aliases recover published prices without crossing institutions or cities',()=>{
+  const resolve=createTuitionResolver({...index,records:[['1','1101','Presencial','Santiago de Cali',4500000]]});
+  assert.equal(resolve({...context,municipality:'Cali'}).amount,4500000);
+  for(const changes of [{municipality:'Santiago'},{municipality:'Palmira'},{institutionCode:'1702'},{modality:'Virtual'}])assert.equal(resolve({...context,municipality:'Cali',...changes}),undefined);
+});
 test('imported official records expose provenance without inventing a validity year', () => {
   const data=JSON.parse(readFileSync(new URL('../data/snies-tuition.json',import.meta.url)));
   // Official snapshots change during scheduled refreshes; fixed-value matching

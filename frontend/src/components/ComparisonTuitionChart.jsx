@@ -14,7 +14,7 @@ export default function ComparisonTuitionChart({ programs, loading }) {
       <ol className="tuition-chart" aria-label="Montos de matrícula reportados por programa">{rows.map(({ program, tuition, width }, index) => {
         const costSource = tuition?.basis === 'INSTITUTION_PUBLISHED' ? {url:tuition.source, dedicated:true} : officialCostSource(program);
         return <li key={program.id}>
-        <div className="tuition-row-heading"><div><span className="comparison-option-label">Opción {String.fromCharCode(65 + index)}</span><h3>{program.institution}</h3><p>{program.name} · {program.city}</p></div><strong>{tuition ? money.format(tuition.amount) : loading ? 'Consultando…' : 'Precio por confirmar'}</strong></div>
+        <div className="tuition-row-heading"><div><span className="comparison-option-label">Opción {String.fromCharCode(65 + index)}</span><h3>{program.institution}</h3><p>{program.name} · {program.city}</p></div><strong>{tuition ? (tuition.billingPeriod === 'FREE_TRAINING' ? 'Gratuito · ' : '') + money.format(tuition.amount) : loading ? 'Consultando…' : 'Precio por confirmar'}</strong></div>
         <div className={'tuition-track' + (!tuition ? ' tuition-track-unavailable' : '')} aria-hidden="true">{tuition ? <div className="tuition-bar" style={{ width: width + '%' }} /> : <span>{loading ? 'Consultando precio' : 'Sin monto publicado para graficar'}</span>}</div>
         {tuition && <p className="subtle">{tuition.basis === 'INSTITUTION_PUBLISHED' ? 'Tarifa institucional' : 'Monto reportado en SNIES'} · Consulta: {date(tuition.importedAt)} · Vigencia: {tuition.priceYear || 'por confirmar'}.</p>}
         {!tuition && <p>No hay un monto confirmado para esta oferta. Consulta la matrícula vigente y los requisitos con la institución.</p>}
@@ -23,7 +23,7 @@ export default function ComparisonTuitionChart({ programs, loading }) {
           <dl className="tuition-facts">
             <div><dt>Matrícula reportada</dt><dd>{tuition ? money.format(tuition.amount) + ' COP' : 'Sin información'}</dd></div>
             <div><dt>Aplica a</dt><dd>{tuition ? 'Estudiantes nuevos' : 'Por confirmar con la institución'}</dd></div>
-            <div><dt>Periodo de cobro</dt><dd>{tuition?.billingPeriod === 'SEMESTER' ? 'Primer semestre' : tuition?.billingPeriod === 'FIRST_ENROLLMENT' ? 'Primer ingreso; periodo por confirmar' : 'No especificado en la fuente'}</dd></div>
+            <div><dt>Periodo de cobro</dt><dd>{tuition?.billingPeriod === 'FREE_TRAINING' ? 'Formación gratuita' : tuition?.billingPeriod === 'ACADEMIC_PERIOD' ? 'Periodo académico' : tuition?.billingPeriod === 'SEMESTER' ? 'Semestre' : tuition?.billingPeriod === 'FIRST_ENROLLMENT' ? 'Primer ingreso; periodo por confirmar' : 'No especificado en la fuente'}</dd></div>
             <div><dt>Vigencia del monto</dt><dd>{tuition?.priceYear || 'Por confirmar'}</dd></div>
             {tuition?.note && <div><dt>Condiciones</dt><dd>{tuition.note}</dd></div>}
             {tuition?.sourcePage && <div><dt>Página del documento oficial</dt><dd>{tuition.sourcePage}</dd></div>}

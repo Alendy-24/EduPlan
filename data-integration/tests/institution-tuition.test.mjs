@@ -42,3 +42,16 @@ test('ambiguous academic identities cannot inherit a price even if it exists in 
   assert.equal(result.sniesCode,undefined);
   assert.equal(result.tuition,undefined);
 });
+
+test('universal free SENA policy covers active training without guessing a SNIES code', async () => {
+  const {createTrainingPolicyResolver}=await import('../dist/services/institution-tuition.js');
+  const evidence=catalog.records.find(r=>r.collector==='SENA_FREE_TRAINING_V1');
+  const resolve=createTrainingPolicyResolver({schemaVersion:1,records:[evidence]});
+  assert.equal(resolve({institutionCode:'9110',status:'Activo'},2026).amount,0);
+  assert.equal(resolve({institutionCode:'9110',status:'Activo'},2027),undefined);
+  for(const c of [{institutionCode:'1201',status:'Activo'},{institutionCode:'9110',status:'Inactivo'},{institutionCode:'9110',status:''}])assert.equal(resolve(c,2026),undefined);
+  for(const changes of [{collector:undefined},{evidence:undefined},{confirmationSource:undefined},{contentSha256:'invalid'}])assert.equal(createTrainingPolicyResolver({schemaVersion:1,records:[{...evidence,...changes}]} )({institutionCode:'9110',status:'Activo'},2026),undefined);
+  assert.equal(createTrainingPolicyResolver({schemaVersion:1,records:[evidence,{...evidence,sniesCode:'another',contentSha256:'a'.repeat(64)}]})({institutionCode:'9110',status:'Activo'},2026),undefined);
+  const p=transformProgram({source_row_id:'sena-policy-test',codigoinstitucion:'9110',nombreestadoprograma:'Activo'});
+  assert.equal(p.sniesCode,undefined);assert.equal(p.tuition.amount,0);assert.equal(p.tuition.billingPeriod,'FREE_TRAINING');
+});

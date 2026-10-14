@@ -1,11 +1,12 @@
 import type { Program } from '../models/program.js';
+import { municipalityKey } from '../utils/municipality-key.js';
 const fold = (s: string) => s.normalize('NFKD').replace(/\p{M}/gu,'').toUpperCase().replace(/[^A-Z0-9]/g,'');
 export function tuitionCoverage(programs: Program[], year = new Date().getUTCFullYear()) {
   // Distinct geographic offerings, including unresolved identities in denominator.
   const offers = new Map<string, Program>();
   for (const p of programs) {
     if (fold(p.status) !== 'ACTIVO') continue;
-    const key = p.sniesCode ? JSON.stringify([p.institutionCode,p.sniesCode,fold(p.modality),fold(p.municipality)]) : p.sourceId;
+    const key = p.sniesCode ? JSON.stringify([p.institutionCode,p.sniesCode,fold(p.modality),municipalityKey(p.municipality)]) : p.sourceId;
     const old=offers.get(key);
     if (!old || !old.tuition) offers.set(key,p);
   }

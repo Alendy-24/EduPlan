@@ -1,6 +1,6 @@
 import { SOURCES } from "../config/sources.js";
 import { resolveTuition } from './snies-tuition.js';
-import { resolveInstitutionTuition } from './institution-tuition.js';
+import { resolveInstitutionTuition, resolveTrainingPolicy } from './institution-tuition.js';
 import type { Program, ProgramFilters, ProgramFilterOptions, ProgramSearchPage } from "../models/program.js";
 import { fetchJson } from "../utils/http.js";
 import { getInstitutionCatalog } from './institutions.service.js';
@@ -59,7 +59,7 @@ export function transformProgram(row: ProgramSourceRow): Program {
   const rawName = row.nombreprograma?.trim() ?? "";
   const awardedTitle = row.nombretituloobtenido?.trim() ?? "";
   const official = resolveOfficialProgramName({ institutionCode: row.codigoinstitucion ?? '', awardedTitle,
-    academicLevel: row.nombrenivelacademico ?? '', modality: row.nombremetodologia ?? '', municipality: row.nombremunicipioprograma ?? '' });
+    academicLevel: row.nombrenivelacademico ?? '', modality: row.nombremetodologia ?? '', municipality: row.nombremunicipioprograma ?? '', status: row.nombreestadoprograma ?? '', educationLevel: row.nombrenivelformacion ?? '', credits: row.cantidadcreditos ?? '', periodCount: row.cantidadperiodos ?? '', periodicity: row.nombreperiodicidad ?? '' });
   const nameOrigin = official ? 'SNIES_NAME' : 'UNAVAILABLE';
   return {
     sourceId: `upr9-nkiz:${row.source_row_id.trim()}`,
@@ -74,7 +74,8 @@ export function transformProgram(row: ProgramSourceRow): Program {
     nameSourceField: official?.field,
     nameImportedAt: official?.importedAt,
     sniesCode: official?.sniesCode,
-    tuition: resolveInstitutionTuition({ sniesCode: official?.sniesCode, institutionCode: row.codigoinstitucion ?? '', modality: row.nombremetodologia ?? '', municipality: row.nombremunicipioprograma ?? '' })
+    tuition: resolveTrainingPolicy({institutionCode: row.codigoinstitucion ?? '', status: row.nombreestadoprograma ?? ''})
+      ?? resolveInstitutionTuition({ sniesCode: official?.sniesCode, institutionCode: row.codigoinstitucion ?? '', modality: row.nombremetodologia ?? '', municipality: row.nombremunicipioprograma ?? '' })
       ?? resolveTuition({ sniesCode: official?.sniesCode, institutionCode: row.codigoinstitucion ?? '', modality: row.nombremetodologia ?? '', municipality: row.nombremunicipioprograma ?? '' }),
     nameMatchMethod: official ? 'EXACT_OFFICIAL_CONTEXT' : undefined,
     code: row.codigoprograma ?? "",

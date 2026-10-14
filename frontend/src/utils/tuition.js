@@ -2,11 +2,12 @@ const SOURCE = 'https://hecaa.mineducacion.gov.co/consultaspublicas/programas';
 export function normalizeTuition(value) {
   if (value?.basis === 'INSTITUTION_PUBLISHED') {
     if (!Number.isSafeInteger(value.amount) || value.amount < 0 || value.currency !== 'COP'
-      || value.sourceField !== 'OFFICIAL_TUITION_SCHEDULE' || typeof value.source !== 'string'
+      || value.sourceField !== (value.billingPeriod === 'FREE_TRAINING' ? 'OFFICIAL_FREE_TRAINING_POLICY' : 'OFFICIAL_TUITION_SCHEDULE') || typeof value.source !== 'string'
       || !/^https:\/\/[^/]+\.edu\.co\//.test(value.source)
       || !/^\d{4}-\d{2}-\d{2}$/.test(value.importedAt)
       || !Number.isInteger(value.priceYear) || value.priceYear !== new Date().getUTCFullYear()
-      || !['SEMESTER', 'FIRST_ENROLLMENT'].includes(value.billingPeriod)
+      || !['SEMESTER', 'FIRST_ENROLLMENT', 'ACADEMIC_PERIOD', 'FREE_TRAINING'].includes(value.billingPeriod)
+      || value.billingPeriod === 'FREE_TRAINING' && (value.amount !== 0 || value.source !== 'https://ape.sena.edu.co/Paginas/PreguntasFrecuentesUsuarios.aspx')
       || typeof value.note !== 'string' || !value.note.trim()) return undefined;
     return { amount:value.amount, currency:'COP', basis:value.basis, source:value.source,
       sourceField:value.sourceField, importedAt:value.importedAt, priceYear:value.priceYear,

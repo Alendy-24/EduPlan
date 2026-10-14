@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "tuition:collect:tables": "npm run build && node tools/run-tuition-tables.mjs",
     "tuition:refresh:snies": "python3 tools/refresh-snies-tuition.py --apply",
     "tuition:collect": "npm run build && node tools/collect-institution-tuition.mjs --apply",
     "tuition:coverage": "npm run build && node tools/tuition-coverage.mjs",
@@ -15,7 +16,8 @@
     "search-quality": "npm run build && node tools/search-quality.mjs",
     "start": "node dist/index.js",
     "program-links": "npm run build && node tools/program-links/cli.mjs",
-    "test": "npm run build && node --test tests/*.test.mjs"
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "tuition:collect:tadeo": "npm run build && node tools/collect-tadeo-reviewed-tuition.mjs --apply"
   },
   "dependencies": {
     "cheerio": "^1.2.0",
