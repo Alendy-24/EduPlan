@@ -191,10 +191,10 @@
     min-height: 340px;
     flex-direction: column;
     overflow: hidden;
-    border: 1px solid #c8d5f2;
+    border: 1px solid #e2e8f0;
     border-radius: 12px;
-    background: #f5f7ff;
-    box-shadow: 0 5px 12px rgba(75, 119, 190, 0.12);
+    background: #fff;
+    box-shadow: 0 5px 12px rgba(15, 23, 42, 0.06);
 }
 
 .institution-card-cover {
@@ -203,13 +203,19 @@
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(115deg, #dcecff, #a7c5ff);
+    background: #fff;
 }
 
 .institution-card-cover img {
     width: 52px;
     height: 52px;
     object-fit: contain;
+}
+
+.institution-card-cover .institution-logo {
+    width: 144px;
+    height: 64px;
+    max-width: calc(100% - 32px);
 }
 
 .institution-card-body {

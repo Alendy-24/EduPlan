@@ -1,3 +1,4 @@
+import { offerIsSelected } from '../utils/program-search';
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { browserStorage, readStorage, writeStorage } from '../utils/storage';
@@ -92,7 +93,7 @@ function OwnerProvider({ owner, token, children }) {
   function toggleSaved(item) { changeSaved(item, savedRef.current.some(value => value.id === item.id)); }
   function removeSaved(id) { const item = savedRef.current.find(value => value.id === id); if (item) changeSaved(item, true); }
   function updateSaved(item) { changeSaved(item, false); }
-  function toggleCompare(program) { setData(current => ({ ...current, comparison: current.comparison.some(p => p.id === program.id) ? current.comparison.filter(p => p.id !== program.id) : addComparison(current.comparison, program) })); }
+  function toggleCompare(program) { setData(current => ({ ...current, comparison: current.comparison.some(p => offerIsSelected(p, program)) ? current.comparison.filter(p => !offerIsSelected(p, program)) : addComparison(current.comparison, program) })); }
   return <ExplorationContext.Provider value={{ ...data, persistent, syncState, syncError, retrySync: () => refresh(controller.current.signal), toggleSaved, removeSaved, updateSaved, toggleCompare, clearComparison: () => setData(current => ({ ...current, comparison: [] })) }}>{children}</ExplorationContext.Provider>;
 }
 export function ExplorationProvider({ children }) { const { user, token } = useAuth(); const owner = user ? `user-${user.id}` : 'guest'; return <OwnerProvider key={owner} owner={owner} token={token}>{children}</OwnerProvider>; }

@@ -190,3 +190,22 @@
         grid-template-columns: 1fr;
     }
 }
+
+
+/* Descripciones breves en el landing */
+.news-content p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+}
+
+/* Descripciones en la página de todas las noticias */
+.news-page-content p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    overflow: hidden;
+}
+
+

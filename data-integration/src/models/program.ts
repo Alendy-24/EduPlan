@@ -1,6 +1,8 @@
 export interface Program {
-  searchMatch?: "EXACT_NAME_OR_TITLE" | "SIMILAR_NAME_OR_TITLE" | "KNOWLEDGE_AREA";
+  searchMatch?: "EXACT_NAME_OR_TITLE" | "SIMILAR_NAME_OR_TITLE" | "KNOWLEDGE_AREA" | "SPELLING_VARIANT";
   sourceId: string;
+  groupedSourceIds?: string[];
+  offerId?: string;
   rawName: string;
   awardedTitle: string;
   knowledgeArea: string;
@@ -36,11 +38,14 @@ export interface Program {
 export interface ProgramFilters {
   name?: string;
   municipality?: string;
-  modality?: string;
+  department?: string;
+  modality?: string | string[];
+  institutionSector?: string;
+  educationLevel?: string;
   institutionCode?: string;
   academicLevel?: string;
   knowledgeArea?: string;
-  order?: "source" | "asc" | "desc";
+  order?: "source" | "asc" | "desc" | "institution-asc";
   page: number;
   limit: number;
 }
@@ -49,5 +54,17 @@ export interface ProgramFilterOptions {
   academicLevels: string[];
   knowledgeAreas: string[];
   modalities: string[];
+  educationLevels: string[];
+  institutionSectors: string[];
   institutions: { code: string; name: string; municipality?: string; department?: string; campus?: string }[];
+}
+
+export interface ProgramFacet { value: string; count: number }
+export type ProgramFacets = Record<'academicLevel' | 'modality' | 'knowledgeArea' | 'institutionCode' | 'department' | 'municipality' | 'educationLevel' | 'institutionSector', ProgramFacet[]>;
+export interface ProgramSearchPage {
+  data: Program[];
+  total: number;
+  hasMore: boolean;
+  facets: ProgramFacets;
+  alternatives: { remove: (keyof ProgramFilters)[]; count: number }[];
 }
