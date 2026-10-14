@@ -68,6 +68,9 @@
 .assistant-header .subtle { font-size:12px; }
 .assistant-close { background:none; border:0; width:44px; height:44px; flex-shrink:0; font-size:27px; color:var(--navy); }
 .assistant-messages { padding:24px 20px; min-height:240px; font-size:14px; }
+.assistant-messages { overflow-y: auto; }
+.assistant-msg { margin: .4rem 0; padding: .6rem .8rem; border-radius: 12px; max-width: 90%; white-space: pre-wrap; background: rgba(0, 0, 0, .06); }
+.assistant-msg-user { margin-left: auto; background: rgba(37, 99, 235, .14); }
 .assistant-mark { display:inline-flex; color:var(--navy); margin-bottom:16px; }
 .assistant-composer { display:flex; gap:8px; padding:16px; border-top:1px solid var(--line-card); background:#fafaf9; }
 .assistant-composer input { min-width:0; width:100%; border:1px solid var(--line-card); border-radius:6px; padding:10px; background:#fff; font-size:13px; }

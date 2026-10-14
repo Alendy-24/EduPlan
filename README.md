@@ -1,83 +1,90 @@
-# EduPlan
+# Cómo ejecutar EduPlan con el asistente virtual
 
-## Desarrollo local
+Guía para levantar el proyecto en un computador nuevo (Windows / PowerShell) con el chatbot funcionando.
 
-### Requisitos
+## Requisitos
 
-- Node.js 20.19+ (20.x) o 22.12+; recomendado Node 24, como CI.
-  El mínimo sigue los [requisitos de Vite 8](https://v8.vite.dev/guide/).
-- JDK 21+ disponible mediante JAVA_HOME o PATH, incluyendo java y javac.
-- Docker Desktop o Docker Engine con Compose v2, activo y accesible sin sudo.
-- Conexión a Internet para descargar dependencias y consultar el catálogo MEN.
+- Git
+- Java 21 o superior
+- Node.js `^20.19` o `>=22.12`
+- PostgreSQL con una base de datos vacía llamada `eduplan_db`
+- Una API key propia de Groq (se crea en <https://console.groq.com/keys>)
 
-### Primera ejecución
+> Cada persona debe crear su propia API key. Nunca subas keys, contraseñas ni tokens al repositorio.
 
-```bash
-git clone https://github.com/Alendy-24/EduPlan.git
+## 1. Clonar el repositorio
+
+```powershell
+git clone https://github.com/Alendy-24/EduPlan
 cd EduPlan
+git checkout <rama-del-asistente>
+```
+
+## 2. Terminal 1: backend (Spring Boot)
+
+```powershell
+cd backend\src
+$env:DB_URL = 'jdbc:postgresql://localhost:5432/eduplan_db'
+$env:DB_USER = 'postgres'
+$env:DB_PASSWORD = '<TU_CLAVE_DE_POSTGRES>'
+$env:DATA_SYNC_ADMIN_TOKEN = '<TOKEN_ADMIN_GENERADO>'
+$env:JWT_SECRET = [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')
+$env:GROQ_API_KEY = '<TU_API_KEY_DE_GROQ>'
+.\mvnw.cmd spring-boot:run
+```
+
+Notas:
+
+- `DATA_SYNC_ADMIN_TOKEN` se puede generar con `[guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')`.
+- `JWT_SECRET` se genera nuevo en cada arranque con el comando de arriba. Si cambia, hay que volver a iniciar sesión en la app.
+- Las tablas se crean solas al arrancar (Flyway).
+
+## 3. Terminal 2: catálogo (data-integration)
+
+```powershell
+cd data-integration
+npm install
+$env:PORT = '3001'
+npm run dev
+```
+
+El puerto `3001` debe coincidir con el proxy de `frontend/vite.config.js`. Para comprobar que responde: <http://127.0.0.1:3001/health>.
+
+## 4. Terminal 3: frontend
+
+```powershell
+cd frontend
 npm install
 npm run dev
 ```
 
-Abre **http://localhost:3005** cuando aparezca «EduPlan listo». La instalación
-raíz instala ambos workspaces; no necesitas instalar dentro de cada carpeta
-ni copiar archivos .env. Windows y Linux/WSL usan el mismo flujo. Instala y
-ejecuta Node en el mismo sistema: no compartas node_modules entre Windows y WSL.
+La app queda en <http://localhost:3005>.
 
-El arranque valida requisitos y puertos antes de lanzar servicios, levanta
-PostgreSQL con Docker y espera al backend y a data-integration antes de Vite.
-La primera ejecución puede tardar por las descargas de PostgreSQL y Maven.
-Los logs detallados quedan en .tools/local-dev/dev.log.
+## 5. Probar el asistente
 
-Ctrl+C detiene los tres servicios. PostgreSQL conserva el contenedor y sus datos;
-para detenerlo también: `npm run dev:db:stop`. Nunca se borran volúmenes automáticamente.
+1. Regístrate o inicia sesión (el asistente solo funciona con sesión iniciada).
+2. Abre la burbuja de chat.
+3. Pregunta algo, por ejemplo: "¿Cómo comparo dos programas?".
 
-### Credenciales y opciones avanzadas
+## Solución de problemas
 
-La contraseña aleatoria se conserva en .tools/local-dev/docker-database.json,
-y Compose recibe .tools/local-dev/postgres.env. Ambos están ignorados por Git.
-JWT_SECRET se genera en memoria en cada arranque: vuelve a iniciar sesión
-después de reiniciar el backend. No necesitas secretos administrativos para
-consultar el catálogo o usar cuentas. La sincronización administrativa sigue
-deshabilitada hasta que configures sus tokens explícitamente.
+| Síntoma | Causa probable | Solución |
+|---|---|---|
+| `Could not resolve placeholder 'JWT_SECRET'` (u otra variable) | La variable no está definida en esa terminal | Definirla antes de ejecutar `mvnw` |
+| `Could not resolve placeholder 'assistant.*'` | Faltan las líneas del asistente en `application.properties` | Agregar `assistant.base-url`, `assistant.api-key` y `assistant.model` |
+| 404 en `/api/assistant/chat` | Falta `/api/assistant` en el proxy de Vite | Agregarlo en `frontend/vite.config.js` y reiniciar el frontend |
+| 502 en `/api/institutions` | `data-integration` no está corriendo | Ejecutar la Terminal 2 con `PORT = 3001` |
+| "El asistente no está disponible" | Error de Groq (key, modelo o límite) | Revisar la consola del backend |
+| 401 en el chat | Sesión vencida o no iniciada | Volver a iniciar sesión |
 
-Para usar una base externa, exporta **DB_URL**, **DB_USER** y **DB_PASSWORD**
-juntas; DB_URL tiene formato jdbc:postgresql://host:puerto/base. Así no se usa
-Docker ni se comprueba el puerto local de PostgreSQL. La base debe ser accesible
-y permitir las migraciones Flyway; el backend informa los errores de conexión.
-Un **JWT_SECRET** opcional debe ser Base64 de al menos 32 bytes aleatorios.
+## Configuración del asistente
 
-Los ejemplos frontend/.env.example y data-integration/.env.example documentan
-overrides opcionales. docker/backend.env.example documenta configuración
-avanzada y de producción; npm run dev no carga docker/backend.env ni docker/.env.
-No cambies puertos internos con PORT o SERVER_PORT durante el arranque raíz: el
-orquestador fija integración en 3001 y backend en 8080, y Vite usa 3005 estricto.
+En `backend/src/main/resources/application.properties`:
 
-Para depurar Java, establece **EDUPLAN_DEBUG=1** en tu shell antes de
-npm run dev y selecciona «EduPlan Backend (adjuntar después de npm run dev)»
-en VS Code. El puerto JDWP 5005 se valida y escucha solo en loopback.
-Sin esta opción no se abre el depurador; VS Code no es un requisito.
-
-## Diagnóstico y troubleshooting
-
-```bash
-npm run doctor
-```
-
-Doctor no instala software, inicia servicios ni cambia permisos. Comprueba
-Node, java/javac, Docker/Compose cuando corresponde y puertos 3005, 3001, 8080 y
-5433. Acepta 5433 ocupado solo por el contenedor PostgreSQL válido de EduPlan.
-Si 3005 está ocupado, cierra la instancia anterior; Vite no elige otro puerto.
-
-### Problemas con Docker en WSL
-
-Si Docker falta, instala Docker Desktop con integración WSL o Docker Engine
-con Compose v2. Si el daemon está apagado, inícialo antes de npm run dev.
-Ante acceso denegado al socket, revisa la pertenencia de tu usuario al grupo
-docker. Normalmente un administrador lo resuelve con:
-
-```bash
-sudo usermod -aG docker $USER
+```properties
+assistant.base-url=https://api.groq.com/openai/v1
+assistant.api-key=${GROQ_API_KEY}
+assistant.model=openai/gpt-oss-20b
 ```
 
 Cierra la sesión y vuelve a entrar. Si usas WSL, puedes ejecutar
