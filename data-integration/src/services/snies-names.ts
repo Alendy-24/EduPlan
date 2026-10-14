@@ -24,8 +24,10 @@ export function createSniesResolver(data: NameIndex) {
   return (context: PublishedContext) => {
     if (![context.institutionCode, context.awardedTitle, context.academicLevel, context.modality].every(value => value.trim() && !['NA', 'N/A'].includes(fold(value)))) return null;
     let candidates = contexts.get(key(context.institutionCode, context.awardedTitle, context.academicLevel, context.modality)) ?? [];
-    if (new Set(candidates.map(row => row[2])).size > 1 && context.municipality.trim()) {
-      candidates = candidates.filter(row => cityKey(row[6]) === cityKey(context.municipality));
+    if (context.municipality.trim()) {
+      const local = candidates.filter(row => cityKey(row[6]) === cityKey(context.municipality));
+      // Identical names can have different SNIES codes (and prices) by campus.
+      if (local.length || new Set(candidates.map(row => row[2])).size > 1) candidates = local;
     }
     const names = new Set(candidates.map(row => row[2]));
     if (names.size !== 1) return null;

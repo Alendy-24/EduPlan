@@ -1,5 +1,5 @@
 export interface Program {
-  tuition?: { amount: number; currency: 'COP'; basis: 'NEW_STUDENT_REPORTED'; source: string; sourceField: string; importedAt: string; priceYear: number | null };
+  tuition?: { amount: number; currency: 'COP'; basis: 'NEW_STUDENT_REPORTED' | 'INSTITUTION_PUBLISHED'; source: string; sourceField: string; importedAt: string; priceYear: number | null; billingPeriod?: 'SEMESTER' | 'FIRST_ENROLLMENT'; note?: string; sourcePage?: number };
   searchMatch?: "EXACT_NAME_OR_TITLE" | "SIMILAR_NAME_OR_TITLE" | "KNOWLEDGE_AREA" | "SPELLING_VARIANT";
   sourceId: string;
   groupedSourceIds?: string[];

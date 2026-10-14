@@ -47,6 +47,7 @@ export default function ComparePage() {
         {['error','saved'].includes(program.comparisonState) && <p className="comparison-stale">Mostramos la información que guardaste. Intenta actualizarla de nuevo.</p>}
         {programHref(program) ? <Link className="btn btn-secondary" to={programHref(program)}>Ver programa</Link> : <p className="subtle">Detalle por confirmar.</p>}
       </article>)}</section>
+      <ComparisonTuitionChart programs={comparison} loading={current.loading} />
       {comparison.length === 1 && <div className="comparison-single notice"><strong>Ya tienes una opción.</strong> Añade otra para descubrir qué cambia en ubicación, modalidad y formación.</div>}
       <p className="comparison-favorite-help">Marca la opción que más te convence. Puedes cambiar tu favorita cuando quieras.</p>
       <section className="comparison-priorities surface" aria-labelledby="comparison-priorities-title"><h2 id="comparison-priorities-title">Mis prioridades</h2><p>Elige lo que más te importa. Lo destacaremos en la comparación, aunque las opciones coincidan.</p>
@@ -55,7 +56,6 @@ export default function ComparePage() {
       </section>
       <ComparisonSummary programs={comparison} priorities={workspace.priorities} loading={current.loading} />
       <ComparisonShare programs={comparison} />
-      <ComparisonTuitionChart programs={comparison} loading={current.loading} />
       <section className="comparison-details" aria-labelledby="comparison-details-title">
         <div className="comparison-section-heading"><div><p className="eyebrow">Los datos para decidir</p><h2 id="comparison-details-title">Compara lo que importa</h2><p>{comparison.length > 1 ? differenceCount + ' ' + (differenceCount===1 ? 'diferencia entre tus opciones' : 'diferencias entre tus opciones') + ' con la información disponible.' : 'Revisa la información publicada de esta opción.'}</p></div><label className="comparison-differences"><input type="checkbox" checked={onlyDifferences && comparison.length > 1} disabled={comparison.length < 2} onChange={event=>setOnlyDifferences(event.target.checked)} />Ocultar coincidencias</label></div>
         <nav className="comparison-section-nav" aria-label="Secciones de la comparación">{groups.map(group=><a key={group.id} href={'#compare-' + group.id}>{group.title}</a>)}<a href="#compare-decisions">Costos y admisión</a><a href="#compare-notes">Mis notas</a></nav>

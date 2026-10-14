@@ -107,8 +107,9 @@
 .tuition-row-heading h3 { margin: .4rem 0; font-size: 1rem; }
 .tuition-row-heading p { margin: 0; }
 .tuition-row-heading strong { white-space: nowrap; font-size: 1.15rem; }
-.tuition-track { background: #e8edf5; border-radius: .5rem; height: 1.5rem; overflow: hidden; }
+.tuition-track { background: #e8edf5; border-radius: .5rem; height: 2rem; overflow: hidden; }
 .tuition-bar { background: #3759c7; height: 100%; border-radius: .5rem; }
+.tuition-track-unavailable { background: repeating-linear-gradient(135deg, #eef1f6, #eef1f6 8px, #e3e8f0 8px, #e3e8f0 16px); display: flex; align-items: center; padding-inline: .75rem; color: #475569; font-size: .8rem; }
 @media (max-width: 600px) { .tuition-row-heading { align-items: flex-start; flex-direction: column; gap: .5rem; } }
 .tuition-details { margin-top: .8rem; border-top: 1px solid #e0e6ef; padding-top: .8rem; }
 .tuition-details summary { cursor: pointer; font-weight: 600; }

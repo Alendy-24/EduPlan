@@ -6,6 +6,21 @@ import { transformProgram, getPrograms } from '../dist/services/programs.service
 import { clearProgramCatalogCache } from '../dist/services/program-catalog.js';
 import { clearInstitutionCatalogCache } from '../dist/services/institutions.service.js';
 const index = JSON.parse(readFileSync(new URL('../data/snies-program-names.json', import.meta.url), 'utf8'));
+test('same program name at different campuses resolves the local SNIES code and tuition', async () => {
+  const { createTuitionResolver } = await import('../dist/services/snies-tuition.js');
+  const resolve = createSniesResolver({schemaVersion:2,source:'official',field:'NOMBRE_DEL_PROGRAMA',importedAt:'2026-10-14',records:[
+    ['1','1701','INGENIERIA DE SISTEMAS','INGENIERO DE SISTEMAS','Pregrado','Presencial','Bogotá, D.C.'],
+    ['2','1701','INGENIERIA DE SISTEMAS','INGENIERO DE SISTEMAS','Pregrado','Presencial','Cali'],
+  ]});
+  const context = {institutionCode:'1701',awardedTitle:'INGENIERO DE SISTEMAS',academicLevel:'Pregrado',modality:'Presencial',municipality:'Cali'};
+  assert.equal(resolve(context).sniesCode, '2');
+  assert.equal(resolve({...context,municipality:''}).sniesCode, '');
+  const tuition = createTuitionResolver({schemaVersion:1,source:'official',field:'COSTO_MATRÍCULA_ESTUD_NUEVOS',importedAt:'2026-10-14',records:[
+    ['1','1701','Presencial','Bogotá, D.C.',1000000],['2','1701','Presencial','Cali',2000000],
+  ]});
+  assert.equal(tuition({...context,sniesCode:resolve(context).sniesCode}).amount,2000000);
+  assert.equal(tuition({...context,municipality:'Medellín',sniesCode:resolve(context).sniesCode}),undefined);
+});
 const sourceRow = (code, identity) => {
   const record = index.records.find(row => row[1] === code);
   return {source_row_id:identity,codigoprograma:'unknown',codigoinstitucion:code,

@@ -1,0 +1,52 @@
+name: Refresh verified tuition
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * 1'
+permissions:
+  contents: write
+concurrency:
+  group: tuition-refresh
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: python3 -m unittest discover -s data-integration/tests -p 'test_*.py'
+      - name: Refresh national official reported prices
+        run: npm run tuition:refresh:snies --workspace=data-integration
+      - name: Collect explicit institutional prices
+        id: institutions
+        continue-on-error: true
+        run: npm run tuition:collect --workspace=data-integration
+      - name: Measure active offering coverage
+        run: npm run tuition:coverage --workspace=data-integration
+      - run: npm test --workspace=data-integration
+      - run: npm test --workspace=frontend
+      - run: npm run build --workspace=frontend
+      - name: Save audit and pending cases
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tuition-audit
+          path: .tools/tuition/
+          include-hidden-files: true
+          retention-days: 60
+      - name: Commit validated data only
+        run: |
+          git add data-integration/data/snies-tuition.json data-integration/data/snies-program-names.json data-integration/data/institution-tuition.json
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'chore: refresh verified official tuition data'
+          git push

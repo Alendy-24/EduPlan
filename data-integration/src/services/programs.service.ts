@@ -1,5 +1,6 @@
 import { SOURCES } from "../config/sources.js";
 import { resolveTuition } from './snies-tuition.js';
+import { resolveInstitutionTuition } from './institution-tuition.js';
 import type { Program, ProgramFilters, ProgramFilterOptions, ProgramSearchPage } from "../models/program.js";
 import { fetchJson } from "../utils/http.js";
 import { getInstitutionCatalog } from './institutions.service.js';
@@ -73,7 +74,8 @@ export function transformProgram(row: ProgramSourceRow): Program {
     nameSourceField: official?.field,
     nameImportedAt: official?.importedAt,
     sniesCode: official?.sniesCode,
-    tuition: resolveTuition({ sniesCode: official?.sniesCode, institutionCode: row.codigoinstitucion ?? '', modality: row.nombremetodologia ?? '', municipality: row.nombremunicipioprograma ?? '' }),
+    tuition: resolveInstitutionTuition({ sniesCode: official?.sniesCode, institutionCode: row.codigoinstitucion ?? '', modality: row.nombremetodologia ?? '', municipality: row.nombremunicipioprograma ?? '' })
+      ?? resolveTuition({ sniesCode: official?.sniesCode, institutionCode: row.codigoinstitucion ?? '', modality: row.nombremetodologia ?? '', municipality: row.nombremunicipioprograma ?? '' }),
     nameMatchMethod: official ? 'EXACT_OFFICIAL_CONTEXT' : undefined,
     code: row.codigoprograma ?? "",
     institutionCode: row.codigoinstitucion ?? "",

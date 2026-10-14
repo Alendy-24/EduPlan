@@ -3,6 +3,8 @@ const sources = {
   'unad.edu.co': 'https://estudios.unad.edu.co/costos',
   'unilibre.edu.co': 'https://www.unilibre.edu.co/derechos-pecuniarios/',
   'javeriana.edu.co': 'https://www.javeriana.edu.co/informacion/acuerdo-valores-de-matricula-y-otros-derechos-pecunarios',
+  'uninorte.edu.co': 'https://www.uninorte.edu.co/es/valoresdematriculas',
+  'eafit.edu.co': 'https://www.eafit.edu.co/tarifas-generales',
 };
 const fold = value => (value || '').normalize('NFKD').replace(/\p{M}/gu, '').toLowerCase().trim();
 export function officialCostSource(program) {

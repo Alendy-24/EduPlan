@@ -145,7 +145,8 @@ export async function prepareEnvironment({ external }, { execute = run, dir = st
     }
     writeFileSync(join(dir, 'postgres.env'), `POSTGRES_DB=eduplan_db\nPOSTGRES_USER=eduplan\nPOSTGRES_PORT=5433\nPOSTGRES_PASSWORD=${password}\n`, { mode: 0o600 });
     const dockerEnv = { ...env, POSTGRES_DB: 'eduplan_db', POSTGRES_USER: 'eduplan', POSTGRES_PORT: '5433', POSTGRES_PASSWORD: password };
-    const started = await execute('docker', ['compose', '--env-file', join(dir, 'postgres.env'), '-f', join(root, 'docker', 'docker-compose.yml'), 'up', '-d', '--wait', '--wait-timeout', '90', 'postgres'], { env: dockerEnv, timeout: 120000 });
+    // The first run also downloads the PostgreSQL image.
+    const started = await execute('docker', ['compose', '--env-file', join(dir, 'postgres.env'), '-f', join(root, 'docker', 'docker-compose.yml'), 'up', '-d', '--wait', '--wait-timeout', '90', 'postgres'], { env: dockerEnv, timeout: 600000 });
     if (!started.ok) throw new Error(`No se pudo iniciar PostgreSQL.\n${started.output || dockerProblem(started)}`);
     // pg_isready alone does not check the persisted volume's password.
     const authenticated = await execute('docker', ['exec', '-e', 'PGPASSWORD', 'eduplan-postgres', 'psql', '-h', 'eduplan-postgres', '-U', 'eduplan', '-d', 'eduplan_db', '-Atc', 'SELECT 1'], { env: { ...dockerEnv, PGPASSWORD: password } });
@@ -156,7 +157,8 @@ export async function prepareEnvironment({ external }, { execute = run, dir = st
   return env;
 }
 
-export async function waitFor(url, status, timeout = 240000) {
+// A cold Maven cache can take several minutes to populate on the first run.
+export async function waitFor(url, status, timeout = 600000) {
   const deadline = Date.now() + timeout;
   while (Date.now() < deadline) {
     try {
