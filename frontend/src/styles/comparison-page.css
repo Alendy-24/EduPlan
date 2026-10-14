@@ -98,3 +98,25 @@
 .comparison-page button:focus-visible,.comparison-share summary:focus-visible { outline:3px solid var(--blue-dark); outline-offset:3px; }
 @media (max-width:1024px) { .comparison-option.comparison-option-favorite { padding:15px; } }
 @media (max-width:768px) { .comparison-highlight-grid { grid-template-columns:1fr; } .comparison-summary { padding:18px; } .comparison-share summary { padding:18px; } .comparison-share-content { padding:0 18px 18px; } }
+
+.comparison-tuition { margin-block: 1.5rem; padding: clamp(1rem, 3vw, 2rem); }
+.comparison-tuition > p { max-width: 80ch; }
+.tuition-chart { list-style: none; padding: 0; margin: 1.5rem 0; display: grid; gap: 1.5rem; }
+.tuition-chart li { min-width: 0; }
+.tuition-row-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .65rem; }
+.tuition-row-heading h3 { margin: .4rem 0; font-size: 1rem; }
+.tuition-row-heading p { margin: 0; }
+.tuition-row-heading strong { white-space: nowrap; font-size: 1.15rem; }
+.tuition-track { background: #e8edf5; border-radius: .5rem; height: 1.5rem; overflow: hidden; }
+.tuition-bar { background: #3759c7; height: 100%; border-radius: .5rem; }
+@media (max-width: 600px) { .tuition-row-heading { align-items: flex-start; flex-direction: column; gap: .5rem; } }
+.tuition-details { margin-top: .8rem; border-top: 1px solid #e0e6ef; padding-top: .8rem; }
+.tuition-details summary { cursor: pointer; font-weight: 600; }
+.tuition-facts { margin-block: 1rem; }
+.tuition-facts > div { display: grid; grid-template-columns: minmax(10rem, 1fr) minmax(0, 1.5fr); gap: 1rem; padding: .65rem 0; border-bottom: 1px solid #e0e6ef; }
+.tuition-facts dt { font-weight: 600; }
+.tuition-facts dd { margin: 0; overflow-wrap: anywhere; }
+.tuition-additional { background: #f4f7fc; padding: 1rem; border-radius: .6rem; margin-block: 1rem; }
+.tuition-additional h4 { margin-top: 0; }
+.tuition-links { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; }
+@media (max-width: 600px) { .tuition-facts > div { grid-template-columns: 1fr; gap: .35rem; } }

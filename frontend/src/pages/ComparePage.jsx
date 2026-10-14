@@ -1,3 +1,4 @@
+import ComparisonTuitionChart from '../components/ComparisonTuitionChart';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
@@ -54,6 +55,7 @@ export default function ComparePage() {
       </section>
       <ComparisonSummary programs={comparison} priorities={workspace.priorities} loading={current.loading} />
       <ComparisonShare programs={comparison} />
+      <ComparisonTuitionChart programs={comparison} loading={current.loading} />
       <section className="comparison-details" aria-labelledby="comparison-details-title">
         <div className="comparison-section-heading"><div><p className="eyebrow">Los datos para decidir</p><h2 id="comparison-details-title">Compara lo que importa</h2><p>{comparison.length > 1 ? differenceCount + ' ' + (differenceCount===1 ? 'diferencia entre tus opciones' : 'diferencias entre tus opciones') + ' con la información disponible.' : 'Revisa la información publicada de esta opción.'}</p></div><label className="comparison-differences"><input type="checkbox" checked={onlyDifferences && comparison.length > 1} disabled={comparison.length < 2} onChange={event=>setOnlyDifferences(event.target.checked)} />Ocultar coincidencias</label></div>
         <nav className="comparison-section-nav" aria-label="Secciones de la comparación">{groups.map(group=><a key={group.id} href={'#compare-' + group.id}>{group.title}</a>)}<a href="#compare-decisions">Costos y admisión</a><a href="#compare-notes">Mis notas</a></nav>

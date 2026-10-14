@@ -241,3 +241,47 @@ cambiar programas a una URL de otro origen sin preparar ese transporte.
 # Diagrama de Componentes 
 
 <img width="1667" height="886" alt="Diagrama_de_Componentes_EduPlan" src="https://github.com/user-attachments/assets/79628769-47d6-415b-9e11-fe3d106ece6b" />
+
+### Matrícula en el comparador
+
+El comparador muestra un gráfico de los montos reportados en el campo
+`COSTO_MATRÍCULA_ESTUD_NUEVOS` de la descarga oficial de
+[SNIES / HECAA](https://hecaa.mineducacion.gov.co/consultaspublicas/programas).
+La API de programas expone `tuition` cuando hay una coincidencia única por
+código SNIES, código institucional, modalidad y municipio. Los registros sin
+precio o con valores contradictorios permanecen sin información.
+
+El catálogo importado el 7 de octubre de 2026 contiene 12.745 registros con
+precio de 32.041 filas de origen. La fecha de importación no es la vigencia del
+precio. El archivo no especifica año del costo ni periodo de cobro: el gráfico
+compara montos reportados para estudiantes nuevos, no costos semestrales
+normalizados, y solicita confirmar esos datos con la institución. No utiliza
+precios de demostración ni resúmenes guardados cuando falla la actualización.
+
+Para actualizar, descarga “Descargar programas” en HECAA y ejecuta:
+
+```sh
+cd data-integration
+python3 tools/import-snies-tuition.py /ruta/programas.xlsx --date YYYY-MM-DD
+npm test
+```
+
+El importador guarda la URL, campo original, fecha de consulta y SHA-256 del
+archivo en `data/snies-tuition.json`. No requiere llamadas externas al abrir el
+comparador. Cada importación se publica junto con la aplicación.
+
+Cada opción del gráfico permite abrir “Ver detalles y otros costos”, con
+población a la que aplica el monto, vigencia, periodo de cobro, créditos del
+programa y código SNIES. Se muestran enlaces directos a tarifas de UNAD,
+Universidad Libre y Javeriana Bogotá cuando coincide el dominio institucional.
+Otros dominios conservan su sitio institucional como punto de consulta.
+
+Para UNAD se incorporaron tarifas oficiales de Colombia de 2026 (consultadas
+el 7 de octubre de 2026): crédito regular según nivel, tarifa de ciertos créditos
+disciplinares de pregrado, inscripción, seguro estudiantil y grado ordinario.
+La selección por nivel es explícita y las tarifas no se aplican a programas de
+otras instituciones ni a niveles no cubiertos. Estas tarifas están en
+`frontend/src/utils/program-costs.js`; deben revisarse contra
+https://estudios.unad.edu.co/costos al cambiar la vigencia. No se suman al monto
+SNIES ni se multiplican por créditos del currículo para inventar un semestre o
+un costo total. Los costos de vida y los descuentos personales siguen por confirmar.
