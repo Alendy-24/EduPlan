@@ -1,0 +1,12 @@
+.program-photo { margin:0; min-width:0; }
+.program-photo img { display:block; }
+.program-photo figcaption { margin-top:7px; color:var(--muted-strong); font-size:11px; line-height:1.5; }
+.program-photo figcaption a { color:inherit; text-decoration:underline; text-underline-offset:2px; }
+.program-photo-unavailable { display:grid; place-items:center; min-height:128px; padding:16px; border-radius:8px; background:var(--grad-cover); color:var(--navy); font-size:13px; }
+.program-card .program-photo { width:210px; }
+.program-hero .program-photo { width:100%; }
+.program-hero .program-photo-unavailable { min-height:300px; }
+.recommendation-result .program-photo { width:100%; }
+.recommendation-result .program-photo img { width:100%; height:180px; }
+@media (max-width:768px) { .program-card .program-photo { width:145px; } .recommendation-result .program-photo { width:100%; } }
+@media (max-width:540px) { .program-card .program-photo { width:100%; } }

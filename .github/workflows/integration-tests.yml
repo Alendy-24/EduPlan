@@ -19,6 +19,11 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
       - run: npm ci
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m pip install -r data-integration/tools/tuition-requirements.txt
+      - run: python3 -m unittest discover -s data-integration/tests -p 'test_*.py'
       - run: npm run test:dev
       - run: npm run typecheck
         working-directory: data-integration

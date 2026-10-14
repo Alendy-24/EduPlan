@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom';
 import BookmarkButton from './BookmarkButton';
 import CompareButton from './CompareButton';
+import ProgramImage from './ProgramImage';
 import { academicProgramName, programHref, programItem, programSearchMatches } from '../utils/programs';
 export default function ProgramCard({ program, searchQuery = '', children }) {
   const href = programHref(program);
   const name = academicProgramName(program);
   const matches = programSearchMatches(program, searchQuery);
-  return <article className={'list-item surface program-card' + (program.image ? '' : ' program-no-image')}>
-    {program.image && <img src={program.image} alt="Espacio de estudio de referencia" loading="lazy" />}
+  return <article className="list-item surface program-card">
+    <ProgramImage program={program} />
     <div><h3>{name}</h3><p className="program-institution">{program.institution}</p>
       <div className="metadata program-key-details">{[program.city, program.modality, program.level].filter(Boolean).map((text, i) => <span key={i}>{text}</span>)}</div>
       {program.institutionCampus && <p className="program-campus">Sede: {program.institutionCampus}</p>}

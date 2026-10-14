@@ -1,0 +1,12 @@
+import {readFileSync,writeFileSync,renameSync} from 'node:fs';
+import {mergeCollectedPrices} from './tuition-collectors.mjs';
+import {createInstitutionTuitionResolver} from '../dist/services/institution-tuition.js';
+const incoming=JSON.parse(readFileSync(process.argv[2]));createInstitutionTuitionResolver(incoming);
+const file=new URL('../data/institution-tuition.json',import.meta.url);
+const current=JSON.parse(readFileSync(file));
+const merged=mergeCollectedPrices(current.records,incoming.records);
+const result={schemaVersion:1,records:merged.records};createInstitutionTuitionResolver(result);
+const report=new URL('../../.tools/tuition/table-merge-report.json',import.meta.url);
+writeFileSync(report,JSON.stringify({conflicts:merged.conflicts},null,2)+'\n');
+const temp=new URL('../data/institution-tuition.json.tmp',import.meta.url);
+writeFileSync(temp,JSON.stringify(result,null,2)+'\n',{flag:'wx'});renameSync(temp,file);

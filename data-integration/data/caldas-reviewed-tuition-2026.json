@@ -1,0 +1,472 @@
+{
+  "schemaVersion": 1,
+  "institutionCode": "1112",
+  "source": "https://artesyhumanidades.ucaldas.edu.co/wp-content/uploads/Acuerdo-05_-29-de-enero_matricula-inscripcion-y-otros-factores-relacionados-con-los-programas-de-posgrado-1-1.pdf",
+  "priceYear": 2026,
+  "reviewMethod": "VISUAL_OFFICIAL_PDF",
+  "contentSha256": "8b8fbca39ad259cf42dcc6289ea76443be57b9cdac63eccdbee3b7ff2e2ef223",
+  "rows": [
+    {
+      "name": "Doctorado en Educación",
+      "amount": 15245685,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Doctorado en Diseño y Creación",
+      "amount": 12196548,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Doctorado en Filosofía",
+      "amount": 15245685,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Doctorado en Didácticas",
+      "amount": 15245685,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Doctorado en Ciencias Agrarias",
+      "amount": 16770254,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Doctorado en Ingeniería",
+      "amount": 18294822,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Doctorado en Estudios de Familia",
+      "amount": 16770254,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Doctorado en Ciencias de la Salud",
+      "amount": 21343959,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Artes",
+      "amount": 9147411,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Diseño y Creación Interactiva",
+      "amount": 9909695,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Educación",
+      "amount": 7622843,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Lingüística Aplicada del Español como Lengua materna y lengua adicional",
+      "amount": 9147411,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Filosofía",
+      "amount": 7622843,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Sociedades Rurales",
+      "amount": 7622843,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Ciencias Veterinarias",
+      "amount": 9147411,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Sistemas de Producción Agropecuaria",
+      "amount": 9147411,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Química",
+      "amount": 8385127,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Ciencias de la Tierra",
+      "amount": 12196548,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Ciencias Biológicas",
+      "amount": 9147411,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Bioinformática y Biología Computacional",
+      "amount": 12196548,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Ingeniería Computacional",
+      "amount": 10671980,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Estudios de Familia y Desarrollo",
+      "amount": 9147411,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Ciencias Sociales",
+      "amount": 9147411,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Culturas y Droga",
+      "amount": 7622843,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Derecho Público",
+      "amount": 9909695,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Estudios Políticos",
+      "amount": 9909695,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Historia",
+      "amount": 8385127,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Estudios de Género y Educación para la Sexualidad",
+      "amount": 9147411,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Intervención en Relaciones Familiares",
+      "amount": 9147411,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Derecho Ambiental",
+      "amount": 9909695,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Estudios Territoriales",
+      "amount": 10671980,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Justicia Social y Construcción de Paz",
+      "amount": 9147411,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Actividad Física para la Salud",
+      "amount": 11434264,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Ciencias Biomédicas",
+      "amount": 12196548,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Ecología Humana y Saberes Ambientales",
+      "amount": 8842497,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Gerontología, Envejecimiento y Vejez",
+      "amount": 12196548,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Salud Pública",
+      "amount": 11434264,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Maestría en Educación",
+      "amount": 8385127,
+      "municipality": "Popayán",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Administración y Evaluación de Proyectos Agropecuarios y Agroindustriales",
+      "amount": 7622843,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Desarrollo Rural",
+      "amount": 9147411,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Evaluación Integral de Impactos Ambientales",
+      "amount": 9147411,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Gerencia Agraria",
+      "amount": 9147411,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Geotecnia",
+      "amount": 7622843,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Derecho Administrativo",
+      "amount": 20581675,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Derecho Laboral y Seguridad Social",
+      "amount": 10671980,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Estudios Penales",
+      "amount": 10671980,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Intervención en Relaciones Familiares",
+      "amount": 9147411,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Inteligencia Artificial y Analítica de Datos",
+      "amount": 9909695,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Legislación de Familia y del Menor",
+      "amount": 21343959,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Legislación Comercial y Financiera",
+      "amount": 10671980,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Legislación Tributaria y de Aduanas",
+      "amount": 10671980,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Administración en Salud",
+      "amount": 6098274,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Epidemiología",
+      "amount": 9909695,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": true
+    },
+    {
+      "name": "Especialización en Gastroenterología Clínica Quirúrgica",
+      "amount": 18294822,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Anestesiología",
+      "amount": 18294822,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Cirugía General",
+      "amount": 18294822,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Dermatología",
+      "amount": 18294822,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Gastroenterología",
+      "amount": 18294822,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Medicina Interna",
+      "amount": 18294822,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Medicina Interna Geriatría",
+      "amount": 18294822,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Obstetricia y Ginecología",
+      "amount": 18294822,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Pediatría",
+      "amount": 18294822,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Psiquiatría",
+      "amount": 18294822,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Sexología Clínica",
+      "amount": 18294822,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    },
+    {
+      "name": "Especialización en Medicina de Urgencias",
+      "amount": 18294822,
+      "municipality": "Manizales",
+      "sourcePage": 3,
+      "annual": false
+    }
+  ],
+  "excluded": [
+    "Doctorado en Estudios Territoriales: dos importes contradictorios en la tabla",
+    "Doctorados expresados como Por convenio",
+    "Maestría en Epidemiología: aún no da apertura a cohorte nueva"
+  ],
+  "scope": "ALL_ACTIVE_AND_NEW_COHORTS",
+  "scopeSourcePage": 2
+}

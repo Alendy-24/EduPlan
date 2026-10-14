@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
 import { SOURCES } from '../config/sources.js';
 import { fetchJson } from '../utils/http.js';
-import { careerWords, fuzzyCareerMatch } from '../utils/career-search.js';
+import { careerWords, fuzzyCareerMatch, literalCareerMatch, relatedCareerMatch } from '../utils/career-search.js';
+import { commonCareerWords } from './snies-names.js';
 import type { Program, ProgramFilters, ProgramFacets, ProgramSearchPage } from '../models/program.js';
 
 const fold = (text: string) => text.normalize('NFKD').replace(/\p{M}/gu, '').trim().toUpperCase();
@@ -44,9 +45,7 @@ export function getProgramCatalog<T>(fields: string, transform: (row: T) => Prog
 // discoverable. Requiring every word of the shorter name avoids matching two
 // unrelated engineering programs merely because they share “ingeniería”.
 export function relatedCareerNames(query: string, candidate: string): boolean {
-  const left = careerWords(query), right = careerWords(candidate);
-  if (!left.length || !right.length) return false;
-  return left.every(word => right.includes(word)) || right.every(word => left.includes(word));
+  return relatedCareerMatch(query, candidate);
 }
 
 export function hasPublishedProgramName(program: Program): boolean {
@@ -68,19 +67,39 @@ function matchesFilters(program: Program, filters: ProgramFilters): boolean {
 }
 function rankedPrograms(programs: Program[], query: string) {
   const term = fold(query), words = careerWords(term);
+  const knownWords = new Set<string>();
+  const lockedWords = new Set(words.filter(word => commonCareerWords.has(word)));
+  if (words.length) for (const program of programs.filter(hasPublishedProgramName)) {
+    for (const field of [program.name, program.awardedTitle, program.knowledgeArea]) {
+      for (const word of careerWords(field)) if (words.includes(word)) {
+        knownWords.add(word);
+        if (field === program.knowledgeArea) lockedWords.add(word);
+      }
+    }
+    if (knownWords.size === words.length) break;
+  }
+  // A broad medicine search means human medicine unless animal health is
+  // explicitly requested. NBC substring matches must not cross that boundary.
+  const animalHealth = (text: string) => careerWords(text).some(word => /^(VETERINARI|ZOOTECNI|ANIMAL)/.test(word));
+  const humanMedicine = words.includes('MEDICINA') && !animalHealth(query);
+  const nursing = (text: string) => careerWords(text).some(word => /^(ENFERMERIA|ENFERMERO|ENFERMERA)$/.test(word));
   const terms = /\bINGENIERIA\b/.test(term) ? [term, ...['INGENIERO', 'INGENIERA', 'INGENIERO(A)'].map(word => term.replace(/\bINGENIERIA\b/g, word))] : [term];
   return programs.filter(hasPublishedProgramName).flatMap(program => {
+    if (humanMedicine && [program.name, program.awardedTitle, program.knowledgeArea, program.broadKnowledgeArea ?? ''].some(animalHealth)) return [];
+    // Some catalog rows classify nursing degrees under the Medicina NBC.
+    // Their explicit academic name/title takes precedence over that broad match.
+    if (humanMedicine && !nursing(query) && [program.name, program.awardedTitle].some(nursing)) return [];
     const name = fold(program.name), title = fold(program.awardedTitle);
     const fuzzyRank = () => {
-      const candidates = [name, title].filter(text => fuzzyCareerMatch(words, text));
+      const candidates = [name, title].filter(text => fuzzyCareerMatch(words, text, knownWords, lockedWords));
       return candidates.length ? 6 + Math.min(0.9, Math.min(...candidates.map(text => Math.max(0, careerWords(text).length - words.length))) / 100) : 7;
     };
     const rank = !term ? 0 : [name, title].includes(term) ? 0
       : terms.some(value => [name, title].includes(value)) ? 1
-      : terms.some(value => [name, title].some(text => text.startsWith(value))) ? 2
-      : terms.some(value => [name, title].some(text => text.includes(value))) ? 3
+      : terms.some(value => [name, title].some(text => text.startsWith(value) && literalCareerMatch(value, text, knownWords, true))) ? 2
+      : terms.some(value => [name, title].some(text => literalCareerMatch(value, text, knownWords, true))) ? 3
       : [name, title].some(text => relatedCareerNames(term, text)) ? 4
-      : fold(program.knowledgeArea).includes(term) ? 5
+      : literalCareerMatch(term, program.knowledgeArea, knownWords, true) ? 5
       : fuzzyRank();
     return rank === 7 ? [] : [{ program, rank }];
   });

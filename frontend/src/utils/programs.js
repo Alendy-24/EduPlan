@@ -1,3 +1,4 @@
+import { normalizeTuition } from './tuition.js';
 import { offerIsSelected } from './program-search.js';
 const textFields = ['offerId','code','sniesCode','nameMatchMethod','name','rawName','awardedTitle','institutionName','municipality','department','academicLevel','educationLevel','knowledgeArea','broadKnowledgeArea','credits','modality','periodCount','periodicity','status','institutionCode','nameOrigin','searchMatch','institutionSector','institutionWebsite','institutionMunicipality','institutionDepartment','institutionCampus','nameSource','nameSourceField','nameImportedAt'];
 export function academicProgramName(program) {
@@ -9,7 +10,7 @@ export function normalizeProgram(row) {
   const text = Object.fromEntries(textFields.map(key => [key, typeof row[key] === 'string' ? row[key] : '']));
   if (![text.name,text.rawName,text.awardedTitle,text.institutionName,text.knowledgeArea].some(value => value.trim())) throw new Error('Registro sin información utilizable');
   const incomplete = ['code','name','institutionName','municipality','academicLevel','modality'].some(key => !text[key].trim()) || textFields.some(key => row[key] === null || row[key] !== undefined && typeof row[key] !== 'string');
-  return { ...text, ...(Array.isArray(row.groupedSourceIds) && row.groupedSourceIds.every(id => typeof id === 'string' && id.startsWith('upr9-nkiz:')) ? { groupedSourceIds: row.groupedSourceIds } : {}), sourceId: row.sourceId, id: row.sourceId, name: academicProgramName(row), institution: text.institutionName || 'Institución no disponible', city: text.municipality || text.institutionMunicipality || 'No disponible', level: text.academicLevel || 'No disponible', area: text.knowledgeArea, duration: [text.periodCount, text.periodicity].filter(Boolean).join(' ') || '', reviewRequired: row.reviewRequired === true, institutionEnrichmentUnavailable: row.institutionEnrichmentUnavailable === true, recordQuality: incomplete ? 'incomplete' : 'usable', provenance: 'real' };
+  return { ...text, tuition: normalizeTuition(row.tuition), ...(Array.isArray(row.groupedSourceIds) && row.groupedSourceIds.every(id => typeof id === 'string' && id.startsWith('upr9-nkiz:')) ? { groupedSourceIds: row.groupedSourceIds } : {}), sourceId: row.sourceId, id: row.sourceId, name: academicProgramName(row), institution: text.institutionName || 'Institución no disponible', city: text.municipality || text.institutionMunicipality || 'No disponible', level: text.academicLevel || 'No disponible', area: text.knowledgeArea, duration: [text.periodCount, text.periodicity].filter(Boolean).join(' ') || '', reviewRequired: row.reviewRequired === true, institutionEnrichmentUnavailable: row.institutionEnrichmentUnavailable === true, recordQuality: incomplete ? 'incomplete' : 'usable', provenance: 'real' };
 }
 export function normalizeProgramPage(payload) {
   if (!payload || !Array.isArray(payload.data)) throw new Error('Respuesta de programas no válida');
@@ -38,7 +39,8 @@ const careerWords = text => [...new Set(comparable(text).replace(/ingeniero\(a\)
   .filter(word => word && !['de','del','la','las','el','los','y','en','a','al','para'].includes(word)))];
 const relatedCareerNames = (query, candidate) => {
   const left = careerWords(query), right = careerWords(candidate);
-  return left.length > 0 && right.length > 0 && (left.every(word => right.includes(word)) || right.every(word => left.includes(word)));
+  const generic = new Set(['ingenieria','maestria','magister','especializacion','especialista','doctorado','doctor','tecnologia','tecnologo','tecnico','tecnica','profesional','ciencias','estudios','licenciatura']);
+  return left.length > 0 && right.length > 0 && (left.every(word => right.includes(word)) || right.length >= 2 && right.some(word => !generic.has(word)) && right.every(word => left.includes(word)));
 };
 export function programSearchMatches(program, query) {
   if (!query?.trim()) return [];
@@ -46,7 +48,10 @@ export function programSearchMatches(program, query) {
   const variants = /\bingenieria\b/.test(term)
     ? [term, ...['ingeniero','ingeniera','ingeniero(a)'].map(word => term.replace(/\bingenieria\b/g, word))] : [term];
   return [...(['SNIES_NAME','OFFICIAL_PAGE'].includes(program.nameOrigin) ? [['name','Nombre del programa']] : []),['rawName',program.reviewRequired ? 'Nombre publicado (sin verificar)' : 'Nombre publicado'],['awardedTitle','Título otorgado'],['area','Área publicada']]
-    .filter(([key]) => typeof program[key] === 'string' && ((key === 'area' ? [term] : variants).some(value => comparable(program[key]).includes(value)) || key !== 'area' && relatedCareerNames(term, program[key])))
+    .filter(([key]) => typeof program[key] === 'string' && ((key === 'area' ? [term] : variants).some(value => {
+      const words = careerWords(value), candidate = careerWords(program[key]);
+      return words.length > 0 && words.every(word => candidate.includes(word));
+    }) || key !== 'area' && relatedCareerNames(term, program[key])))
     .map(([key,label]) => ({ key, label, value: program[key] }));
 }
 export function programHref(program) {
