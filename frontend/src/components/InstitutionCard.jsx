@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import institutionIcon from "../assets/Images/instituciones.svg";
+import InstitutionLogo from './InstitutionLogo';
 import BookmarkButton from './BookmarkButton';
 
 import { websiteUrl } from "../utils/website";
@@ -11,7 +11,7 @@ export default function InstitutionCard({ institution }) {
     return (
         <article className="institution-card">
             <div className="institution-card-cover" aria-hidden="true">
-                <img src={institutionIcon} alt="" />
+                <InstitutionLogo institution={institution} />
             </div>
             <div className="institution-card-body">
                 <div className="institution-card-heading">

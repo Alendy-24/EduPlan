@@ -58,7 +58,7 @@ progress { display:block; margin:12px 0; width:100%; max-width:400px; accent-col
 .institutions-page { background:#fafaf9; }
 .institutions-panel { border-radius:12px; }
 .institution-card { background:#fff; box-shadow:none; }
-.institution-card-cover { background:#eef3f8; }
+.institution-card-cover { background:#fff; }
 .institution-card-actions { display:flex; flex-wrap:wrap; gap:8px; padding:0 16px 16px; }
 .institution-card-badge { background:#f1f5f9; }
 .institutions-search,.institution-filter-field input,.institution-filter-field select { border-radius:8px; }

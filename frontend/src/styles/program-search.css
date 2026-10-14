@@ -1,5 +1,5 @@
 .program-search-panel { display:grid; gap:20px; padding:20px; margin-bottom:20px; background:#fff; border:1px solid var(--line-card); border-radius:12px; }
-.program-search-primary { display:grid; grid-template-columns:2fr 1fr 1fr; gap:16px; }
+.program-search-primary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
 .program-search-university { display:flex; align-items:flex-end; gap:16px; }
 .program-search-university > .field { flex:1; min-width:0; }
 .program-fixed-institution { flex:1; margin:0; align-self:center; }
@@ -7,7 +7,7 @@
 .program-search-panel select,.program-search-panel input { width:100%; min-height:44px; min-width:0; }
 .program-more-filters { border-top:1px solid var(--line-card); padding-top:8px; }
 .program-more-filters summary { cursor:pointer; min-height:44px; padding:12px 0; font-weight:600; }
-.program-search-extra { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; padding-top:12px; }
+.program-search-extra { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; padding-top:12px; }
 .program-active-filters { display:flex; flex-wrap:wrap; gap:8px; list-style:none; padding:0; margin:0 0 20px; }
 .program-active-filters li { max-width:100%; }
 .program-active-filters button { display:flex; align-items:center; gap:12px; max-width:100%; min-height:44px; background:#eef3f8; border:1px solid var(--line-card); border-radius:8px; padding:8px 12px; color:var(--navy); text-align:left; cursor:pointer; }
@@ -23,3 +23,52 @@
 @media (max-width:1024px) { .program-search-primary { grid-template-columns:repeat(2,minmax(0,1fr)); } .program-search-primary > :first-child { grid-column:1/-1; } }
 @media (max-width:768px) { .program-search-extra { grid-template-columns:1fr; } }
 @media (max-width:540px) { .program-search-panel { padding:16px; } .program-search-primary { grid-template-columns:1fr; } .program-search-university { flex-direction:column; align-items:stretch; } .program-fixed-institution { align-self:stretch; } .program-search-university > .field { width:100%; } }
+
+.program-search-primary > .career-search { grid-column:1/-1; }
+.program-search-hint { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; }
+.program-search-hint p { margin:0; }
+.career-search { position:relative; }
+.career-options-panel { position:absolute; top:100%; left:0; right:0; z-index:25; background:#fff; border:1px solid var(--line-card); border-radius:8px; box-shadow:0 4px 12px #10254a18; }
+.career-options-panel ul { list-style:none; margin:0; padding:4px; max-height:min(360px,45vh); overflow-y:auto; }
+.career-options-panel li { padding:12px; min-height:44px; cursor:pointer; overflow-wrap:anywhere; color:var(--navy); }
+.career-options-panel li.is-active,.career-options-panel li:hover { background:#eef3f8; }
+.career-options-panel p { margin:0; padding:12px; }
+.program-results-toolbar { flex-wrap:wrap; align-items:center; gap:16px; }
+.program-order-field { margin-left:auto; min-width:0; }
+.program-order-field select { min-height:44px; max-width:100%; }
+.program-card .program-institution { color:var(--navy); font-weight:600; }
+.program-key-details { margin:12px 0; font-size:14px; }
+.program-card-details { margin-top:12px; font-size:14px; }
+.program-card-details summary { cursor:pointer; min-height:44px; display:flex; align-items:center; color:var(--blue-dark); text-decoration:underline; }
+.program-card-details p { margin-top:8px; }
+@media (max-width:540px) { .program-order-field { margin-left:0; width:100%; } .program-order-field select { width:100%; } }
+
+.program-empty-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin:20px 0; }
+.program-visible-count { margin-bottom:16px; }
+.program-modalities { grid-column:1/-1; border:0; padding:0; margin:0; min-width:0; }
+.program-modalities legend { font-weight:600; color:var(--navy); }
+.program-modalities > p { font-size:13px; margin:6px 0 12px; }
+.program-modality-choices { display:flex; flex-wrap:wrap; gap:10px; }
+.program-modality-choices label { display:flex; align-items:center; gap:10px; min-height:44px; padding:10px 14px; border:1px solid var(--line-card); border-radius:8px; cursor:pointer; color:var(--navy); font-size:14px; }
+.program-modality-choices label:has(input:checked) { background:#eef3f8; border-color:var(--blue-dark); }
+.program-modality-choices label:has(input:disabled) { color:var(--muted); cursor:default; }
+.program-search-panel .program-modality-choices input { width:18px; min-height:18px; height:18px; flex-shrink:0; accent-color:var(--navy); }
+.program-search-extra small { color:var(--muted); line-height:1.5; }
+.program-modality-choices input:focus-visible { outline:3px solid var(--blue-dark); outline-offset:3px; }
+.program-comparison-bar { position:sticky; bottom:16px; z-index:30; padding:16px; margin:24px 0 0; border:1px solid var(--blue-dark); box-shadow:0 6px 28px #10254a26; background:#fff; }
+.program-comparison-heading { display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; justify-content:space-between; }
+.program-comparison-heading span { font-size:13px; color:var(--muted); }
+.program-comparison-bar ul { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; list-style:none; margin:0 0 12px; padding:0; }
+.program-comparison-bar li { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px; border-radius:8px; background:#eef3f8; min-width:0; }
+.program-comparison-bar li > div { min-width:0; }
+.program-comparison-bar li strong { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap:anywhere; font-size:13px; }
+.program-comparison-bar small { display:block; color:var(--muted); font-size:12px; }
+.program-comparison-bar li button { min-height:44px; padding:4px; color:var(--blue-dark); text-decoration:underline; }
+.program-comparison-actions { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:10px; }
+@media (max-width:768px) { .program-comparison-bar { bottom:8px; padding:12px; } .program-comparison-bar ul { display:flex; overflow-x:auto; scroll-snap-type:x proximity; } .program-comparison-bar li { flex:0 0 min(260px,85%); scroll-snap-align:start; } .program-comparison-actions .btn { flex:1; text-align:center; } }
+
+.program-comparison-selection summary { cursor:pointer; min-height:44px; padding-top:12px; font-size:14px; }
+.program-comparison-actions span { margin-right:auto; align-self:center; color:var(--muted); font-size:13px; }
+@media (max-width:540px) { .comparison-detail-label { display:none; } .program-comparison-heading > strong { font-size:13px; } }
+
+@media (max-width:540px) { .program-comparison-heading { gap:8px; } .program-comparison-heading > .btn { padding:10px 12px; font-size:13px; min-height:44px; } }
