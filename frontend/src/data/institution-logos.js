@@ -7,7 +7,12 @@ export const institutionLogoBrands = [
     sourceUrl: 'https://www.javeriana.edu.co/institucional/escudo-sello-bandera',
     reviewedAt: '2026-10-06',
   },
-  { id: 'unal', domain: 'unal.edu.co', codes: ['1101', '1102', '1103', '1104', '1124', '1125', '1126', '9920', '9933'] },
+  {
+    id: 'unal', domain: 'unal.edu.co', codes: ['1101', '1102', '1103', '1104', '1124', '1125', '1126', '9920', '9933'],
+    logoUrl: '/logos/unal.png',
+    sourceUrl: 'https://bogota.unal.edu.co/facultades',
+    reviewedAt: '2026-10-14',
+  },
   { id: 'udea', domain: 'udea.edu.co', codes: ['1201', '1219', '1220', '1221', '1222', '1223', '9125'] },
   { id: 'univalle', domain: 'univalle.edu.co', codes: ['1203', '9908', '9909', '9911', '9912'] },
   { id: 'unilibre', domain: 'unilibre.edu.co', codes: ['1806', '1807', '1808', '1809', '1810', '1811'] },

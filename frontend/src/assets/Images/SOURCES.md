@@ -1,5 +1,12 @@
 # Fuentes de fotografías nuevas
 
+## Actualización visual del 14 de octubre de 2026
+
+- `landing-students.png`: fotografía sintética generada con `image_gen` a partir de la propuesta visual elegida por el propietario. Se extrajo y completó la escena de tres estudiantes con cuadernos en un campus, conservando su composición, ropa y luz natural. El archivo no contiene textos ni interfaz; el recorte curvo, el círculo celeste, el círculo amarillo y la línea se dibujan con CSS. Se usa exclusivamente como fotografía de bienvenida, no como evidencia de un campus real. Prompt: «Extract and recreate ONLY the realistic photograph of the three university students on the right as a standalone high-resolution landscape photograph. Keep faces, clothing, hairstyles, relative position, expressions, notebooks and pose as faithfully as possible. Complete the photograph into a full rectangle. No text, UI, circles or watermark.»
+- `orientation-professional.png`: retrato sintético generado con `image_gen`, con transparencia real. Sustituye la ilustración en Orientación sin modificar sus textos o flujo. Prompt: «A sophisticated realistic editorial photograph of a Colombian young adult university student aged 22, medium tan skin, neat naturally wavy dark hair, navy overshirt over a cream tee, standing waist-up holding a neutral beige academic notebook, calm thoughtful slight smile looking slightly left. True transparent background, natural proportions, softly lit photography. No floating icons, cartoon, text or logos.»
+
+Se conservan las imágenes anteriores para sus usos existentes. Estas fotografías no representan estudiantes identificados ni testimonios.
+
 - `javeriana-campus.jpg`: Felipe Restrepo Acosta, [Edificio Gerardo Arango, Pontificia Universidad Javeriana](https://commons.wikimedia.org/wiki/File:2018_Bogot%C3%A1_-_Edificio_Gerardo_Arango_-_Facultad_de_Artes_-_Pontificia_Universidad_Javeriana.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Se sirve a 1200 px de ancho y se recorta visualmente con CSS.
 - `campus-photo.jpg`: [Unsplash, photo-1562774053-701939374585](https://images.unsplash.com/photo-1562774053-701939374585), [licencia Unsplash](https://unsplash.com/license).
 - `library-photo.jpg`: [Unsplash, photo-1507842217343-583bb7270b66](https://images.unsplash.com/photo-1507842217343-583bb7270b66), [licencia Unsplash](https://unsplash.com/license).

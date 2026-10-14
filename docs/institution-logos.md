@@ -1,10 +1,46 @@
 # Logos de instituciones
 
-Las tarjetas de Búsqueda de instituciones usan el CDN de Logo.dev por dominio.
+Las tarjetas de Búsqueda y el banner del detalle de instituciones usan el mismo
+componente y el CDN de Logo.dev por dominio.
 Los logos oficiales incluidos en el repositorio funcionan sin clave. Para las
 demás instituciones, sin clave publicable válida, sin dominio o si una imagen
 falla, se muestra el SVG genérico existente. No se modifica la respuesta del MEN, la base de datos ni los
 códigos de las sedes. No hace falta instalar dependencias.
+
+## Actualización del 14 de octubre de 2026
+
+El detalle reutiliza `InstitutionLogo`: logo local revisado, Logo.dev cuando hay
+clave válida y, ante ausencia o error 404/429, el icono institucional existente.
+El logo usa `object-fit: contain`; nunca se estira como una fotografía panorámica.
+Funciona tanto al entrar desde una tarjeta como al abrir un enlace directo.
+
+La Universidad Nacional ahora usa `frontend/public/logos/unal.png`, publicado en
+el [sitio oficial de la sede Bogotá](https://bogota.unal.edu.co/facultades).
+Archivo original:
+https://bogota.unal.edu.co/typo3conf/ext/bogota_unal/Resources/Public/Unal/images/escudoUnal_black.png
+Se conserva el archivo y sus proporciones, sin recolorear ni redibujar. Los códigos
+MEN agrupados previamente comparten la marca, no una fotografía de Bogotá que
+pudiera atribuirse por error a Medellín, Palmira u otra sede.
+
+### Proveedores de fotografías de campus
+
+[Logo.dev](https://www.logo.dev/docs/logo-images/introduction) entrega logos por
+dominio, no imágenes verificadas de campus. Se mantiene esa integración para todo
+el catálogo; no se introduce una segunda clave ni un servicio de pago.
+
+[Wikidata P18](https://www.wikidata.org/wiki/Help:Frequently_used_properties/en)
+y [Wikimedia Commons](https://developer.wikimedia.org/use-content/content/)
+permiten obtener fotos cuando existe una correspondencia exacta de institución y
+sede. No garantizan que cada institución tenga una foto ni que una foto de la marca
+represente todas sus sedes. La [API Imageinfo](https://www.mediawiki.org/wiki/API:Imageinfo)
+aporta los metadatos, incluida la licencia, que deben revisarse junto con la
+[atribución](https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia).
+
+La opción implementada es un logo en el detalle para todas las instituciones con
+identidad disponible. Para incorporar fotos posteriormente, usar un registro por
+código MEN con autor, licencia, URL de fuente, sede y fecha revisada; mostrar el
+logo si falta una foto o falla su carga. No hacer búsquedas automáticas por nombre
+en cada visita ni tratar fotos genéricas o generadas como campus reales.
 
 ## Configuración local
 
