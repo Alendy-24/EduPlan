@@ -34,3 +34,4 @@ jobs:
         working-directory: backend/src
         env:
           JWT_SECRET: Y2ktdGVzdC1qd3Qtc2VjcmV0LXNob3VsZC1iZS1sb25nLWVub3VnaC0zMi1ieXRlcw==
+          GROQ_API_KEY: clave-falsa-para-pruebas
