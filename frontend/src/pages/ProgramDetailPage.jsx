@@ -12,6 +12,7 @@ import { academicProgramName, programHref, programItem } from '../utils/programs
 import { programs as demos, demoInstitution } from '../data/mock/catalog';
 import ProgramPersonalMatch from '../components/ProgramPersonalMatch';
 import ProgramOfficialLink from '../components/ProgramOfficialLink';
+import ProgramImage from '../components/ProgramImage';
 import { useProgramLinks } from '../hooks/useProgramLinks';
 const tabs = ['Descripción','Plan de estudios','Admisión','Costos','Perfil profesional'];
 const guidance = {
@@ -48,7 +49,7 @@ export default function ProgramDetailPage() {
     {!loading && !error && !program && <section><h1>{recordId ? 'Registro no disponible' : rows.length ? 'Selecciona un registro del programa' : 'Programa no encontrado'}</h1><p>{recordId ? 'La fila solicitada no aparece en el catálogo. No hemos elegido otra en su lugar.' : 'Un mismo código puede identificar varias filas publicadas. Elige la ubicación y modalidad que deseas consultar.'}</p><div className="listing">{rows.map(p => <Link className="surface record-option" to={programHref(p)} key={p.id}><strong>{academicProgramName(p)}</strong><span>{p.institution} · {p.city} · {p.institutionCampus} · {p.modality} · {p.status || 'Estado no disponible'}</span></Link>)}</div></section>}
     {!loading && !error && program && <>
       <p className="notice">{demo ? 'Datos ficticios de demostración. No representan una oferta académica verificada.' : 'Información publicada por el Ministerio de Educación. Confirma vigencia y requisitos con la institución.'}</p>
-      <section className={'program-hero' + (program.image ? '' : ' program-no-image')}>{program.image && <img src={program.image} alt="Espacio de estudio de referencia" />}<div>
+      <section className="program-hero"><ProgramImage program={program} eager /><div>
         <p className="eyebrow">Programa académico</p><h1>{name}</h1><p className="program-institution">{program.institution}</p><p>{program.city}{program.institutionCampus && ' · ' + program.institutionCampus}</p>
         <div className="metadata">{[program.level, program.modality, program.status].filter(Boolean).map(value => <span key={value}>{value}</span>)}</div>
         <p className="program-title"><strong>Título otorgado:</strong> {program.awardedTitle || 'No disponible'}</p>

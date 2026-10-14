@@ -1,3 +1,4 @@
+import ComparisonTuitionChart from '../components/ComparisonTuitionChart';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
@@ -46,6 +47,7 @@ export default function ComparePage() {
         {['error','saved'].includes(program.comparisonState) && <p className="comparison-stale">Mostramos la información que guardaste. Intenta actualizarla de nuevo.</p>}
         {programHref(program) ? <Link className="btn btn-secondary" to={programHref(program)}>Ver programa</Link> : <p className="subtle">Detalle por confirmar.</p>}
       </article>)}</section>
+      <ComparisonTuitionChart programs={comparison} loading={current.loading} />
       {comparison.length === 1 && <div className="comparison-single notice"><strong>Ya tienes una opción.</strong> Añade otra para descubrir qué cambia en ubicación, modalidad y formación.</div>}
       <p className="comparison-favorite-help">Marca la opción que más te convence. Puedes cambiar tu favorita cuando quieras.</p>
       <section className="comparison-priorities surface" aria-labelledby="comparison-priorities-title"><h2 id="comparison-priorities-title">Mis prioridades</h2><p>Elige lo que más te importa. Lo destacaremos en la comparación, aunque las opciones coincidan.</p>

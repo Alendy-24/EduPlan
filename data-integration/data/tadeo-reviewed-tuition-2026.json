@@ -1,0 +1,620 @@
+{
+  "schemaVersion": 1,
+  "institutionCode": "1707",
+  "priceYear": 2026,
+  "reviewMethod": "VISUAL_OFFICIAL_PDF",
+  "documents": {
+    "base": {
+      "source": "https://www.utadeo.edu.co/sites/tadeo/files/node/wysiwyg/2025014.pdf",
+      "sha256": "a9792bc42014654ae17758e40e05906d63628d17c22bc54c5118ad7d1121bd9d"
+    },
+    "addendum": {
+      "source": "https://www.utadeo.edu.co/sites/tadeo/files/node/wysiwyg/2026002.pdf",
+      "sha256": "f1ad16060583fd3313e98bc84d394fca45c9a949cde0dc2225eec0fc3c7282f9"
+    }
+  },
+  "excludedForShift": [
+    "Administración de Empresas",
+    "Comercio Internacional y Finanzas",
+    "Contaduría Pública",
+    "Derecho",
+    "Economía",
+    "Ingeniería Ambiental",
+    "Ingeniería de Sistemas",
+    "Ingeniería Industrial",
+    "Mercadeo",
+    "Publicidad"
+  ],
+  "rows": [
+    {
+      "name": "Arquitectura",
+      "amount": 10572000,
+      "sourcePage": 1,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Artes Plásticas",
+      "amount": 9934000,
+      "sourcePage": 1,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Biología Ambiental",
+      "amount": 8176000,
+      "sourcePage": 2,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Biología Marina",
+      "amount": 9165000,
+      "sourcePage": 2,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Ciencia Política e Innovación Pública",
+      "amount": 8996000,
+      "sourcePage": 2,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Cine y Televisión",
+      "amount": 10477000,
+      "sourcePage": 2,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Comunicación Social - Periodismo",
+      "amount": 9417000,
+      "sourcePage": 2,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Diseño Gráfico",
+      "amount": 11497000,
+      "sourcePage": 2,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Diseño Industrial",
+      "amount": 11157000,
+      "sourcePage": 2,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Diseño Interactivo",
+      "amount": 10395000,
+      "sourcePage": 2,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Diseño y Gestión de la Moda",
+      "amount": 10395000,
+      "sourcePage": 2,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Fotografía",
+      "amount": 10328000,
+      "sourcePage": 2,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Historia del Arte",
+      "amount": 8244000,
+      "sourcePage": 2,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Ingeniería de Alimentos",
+      "amount": 7287000,
+      "sourcePage": 2,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Ingeniería Química",
+      "amount": 8000000,
+      "sourcePage": 2,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Realización en Animación",
+      "amount": 10267000,
+      "sourcePage": 2,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Relaciones Internacionales",
+      "amount": 9790000,
+      "sourcePage": 2,
+      "academicLevel": "Pregrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "ACADEMIC_PERIOD"
+    },
+    {
+      "name": "Especialización en Desarrollo de Bases de Datos",
+      "amount": 8224000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Diseño Urbano",
+      "amount": 8224000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Evaluación del Impacto Ambiental de Proyectos",
+      "amount": 8224000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Gerencia de Diseño",
+      "amount": 8224000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Gerencia de Mercadeo",
+      "amount": 8224000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Gerencia del Talento Humano",
+      "amount": 8224000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Gerencia del Transporte",
+      "amount": 8224000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Gerencia en Gobierno y Gestión Pública",
+      "amount": 8224000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Gerencia Financiera",
+      "amount": 8224000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Gerencia Logística Comercial Nacional e Internacional",
+      "amount": 8224000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Gerencia y Auditoría de la Calidad en Salud",
+      "amount": 8224000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Estrategia de Marketing Digital",
+      "amount": 8092000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Gerencia del Talento Humano",
+      "amount": 7895000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "Santa Marta",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Gerencia Financiera",
+      "amount": 7895000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "Santa Marta",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Gerencia y Auditoría de la Calidad en Salud",
+      "amount": 8224000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "Santa Marta",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Gerencia y Auditoría de la Calidad en Salud",
+      "amount": 7676000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "San José de Cúcuta",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Conservación y Gestión del Patrimonio Inmueble",
+      "amount": 8224000,
+      "sourcePage": 7,
+      "academicLevel": "Posgrado",
+      "municipality": "Cartagena de Indias",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Periodismo Digital",
+      "amount": 8224000,
+      "sourcePage": 8,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Maestría en Ciencias Ambientales",
+      "amount": 9321000,
+      "sourcePage": 8,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Maestría en Ciudadanía y Derechos Humanos",
+      "amount": 9321000,
+      "sourcePage": 8,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Maestría en Comunicación Política",
+      "amount": 9321000,
+      "sourcePage": 8,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Maestría en Derecho Ambiental y Sostenibilidad",
+      "amount": 9321000,
+      "sourcePage": 8,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Maestría en Estética e Historia del Arte",
+      "amount": 9321000,
+      "sourcePage": 8,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Maestría en Generación y Gestión de Contenidos Digitales",
+      "amount": 9321000,
+      "sourcePage": 8,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Maestría en Gestión Sostenible del Agua",
+      "amount": 9321000,
+      "sourcePage": 8,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Maestría en Gestión y Producción Cultural y Audiovisual",
+      "amount": 9321000,
+      "sourcePage": 8,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Maestría en Ingeniería de Procesos y Sistemas Industriales",
+      "amount": 9321000,
+      "sourcePage": 8,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Maestría en Ingeniería y Analítica de Datos",
+      "amount": 8180000,
+      "sourcePage": 8,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Doctorado en Ciencias Ambientales y Sostenibilidad",
+      "amount": 11305000,
+      "sourcePage": 8,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Doctorado en Diseño, Arte y Ciencia",
+      "amount": 10779000,
+      "sourcePage": 8,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Doctorado en Modelado en Política y Gestión Pública",
+      "amount": 11305000,
+      "sourcePage": 8,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Doctorado en Ingeniería",
+      "amount": 11305000,
+      "sourcePage": 2,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "addendum",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Doctorado en Estudios Sociales",
+      "amount": 12000000,
+      "sourcePage": 2,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": null,
+      "document": "addendum",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Derecho del Medio Ambiente",
+      "amount": 6573000,
+      "sourcePage": 9,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": "Virtual",
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Derecho y Nuevas Tecnologías",
+      "amount": 5948000,
+      "sourcePage": 9,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": "Virtual",
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Diseño y Creación con Inteligencia Artificial",
+      "amount": 6184000,
+      "sourcePage": 9,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": "Virtual",
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Evaluación de Impacto Ambiental",
+      "amount": 5948000,
+      "sourcePage": 9,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": "Virtual",
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Finanzas Computacionales",
+      "amount": 5948000,
+      "sourcePage": 9,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": "Virtual",
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Gestión de Proyectos de Cooperación Internacional",
+      "amount": 6213000,
+      "sourcePage": 9,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": "Virtual",
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Especialización en Metodología BIM para Proyectos de Construcción",
+      "amount": 6184000,
+      "sourcePage": 10,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": "Virtual",
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Maestría en Administración - MBA",
+      "amount": 8224000,
+      "sourcePage": 10,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": "Virtual",
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    },
+    {
+      "name": "Maestría en Analítica de Negocios",
+      "amount": 7575000,
+      "sourcePage": 10,
+      "academicLevel": "Posgrado",
+      "municipality": "Bogotá, D.C.",
+      "modality": "Virtual",
+      "document": "base",
+      "billingPeriod": "SEMESTER"
+    }
+  ]
+}

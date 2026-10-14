@@ -1,4 +1,5 @@
 .tools/
+data-integration/.cache/
 node_modules/
 .pnpm-store/
 .env
