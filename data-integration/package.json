@@ -16,7 +16,8 @@
     "cheerio": "^1.2.0",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
-    "ipaddr.js": "^2.5.0"
+    "ipaddr.js": "^2.5.0",
+    "puppeteer": "^25.14.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
