@@ -43,7 +43,7 @@ public class AssistantService {
                 "model", modelo,
                 "messages", mensajes,
                 "temperature", 0.3,          // baja: respuestas más estables
-                "max_tokens", 1500,          
+                "max_tokens", 1500,
                 "reasoning_effort", "low"    // razona poco
         );
 

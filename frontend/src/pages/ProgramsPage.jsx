@@ -8,6 +8,7 @@ import { facetCount, filterParams, relaxationLabels, selectedModalities, institu
 import CareerSearch from '../components/CareerSearch';
 import { departments, findDepartment, findCity } from '../utils/profile-location';
 import InstitutionSearch from '../components/InstitutionSearch';
+import { institutionSearchOptions } from '../utils/institutions';
 import { getPrograms, getProgramFilterOptions, PROGRAM_PAGE_SIZE } from '../services/programs';
 import { getInstitutionByCode } from '../services/institutions';
 import { mergePrograms } from '../utils/programs';
@@ -84,7 +85,7 @@ export default function ProgramsPage({ institutionOnly = false }) {
   }
   const alternatives = (metadata.alternatives || []).filter(item => !institutionOnly || !item.remove.includes('institutionCode'));
   const orderLabels = { source: 'Más relacionados con tu búsqueda', asc: 'Nombre A–Z', desc: 'Nombre Z–A', 'institution-asc': 'Universidad A–Z' };
-  const selectedUniversity = institutionOnly ? institution?.name || `Institución ${university}` : options.institutions.find(item => item.code === university)?.name || `Institución ${university}`;
+  const selectedUniversity = institutionOnly ? institution?.name || `Institución ${university}` : institutionSearchOptions(options.institutions).find(item => item.code === university)?.label || `Institución ${university}`;
   const activeFilters = [['q',query,'Carrera'],['department',department,'Departamento'],['city',city,'Ciudad'],['level',level,'Nivel'],...(!institutionOnly ? [['institution',university,'Universidad']] : []),['area',area,'Área'],['formation',formation,'Formación'],['sector',sector,'Tipo de institución'],...modalities.map(value=>['modality',value,'Modalidad']),['order',order !== 'source' ? order : '','Orden']].filter(([,value]) => value).map(([key,value,label]) => ({ key, label, value: key === 'institution' ? selectedUniversity : key === 'order' ? orderLabels[value] : key === 'sector' ? institutionSectorLabel(value) : value }));
   return <main className="page programs-search-page"><div className="container">
     {institutionOnly && <Link className="back-link" to={`/instituciones/${encodeURIComponent(institutionId)}`}>← Volver a la institución</Link>}
@@ -106,7 +107,7 @@ export default function ProgramsPage({ institutionOnly = false }) {
       <details className="program-more-filters" open={area || formation || sector || !institutionOnly && university ? true : undefined}>
         <summary>Más filtros</summary>
         <div className="program-search-extra">
-          {!institutionOnly && <InstitutionSearch institutions={options.institutions} counts={facets ? Object.fromEntries(facets.institutionCode.map(item => [item.value,item.count])) : undefined} value={university} selectedName={selectedUniversity} disabled={optionsState.loading && !university} onChange={value => update('institution',value)} />}
+          {!institutionOnly && <InstitutionSearch institutions={options.institutions} value={university} selectedName={selectedUniversity} disabled={optionsState.loading && !university} onChange={value => update('institution',value)} />}
           <div className="field"><label htmlFor="program-area">Área de conocimiento</label><select id="program-area" value={area} onChange={e => update('area',e.target.value)} disabled={optionsState.loading && !area}><option value="">Todas las áreas</option>{withSelection(options.knowledgeAreas,area).map(v => option(v, 'knowledgeArea', area))}</select></div>
           <div className="field"><label htmlFor="program-formation">Nivel de formación</label><select id="program-formation" value={formation} onChange={e=>update('formation',e.target.value)} disabled={optionsState.loading && !formation}><option value="">Todos los niveles de formación</option>{withSelection(options.educationLevels,formation).map(value=>option(value,'educationLevel',formation))}</select><small>{level === 'Posgrado' ? 'Por ejemplo, especialización, maestría o doctorado.' : 'Por ejemplo, técnica profesional, tecnológica o universitaria.'}</small></div>
           {!demo && <div className="field"><label htmlFor="program-sector">Tipo de institución</label><select id="program-sector" value={sector} onChange={e=>update('sector',e.target.value)} disabled={optionsState.loading && !sector || !options.institutionSectors.length && !sector}><option value="">Públicas y privadas</option>{withSelection(options.institutionSectors,sector).map(value=>{

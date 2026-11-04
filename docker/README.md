@@ -1,6 +1,20 @@
-# PostgreSQL de desarrollo
+# Docker
 
-Docker es infraestructura interna: solo ejecuta PostgreSQL. El frontend,
+## Stack completo
+
+Desde la raíz del repositorio, `docker compose up -d --build --wait` construye e
+inicia todos los servicios y publica la aplicación en http://localhost:3005.
+Lee los secretos del `.env` raíz. Consulta el [inicio rápido](../README.md).
+Las imágenes excluyen archivos `.env` y la clave de Groq se pasa solo al backend
+al ejecutar el contenedor. El asistente usa la [API de chat de Groq](https://console.groq.com/docs/text-chat).
+El modelo se cambia con `GROQ_MODEL`. Requiere una sesión iniciada de EduPlan.
+
+`docker compose down` detiene el stack conservando el volumen de PostgreSQL.
+No uses `down -v` si quieres conservar cuentas y datos.
+
+## PostgreSQL para desarrollo en el host
+
+En el flujo `npm run dev`, Docker solo ejecuta PostgreSQL. El frontend,
 data-integration y Spring Boot corren en el host para conservar hot reload.
 
 Desde la raíz, con Node compatible, JDK 21+ y Docker/Compose v2 disponibles:

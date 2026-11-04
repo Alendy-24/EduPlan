@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { userInitial, readAvatar, persistAvatar, compressAvatar } from '../src/utils/avatar.js';
-import { institutionLabel } from '../src/utils/institutions.js';
+import { institutionLabel, institutionSearchOptions } from '../src/utils/institutions.js';
 import { normalizeProgram, academicProgramName } from '../src/utils/programs.js';
 test('academic name and awarded title stay separate, including legacy snapshots', () => {
   const row = { sourceId: 'upr9-nkiz:test', name: 'INGENIERÍA DE SISTEMAS', nameOrigin: 'SNIES_NAME', awardedTitle: 'INGENIERO DE SISTEMAS', institutionCode: '1701', institutionWebsite: 'www.javeriana.edu.co' };
@@ -40,4 +40,28 @@ test('footer internal routes exist in the router', () => {
   const footer = readFileSync(new URL('../src/components/Footer.jsx', import.meta.url), 'utf8');
   const router = readFileSync(new URL('../src/routes/Routes.jsx', import.meta.url), 'utf8');
   for (const [, route] of footer.matchAll(/to="([^"]+)"/g)) if (route !== '/') assert(router.includes('path="' + route.slice(1) + '"'), route);
+});
+
+
+test('institution search always shows city and campus while keeping each campus identity', () => {
+  const institutions = [
+    { code:'1101', name:'Universidad Nacional', municipality:'Bogotá, D.C.', department:'Bogotá D.C.', campus:'Principal' },
+    { code:'1102', name:'UNIVERSIDAD NACIONAL', municipality:'Medellín', department:'Antioquia', campus:'Seccional' },
+    { code:'9117', name:'Escuela Internacional', municipality:'Bogotá', campus:'Principal' },
+  ];
+  const options = institutionSearchOptions(institutions);
+  assert.equal(options[0].label, 'Universidad Nacional — Bogotá, D.C. · Sede principal');
+  assert.equal(options[1].detail, 'Medellín · Sede seccional');
+  assert.equal(options[2].label, 'Escuela Internacional — Bogotá · Sede principal');
+  assert.equal(options[2].detail, 'Bogotá · Sede principal');
+  assert.deepEqual(options.map(item => item.code), ['1101','1102','9117']);
+  assert(!options.some(item => item.label.includes('Código')));
+  assert.equal(institutions[0].detail, undefined);
+  const sameCity = institutionSearchOptions([
+    { code:'a', name:'Universidad', municipality:'Cali', campus:'Norte' },
+    { code:'b', name:'Universidad', municipality:'Cali', campus:'Sur' },
+  ]);
+  assert.equal(sameCity[0].detail, 'Cali · Sede Norte');
+  assert.equal(sameCity[1].detail, 'Cali · Sede Sur');
+  assert.equal(institutionSearchOptions([{name:'U',code:'a'},{name:'U',code:'b'}])[0].detail, 'Ciudad por confirmar · Sede por confirmar');
 });

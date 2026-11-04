@@ -1,18 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
-import { campusDescription, institutionLabel } from '../utils/institutions';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { institutionSearchOptions } from '../utils/institutions';
 
 const fold = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es');
 
-export default function InstitutionSearch({ institutions, value, selectedName, disabled, onChange, counts }) {
-  const selected = institutions.find(item => item.code === value);
-  const selectedText = value ? institutionLabel(selected || { name: selectedName, code: value }) : '';
+export default function InstitutionSearch({ institutions, value, selectedName, disabled, onChange }) {
+  const options = useMemo(() => institutionSearchOptions(institutions), [institutions]);
+  const selected = options.find(item => item.code === value);
+  const selectedText = value ? selected?.name || selectedName || '' : '';
   const [draft, setDraft] = useState(null);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
   const list = useRef(null);
   const text = draft ?? selectedText;
   const words = fold(draft ?? '').trim().split(/\s+/).filter(Boolean);
-  const matches = institutions.filter(item => words.every(word => fold(institutionLabel(item)).includes(word)));
+  const matches = options.filter(item => words.every(word => fold(item.name).includes(word)));
   const choices = [{ code: '', name: 'Todas las instituciones' }, ...matches];
   const index = Math.min(active, choices.length - 1);
   function choose(item) { onChange(item.code); setDraft(null); setOpen(false); setActive(0); }
@@ -22,7 +23,7 @@ export default function InstitutionSearch({ institutions, value, selectedName, d
     <input id="program-university" type="text" role="combobox" autoComplete="off"
       aria-autocomplete="list" aria-expanded={open} aria-controls="institution-options"
       aria-activedescendant={open ? `institution-option-${index}` : undefined}
-      placeholder="Escribe el nombre o código de la institución" disabled={disabled} value={text}
+      placeholder="Escribe el nombre de la institución" disabled={disabled} value={text}
       onFocus={() => { setOpen(true); setActive(0); }}
       onChange={event => { setDraft(event.target.value); setOpen(true); setActive(0); if (!event.target.value) onChange(''); }}
       onBlur={() => { setOpen(false); setDraft(null); }}
@@ -33,14 +34,15 @@ export default function InstitutionSearch({ institutions, value, selectedName, d
         } else if (event.key === 'Enter' && open) { event.preventDefault(); choose(choices[index]); }
         else if (event.key === 'Escape') { event.preventDefault(); setOpen(false); setDraft(null); }
       }} />
+    {selected && draft === null && <p className="institution-selected-summary"><strong>{selected.name}</strong><span>{selected.detail}</span></p>}
     {open && <div className="institution-options-panel">
       <ul id="institution-options" role="listbox" aria-label="Instituciones disponibles" ref={list}>
         {choices.map((item, position) => <li key={item.code} id={`institution-option-${position}`} role="option" aria-selected={item.code === value} className={position === index ? 'is-active' : ''}
           onMouseDown={event => event.preventDefault()} onClick={() => choose(item)}>
-          <strong>{item.name}{item.code && counts !== undefined ? ` (${counts[item.code] || 0})` : ''}</strong>{item.code && <small>{campusDescription(item)}</small>}
+          <strong>{item.name}</strong>{item.detail && <small>{item.detail}</small>}
         </li>)}
       </ul>
-      {!matches.length && <p role="status">No hay instituciones con ese nombre o código.</p>}
+      {!matches.length && <p role="status">No hay instituciones con ese nombre.</p>}
     </div>}
   </div>;
 }

@@ -6,7 +6,7 @@ export async function askAssistant({ mensajes, contexto }, token, signal) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ mensajes, contexto }),
-      signal: AbortSignal.any([signal, AbortSignal.timeout(30000)]),
+      signal: AbortSignal.any([signal, AbortSignal.timeout(40000)]),
     });
   } catch (error) {
     if (signal.aborted) throw error;
@@ -16,8 +16,9 @@ export async function askAssistant({ mensajes, contexto }, token, signal) {
     window.dispatchEvent(new Event('eduplan-auth-rejected'));
     throw new Error('Tu sesión venció. Inicia sesión de nuevo.');
   }
+  if (response.status === 429) throw new Error('El asistente está ocupado. Intenta en un momento.');
   if (!response.ok) throw new Error('El asistente no está disponible en este momento.');
   const data = await response.json().catch(() => null);
-  if (typeof data?.respuesta !== 'string') throw new Error('La respuesta del asistente no es válida.');
+  if (typeof data?.respuesta !== 'string' || !data.respuesta.trim()) throw new Error('La respuesta del asistente no es válida.');
   return data.respuesta;
 }
