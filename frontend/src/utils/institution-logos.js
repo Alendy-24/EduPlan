@@ -8,7 +8,9 @@ export function normalizeLogoDevToken(value) {
   return /^pk_[A-Za-z0-9_-]+$/.test(token) ? token : '';
 }
 
-export const logoDevToken = normalizeLogoDevToken(import.meta.env?.VITE_LOGO_DEV_TOKEN);
+// Clave publicable compartida del proyecto; se incluye en las URLs del navegador.
+const sharedLogoDevToken = 'pk_FYyJiBRUS-2R-XWIl90dfA';
+export const logoDevToken = normalizeLogoDevToken(import.meta.env?.VITE_LOGO_DEV_TOKEN ?? sharedLogoDevToken);
 
 export function institutionLogoDomain(value) {
   const website = websiteUrl(typeof value === 'string' ? value.trim() : value);

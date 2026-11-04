@@ -42,40 +42,27 @@ código MEN con autor, licencia, URL de fuente, sede y fecha revisada; mostrar e
 logo si falta una foto o falla su carga. No hacer búsquedas automáticas por nombre
 en cada visita ni tratar fotos genéricas o generadas como campus reales.
 
-## Configuración local
+## Configuración compartida (4 de noviembre de 2026)
 
-1. Regístrate en https://www.logo.dev y elige Community (gratuito).
-2. En API keys, copia **Publishable key**, que empieza por `pk_`.
-3. Crea `frontend/.env.local` y escribe `VITE_LOGO_DEV_TOKEN=pk_tu_clave_publicable`.
-   Este archivo está ignorado por Git. No uses una Secret key (`sk_`).
-4. Reinicia Vite (`npm run dev`, o el proceso frontend que ya estés utilizando).
-5. Si activas Allowed domains only en Logo.dev, añade `localhost` y, cuando
-   corresponda, el dominio donde publiques EduPlan. Las imágenes envían el
-   origen mediante `strict-origin-when-cross-origin`.
+La clave publicable `pk_` del proyecto está incluida en
+`frontend/src/utils/institution-logos.js`. Al actualizar `main`, los integrantes
+pueden ver los logos automáticos sin crear `frontend/.env.local` ni una cuenta
+propia. Todos comparten la cuota del proyecto. Las imágenes locales de Javeriana
+y Nacional siguen funcionando sin el proveedor.
 
-En producción configura esa misma variable **antes de construir** el frontend;
-Vite la incorpora al build. Cambiarla después requiere generar otro build.
-El pie público muestra atribución a Logo.dev cuando la integración está activa.
+`VITE_LOGO_DEV_TOKEN` permite sustituir la clave compartida desde el entorno o
+`frontend/.env.local`. Un valor vacío desactiva los logos remotos. Después de
+cambiar esta variable, reinicia Vite; en producción, genera un nuevo build.
+La clave `pk_` es visible en las URLs del navegador. No se incluye ninguna clave
+secreta `sk_` ni se versiona el archivo `.env.local`.
 
-## Compartir con el equipo
+Si el proveedor restringe los orígenes permitidos, configura `localhost` y el
+dominio del sitio en la cuenta del proyecto. Ante fallos del proveedor o un
+dominio ausente, se conserva el icono genérico. El pie muestra atribución al
+proveedor cuando la integración está activa.
 
-Subir los cambios a `develop` incluye las imágenes de `frontend/public/logos/`,
-pero no `frontend/.env.local`. La Javeriana usa un escudo oficial local para
-Bogotá y Cali y se verá sin configurar claves. El archivo original proviene de
-https://www.javeriana.edu.co/recursosdb/813229/876340/escudo.jpg/d50cc116-506a-aa97-a779-97b3d54bbce0?t=1605136261557
-y está publicado en la página institucional de emblemas.
-
-Para ver el resto de logos automáticos en desarrollo, cada integrante configura
-`VITE_LOGO_DEV_TOKEN` con la misma **clave publicable** del proyecto. No necesita
-una cuenta de Logo.dev propia. El uso de todos comparte la cuota de esa cuenta.
-La clave `pk_` está diseñada para el navegador y es visible en las URLs de
-imágenes; la clave `sk_` no se comparte ni se incorpora al frontend.
-
-En un sitio publicado basta configurar la clave al construir el frontend: sus
-visitantes ven los logos sin configurar nada. Si activas restricciones de origen
-en Logo.dev, incluye localhost y el dominio de ese sitio. Para que todo el
-catálogo funcione sin ningún proveedor, sería necesario incorporar más logos
-oficiales locales; por ahora solo está incluido el de Javeriana.
+Las imágenes y esta configuración deben estar integradas en la rama que usa el
+equipo; un push a `main` no actualiza automáticamente `develop`.
 
 ## Identidades y excepciones
 

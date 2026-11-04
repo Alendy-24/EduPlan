@@ -14,9 +14,9 @@ test('website normalization preserves Colombian domains, paths and unknown subdo
   }
 });
 
-test('missing or secret keys make no remote logo URL', () => {
+test('empty or invalid overrides make no remote logo URL', () => {
   const institution = { code: '2000', website: 'www.example.edu.co' };
-  for (const value of [undefined, '', 'sk_secret', 'pk_', 'pk_bad key']) {
+  for (const value of ['', 'sk_secret', 'pk_', 'pk_bad key']) {
     assert.equal(normalizeLogoDevToken(value), '');
     assert.equal(resolveInstitutionLogo(institution, value).src, null);
   }
@@ -58,4 +58,10 @@ test('manual campus images take precedence over a shared brand, work without a k
   assert.equal(resolveInstitutionLogo({ code: '1702' }, '').src, '/logos/javeriana-cali.webp');
   institutionLogoOverrides['1702'].disabled = true;
   assert.equal(resolveInstitutionLogo({ code: '1702' }, token).src, null);
+});
+
+test('shared publishable key resolves logos without local environment configuration', () => {
+  const url = new URL(resolveInstitutionLogo({ code: '2000', website: 'www.example.edu.co' }).src);
+  assert.equal(url.origin, 'https://img.logo.dev');
+  assert.match(url.searchParams.get('token'), /^pk_[A-Za-z0-9_-]+$/);
 });
