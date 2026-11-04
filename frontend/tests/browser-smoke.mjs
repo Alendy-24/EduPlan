@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { emptyFinancingPreferences } from '../src/utils/financing.js';
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.EDUPLAN_PLAYWRIGHT_PATH || 'playwright');
 const base = process.env.EDUPLAN_TEST_URL || 'http://localhost:3005';
@@ -31,6 +32,7 @@ await page.route('**/api/auth/**',async route=>{
 const savedFixture=new Map(); let interestsFixture={areas:[],motivations:[],updatedAt:null};
 await page.route('**/api/me/**',async route=>{
  const request=route.request(),url=new URL(request.url()),id=decodeURIComponent(url.pathname.split('/')[4]||'');
+ if(url.pathname.endsWith('/financing-preferences'))return route.fulfill({json:emptyFinancingPreferences});
  if(url.pathname.endsWith('/matching-preferences'))return route.fulfill({json:{specificNbcs:[],activities:[],contexts:[],excludedNbcs:[],locationImportance:'',modalityImportance:'',duration:'',sector:'',exclusionsReviewed:false}});
  if(url.pathname.endsWith('/preferences')) return route.fulfill({json:{academicLevel:'',modality:'',municipality:'',department:'',mobility:''}});
  if(url.pathname.endsWith('/interests')) {
@@ -78,7 +80,7 @@ try {
    if(['/','/comparar','/perfil','/programas'].includes(route))await page.screenshot({path:`${out}/${route.slice(1)||'landing'}-${width}.png`,fullPage:true});
   }
  }
- await page.goto(`${base}/comparar`);assert.equal(await page.locator('.comparison-selection strong').count(),3);await page.reload();assert.equal(await page.locator('.comparison-selection strong').count(),3);
+ await page.goto(`${base}/comparar`);await page.waitForFunction(()=>document.querySelectorAll('.comparison-options .comparison-option').length===3);assert.equal(await page.locator('.comparison-options .comparison-option').count(),3);await page.reload();await page.waitForFunction(()=>document.querySelectorAll('.comparison-options .comparison-option').length===3);assert.equal(await page.locator('.comparison-options .comparison-option').count(),3);
  await page.getByRole('button',{name:'Salir',exact:true}).click();await page.goto(`${base}/perfil`);await page.waitForURL('**/login');
  for(const width of [1440,1024,768,390]) {
   await page.setViewportSize({width,height:900});

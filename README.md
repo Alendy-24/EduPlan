@@ -189,12 +189,26 @@ no inventa información académica ausente. Los enlaces específicos se muestran
 cuando han sido verificados en el registro independiente de enlaces oficiales.
 Consulta [el flujo de recopilación y revisión](docs/program-links.md).
 
-Becas contiene una selección editorial de ocho programas reales en
+Becas contiene una selección editorial de 37 oportunidades reales en
 `frontend/src/data/scholarships.js`, con requisitos, cobertura, fuente oficial,
 calendario y fecha de revisión. Su actualización es manual: deben revisarse las
-fuentes y `verifiedAt` al editar convocatorias. Las fechas pasadas se muestran
-cerradas y las fechas desconocidas exigen consultar vigencia. Las rutas
+fuentes y `verifiedAt` al editar convocatorias. La [relación auditable de fuentes](docs/scholarships-sources.md)
+documenta fechas, correcciones, límites y comandos de validación. Los filtros distinguen
+tipo financiero, nivel, ubicación, público y devolución; los guardados conservan sus IDs.
+Las fechas pasadas se muestran cerradas, las fechas desconocidas exigen consultar
+vigencia y los anuncios futuros no activan automáticamente inscripciones. Las rutas
 históricas de demostración mantienen datos ficticios aislados y avisos.
+
+«Apoyo para tus estudios» añade respuestas opcionales de financiación al perfil de
+cuenta mediante `/api/me/financing-preferences` (migración V9). Un motor de reglas
+compartido alimenta «Para ti» y «Becas que podrían interesarte» en Mi espacio,
+sin porcentajes ni inferencia de residencia o elegibilidad. Las respuestas no se
+guardan en localStorage ni se envían a las API públicas del catálogo. Consulta el
+[informe de fase 2](docs/scholarships-phase2.md) y las
+[procedencias de imágenes](docs/scholarship-images.md).
+
+Las oportunidades muestran logos locales para 28 entidades (35 de 37 fichas),
+con carga diferida, respaldo textual y [créditos de los recursos](frontend/public/logos/scholarships/credits.html).
 
 ## Pruebas
 

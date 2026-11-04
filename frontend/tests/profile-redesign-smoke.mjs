@@ -3,6 +3,7 @@ import {createRequire} from 'node:module';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
+import {emptyFinancingPreferences} from '../src/utils/financing.js';
 const {chromium}=createRequire(import.meta.url)(process.env.EDUPLAN_PLAYWRIGHT_PATH||'playwright');
 const base=process.env.EDUPLAN_TEST_URL||'http://localhost:3005';
 const out=fileURLToPath(new URL('../../.tools/qa/profile-redesign/',import.meta.url));await mkdir(out,{recursive:true});
@@ -15,6 +16,7 @@ let failInterests=false,failPreferences=false,failRecommendations=false;const sa
 await context.addInitScript(()=>{if(!sessionStorage.getItem('eduplan-session-v1'))sessionStorage.setItem('eduplan-session-v1',JSON.stringify({token:'fixture-token',user:{id:42,name:'Sebastián Ramírez',email:'profile@example.test',phone:'3001234567'},expiresAt:Date.now()+3600000}));});
 await context.route('**/api/me/**',async route=>{
   const request=route.request(),path=new URL(request.url()).pathname,put=request.method()==='PUT';
+  if(path.endsWith('/financing-preferences'))return route.fulfill({json:emptyFinancingPreferences});
   if(path.endsWith('/matching-preferences'))return route.fulfill({json:{specificNbcs:[],activities:[],contexts:[],excludedNbcs:[],locationImportance:'',modalityImportance:'',duration:'',sector:'',exclusionsReviewed:false}});
   if(path.endsWith('/preferences')) {if(put&&failPreferences)return route.fulfill({status:503,json:{}});if(put)preferences=request.postDataJSON();return route.fulfill({json:preferences});}
   if(path.endsWith('/interests')) {if(put&&failInterests)return route.fulfill({status:503,json:{}});if(put)interests={...request.postDataJSON(),updatedAt:new Date().toISOString()};return route.fulfill({json:interests});}

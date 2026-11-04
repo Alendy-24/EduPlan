@@ -5,9 +5,10 @@ import react from '@vitejs/plugin-react';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
+import { fileURLToPath } from 'node:url';
 
 test('comparison chart renders real proportional bars and stays visible while loading or without prices', async () => {
-  const server=await createServer({root:new URL('../',import.meta.url).pathname,configFile:false,plugins:[react()],optimizeDeps:{noDiscovery:true,include:[]},server:{middlewareMode:true,hmr:false,ws:false,watch:null}});
+  const server=await createServer({root:fileURLToPath(new URL('../',import.meta.url)),configFile:false,plugins:[react()],optimizeDeps:{noDiscovery:true,include:[]},server:{middlewareMode:true,hmr:false,ws:false,watch:null}});
   try {
     const {default:Chart}=await server.ssrLoadModule('/src/components/ComparisonTuitionChart.jsx');
     const tuition={amount:4500000,currency:'COP',basis:'NEW_STUDENT_REPORTED',source:'https://hecaa.mineducacion.gov.co/consultaspublicas/programas',sourceField:'COSTO_MATRÍCULA_ESTUD_NUEVOS',importedAt:'2026-10-14'};

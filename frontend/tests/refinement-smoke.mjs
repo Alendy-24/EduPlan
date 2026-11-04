@@ -2,6 +2,7 @@
 import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
+import { emptyFinancingPreferences } from '../src/utils/financing.js';
 const { chromium } = createRequire(import.meta.url)(process.env.EDUPLAN_PLAYWRIGHT_PATH || 'playwright');
 const base = process.env.EDUPLAN_TEST_URL || 'http://localhost:3005';
 const browser = await chromium.launch({ channel: 'msedge', headless: true });
@@ -29,6 +30,7 @@ await context.route('**/api/institutions**', route => {
 const saved = { id:'program-upr9-nkiz:campus-0', type:'program', name:'INGENIERIA DE SISTEMAS', href:'/programas/2000?registro=upr9-nkiz%3Acampus-0', savedAt:'2026-09-30T10:00:00Z', snapshot:{nameOrigin:'SNIES_NAME',institution:'Pontificia Universidad Javeriana',city:'Bogotá D.C.',provenance:'real'} };
 await context.route('**/api/me/**', route => {
   const url = route.request().url();
+  if(url.includes('/financing-preferences'))return route.fulfill({json:emptyFinancingPreferences});
   if(url.includes('/matching-preferences'))return route.fulfill({json:{specificNbcs:[],activities:[],contexts:[],excludedNbcs:[],locationImportance:'',modalityImportance:'',duration:'',sector:'',exclusionsReviewed:false}});
   const json = url.includes('/interests') ? {areas:['Tecnología'],motivations:[],updatedAt:null}
     : url.includes('/preferences') ? {academicLevel:'',modality:'',municipality:'',department:'',mobility:''}

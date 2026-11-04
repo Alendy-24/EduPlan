@@ -2,6 +2,7 @@ import {emptyRefinement,validRefinement} from '../utils/matching.js';
 import { validSavedItem } from '../utils/saved.js';
 import { validInterests } from '../utils/interests.js';
 import { validPreferences } from '../utils/preferences.js';
+import { validFinancingPreferences } from '../utils/financing.js';
 
 async function request(path, token, { method = 'GET', body, signal } = {}) {
   let response;
@@ -79,4 +80,16 @@ export async function putMatchingPreferences(value,token,signal) {
   const result=await request('/matching-preferences',token,{method:'PUT',body:value,signal});
   if(!validRefinement(result))throw new Error('No pudimos confirmar el guardado de tu afinación.');
   return {...emptyRefinement,...result};
+}
+
+export async function getFinancingPreferences(token, signal) {
+  const value = await request('/financing-preferences', token, { signal });
+  if (!validFinancingPreferences(value)) throw new Error('La respuesta de preferencias de financiación no es válida.');
+  return value;
+}
+export async function putFinancingPreferences(value, token, signal) {
+  if (!validFinancingPreferences(value)) throw new Error('Revisa tus preferencias de financiación.');
+  const result = await request('/financing-preferences', token, { method: 'PUT', body: value, signal });
+  if (!validFinancingPreferences(result)) throw new Error('No pudimos confirmar tus preferencias de financiación.');
+  return result;
 }

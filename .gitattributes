@@ -1,0 +1,2 @@
+# Keep reviewed SVG hashes stable across Windows and Linux checkouts.
+frontend/public/logos/scholarships/*.svg text eol=lf
