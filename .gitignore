@@ -8,3 +8,13 @@ node_modules/
 *.log
 docker/.env
 docker/backend.env
+
+# Configuración local de Docker
+/docker/
+/compose.yaml
+/compose.yml
+/docker-compose.yaml
+/docker-compose.yml
+/Dockerfile
+/Dockerfile.*
+/.dockerignore

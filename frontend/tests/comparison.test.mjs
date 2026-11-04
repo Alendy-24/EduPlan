@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { comparisonDuration, comparisonRowState, comparisonValue, comparisonLocation, validComparisonWorkspace, priorityRow, comparisonNoteKey, comparisonHighlights, comparisonShareText } from '../src/utils/comparison.js';
+import { comparisonDuration, comparisonRowState, comparisonValue, comparisonLocation, validComparisonWorkspace, priorityRow, comparisonNoteKey, comparisonHighlights, comparisonShareText, filterComparisonPrograms } from '../src/utils/comparison.js';
 import { comparisonSnapshot, validStoredProgram } from '../src/utils/programs.js';
 test('comparison differences ignore accent and case but keep missing values visible',()=>{
   const row={get:program=>program.city};
@@ -65,4 +65,20 @@ test('shared summaries preserve offering identity, unknowns and fallback context
   assert(!text.includes('Nota privada'));
   assert(!text.includes('favorite'));
   assert(comparisonShareText([{name:'Demo',provenance:'demo'}],'https://eduplan.example').includes('Datos ficticios'));
+});
+
+
+test('comparison filters combine text, city, modality and education without changing the selection', () => {
+  const programs = [
+    { id:'a', name:'Ingeniería de Sistemas', institution:'Universidad Alfa', city:'Bogotá', modality:'Presencial', educationLevel:'Universitaria' },
+    { id:'b', name:'Ingeniería de Sistemas', institution:'Universidad Beta', city:'Medellín', modality:'Virtual', educationLevel:'Universitaria' },
+    { id:'c', name:'Diseño', institution:'Instituto Alfa', city:'Bogotá', modality:'Virtual', educationLevel:'Tecnológica' },
+  ];
+  assert.deepEqual(filterComparisonPrograms(programs), programs);
+  assert.deepEqual(filterComparisonPrograms(programs, { query:'  ingenieria  BETA ' }).map(p => p.id), ['b']);
+  assert.deepEqual(filterComparisonPrograms(programs, { city:'BOGOTA', modality:'Virtual', educationLevel:'Tecnológica' }).map(p => p.id), ['c']);
+  assert.deepEqual(filterComparisonPrograms(programs, { query:'Alfa', modality:'Virtual', educationLevel:'Universitaria' }), []);
+  assert.deepEqual(filterComparisonPrograms(programs, { query:'   ' }), programs);
+  assert.deepEqual(filterComparisonPrograms([{}], { city:'Bogotá' }), []);
+  assert.equal(programs.length, 3);
 });

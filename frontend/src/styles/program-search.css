@@ -72,3 +72,9 @@
 @media (max-width:540px) { .comparison-detail-label { display:none; } .program-comparison-heading > strong { font-size:13px; } }
 
 @media (max-width:540px) { .program-comparison-heading { gap:8px; } .program-comparison-heading > .btn { padding:10px 12px; font-size:13px; min-height:44px; } }
+
+.institution-options-panel li strong,.institution-options-panel li small,.institution-selected-summary { white-space:normal; overflow-wrap:anywhere; }
+.institution-options-panel li { height:auto; }
+.institution-selected-summary { margin:8px 0 0; color:var(--navy); font-size:13px; line-height:1.5; }
+.institution-selected-summary strong,.institution-selected-summary span { display:block; }
+.institution-selected-summary span { color:var(--muted); }

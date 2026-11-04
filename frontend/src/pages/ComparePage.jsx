@@ -1,98 +1,98 @@
-import ComparisonTuitionChart from '../components/ComparisonTuitionChart';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import { useExploration } from '../contexts/ExplorationContext';
 import { programHref } from '../utils/programs';
 import { websiteUrl } from '../utils/website';
-import { comparisonGroups, comparisonRowState, comparisonValue, comparisonDuration, comparisonLocation, comparisonPriorities, priorityRow, comparisonNoteKey } from '../utils/comparison';
+import { comparisonGroups, comparisonRowState, comparisonValue, comparisonNoteKey, filterComparisonPrograms } from '../utils/comparison';
+import { tuitionChartRows } from '../utils/tuition';
+import { officialCostSource } from '../utils/program-costs';
 import { useOfficialPrograms } from '../hooks/useOfficialPrograms';
 import { useComparisonPrograms } from '../hooks/useComparisonPrograms';
 import { useComparisonWorkspace } from '../hooks/useComparisonWorkspace';
-import ComparisonSummary from '../components/ComparisonSummary';
 import ComparisonShare from '../components/ComparisonShare';
-import ProgramPersonalMatch from '../components/ProgramPersonalMatch';
 import ProgramOfficialLink from '../components/ProgramOfficialLink';
 import { useProgramLinks } from '../hooks/useProgramLinks';
 import '../styles/comparison-page.css';
-const optionLabel = index => 'Opción ' + String.fromCharCode(65 + index);
+
 const nameOf = program => comparisonValue(program.name) || 'Programa guardado';
-function ComparedValue({ value }) { return value ? <span>{value}</span> : <span className="comparison-unknown">Por confirmar</span>; }
+const money = new Intl.NumberFormat('es-CO', { style:'currency', currency:'COP', maximumFractionDigits:0 });
+const emptyFilters = { query:'', city:'', modality:'', educationLevel:'' };
+const filterFields = [{ key:'city', label:'Ciudad' }, { key:'modality', label:'Modalidad' }, { key:'educationLevel', label:'Nivel de formación' }];
+const essentialKeys = ['institution', 'city', 'department', 'sector', 'modality', 'duration', 'educationLevel', 'awardedTitle', 'credits', 'status'];
+const essentialRows = essentialKeys.map(key => comparisonGroups.flatMap(group => group.rows).find(row => row.key === key));
+
+function TuitionValue({ program, loading }) {
+  const tuition = tuitionChartRows([program])[0].tuition;
+  const source = tuition?.basis === 'INSTITUTION_PUBLISHED' ? { url:tuition.source } : officialCostSource(program);
+  const period = { FREE_TRAINING:'Formación gratuita', SEMESTER:'Por semestre', ACADEMIC_PERIOD:'Por periodo académico', FIRST_ENROLLMENT:'Primer ingreso; periodo por confirmar' };
+  return <><strong>{tuition ? money.format(tuition.amount) + ' COP' : loading ? 'Consultando…' : 'Por confirmar'}</strong>
+    {tuition && <><span className="comparison-cell-detail">{period[tuition.billingPeriod] || 'Periodo de cobro por confirmar'} · Vigencia: {tuition.priceYear || 'por confirmar'}</span><span className="comparison-cell-detail">{tuition.basis === 'INSTITUTION_PUBLISHED' ? 'Tarifa institucional' : 'Monto reportado en SNIES'} · Consulta: {tuition.importedAt}</span>{tuition.note && <details><summary>Condiciones de la tarifa</summary><p>{tuition.note}</p></details>}</>}
+    {source && <a className="text-link comparison-cell-detail" href={source.url} target="_blank" rel="noopener noreferrer">Consultar costos oficiales ↗</a>}
+  </>;
+}
+
 export default function ComparePage() {
-  const { comparison: storedComparison, toggleCompare, clearComparison, persistent } = useExploration();
+  const { comparison:storedComparison, toggleCompare, clearComparison, persistent } = useExploration();
   const workspace = useComparisonWorkspace();
   const current = useComparisonPrograms(storedComparison);
   const comparison = useOfficialPrograms(current.programs);
-  const [onlyDifferences,setOnlyDifferences] = useState(false);
-  const sourceIds = comparison.filter(program=>program.provenance === 'real').map(program=>program.sourceId);
+  const [filters, setFilters] = useState(emptyFilters);
+  const [onlyDifferences, setOnlyDifferences] = useState(false);
+  const visible = filterComparisonPrograms(comparison, filters);
+  const sourceIds = comparison.filter(program => program.provenance === 'real').map(program => program.sourceId);
   const links = useProgramLinks(sourceIds);
-  const groups = comparisonGroups.map(group=>({...group, rows:group.rows.map(row=>({...row,...comparisonRowState(row,comparison),priority:priorityRow(row.key,workspace.priorities)}))}));
-  const differenceCount = groups.flatMap(group=>group.rows).filter(row=>row.differs).length;
-  const hasFallback = comparison.some(program=>['saved','error','missing'].includes(program.comparisonState));
-  return <main className="page comparison-page" style={{ '--comparison-count': Math.max(1,comparison.length) }}><div className="container">
+  const rows = essentialRows.map(row => ({ ...row, ...comparisonRowState(row, visible) }))
+    .filter(row => !onlyDifferences || visible.length < 2 || !row.same);
+  const hasFallback = comparison.some(program => ['saved','error','missing'].includes(program.comparisonState));
+  const activeFilters = Object.values(filters).some(Boolean) || onlyDifferences;
+  const resetFilters = () => { setFilters(emptyFilters); setOnlyDifferences(false); };
+  return <main className="page comparison-page"><div className="container">
     <Link className="back-link" to="/programas">← Volver a programas</Link>
-    <PageHeader title="Comparar programas">Encuentra las diferencias entre tus opciones y decide qué se ajusta mejor a ti.</PageHeader>
+    <PageHeader title="Comparar programas">Revisa los datos más importantes de tus opciones en una sola tabla.</PageHeader>
     {!comparison.length ? <div className="empty-state surface"><h2>Aún no has elegido programas</h2><p>Elige dos o tres opciones para revisar sus diferencias en un mismo lugar.</p><Link className="btn btn-primary" to="/programas">Explorar programas</Link></div> : <>
-      <div className="comparison-toolbar"><div><strong>{comparison.length} de 3 programas</strong><p>Tu selección se conserva en este dispositivo.</p></div><div className="comparison-toolbar-actions">{comparison.length < 3 && <Link className="btn btn-primary" to="/programas">Añadir otra opción</Link>}<button className="btn btn-secondary" type="button" onClick={()=>{clearComparison();workspace.clearFavorite();}}>Limpiar comparación</button></div></div>
-      <div className="comparison-data-status" role="status">{current.loading ? 'Actualizando la información del catálogo…' : hasFallback ? 'Algunas opciones muestran el resumen guardado. No pudimos confirmar todos sus datos actuales.' : comparison.every(program=>program.provenance==='demo') ? 'Selección con datos ficticios de demostración.' : 'Datos actualizados para esta comparación. Confirma la oferta vigente con cada institución.'}{!current.loading && sourceIds.length > 0 && <button className="text-link plain-button" type="button" onClick={current.refresh}>Actualizar información</button>}</div>
+      <div className="comparison-toolbar"><div><strong>{comparison.length} de 3 programas</strong><p>Tu selección se conserva en este dispositivo.</p></div><div className="comparison-toolbar-actions">{comparison.length < 3 && <Link className="btn btn-primary" to="/programas">Añadir otra opción</Link>}<button className="btn btn-secondary" type="button" onClick={() => { clearComparison(); workspace.clearFavorite(); resetFilters(); }}>Limpiar comparación</button></div></div>
+      <div className="comparison-data-status" role="status">{current.loading ? 'Actualizando la información del catálogo…' : hasFallback ? 'Algunas opciones muestran el resumen guardado. No pudimos confirmar todos sus datos actuales.' : comparison.every(program => program.provenance === 'demo') ? 'Selección con datos ficticios de demostración.' : 'Datos actualizados para esta comparación. Confirma la oferta vigente con cada institución.'}{!current.loading && sourceIds.length > 0 && <button className="text-link plain-button" type="button" onClick={current.refresh}>Actualizar información</button>}</div>
       {!persistent && <p className="notice" role="status">La selección permanecerá solo durante esta visita.</p>}
-      {comparison.some(program=>program.provenance==='demo') && <p className="notice">La selección incluye datos ficticios de demostración.</p>}
-      <section className="comparison-options" aria-label="Opciones seleccionadas">{comparison.map((program,index)=><article className={'comparison-option surface' + (workspace.favorite === program.id ? ' comparison-option-favorite' : '')} key={program.id}>
-        <div className="comparison-option-heading"><span className="comparison-option-label">{optionLabel(index)}</span><button className="plain-button text-link" type="button" aria-label={'Quitar ' + nameOf(program) + ' de comparación en ' + program.institution} onClick={()=>{toggleCompare(program);if(workspace.favorite === program.id) workspace.clearFavorite();}}>Quitar</button></div>
-        <button className="comparison-favorite-button" type="button" aria-pressed={workspace.favorite === program.id} aria-label={'Marcar como favorita: ' + nameOf(program) + ' en ' + program.institution} onClick={()=>workspace.toggleFavorite(program.id)}><span aria-hidden="true">{workspace.favorite === program.id ? '★' : '☆'}</span> {workspace.favorite === program.id ? 'Mi favorita' : 'Elegir como favorita'}</button>
-        <h2>{nameOf(program)}</h2><p className="comparison-institution">{comparisonValue(program.institution) || 'Institución por confirmar'}</p><p>{comparisonLocation(program) || 'Ubicación por confirmar'}</p>
-        <div className="comparison-option-facts"><span>{comparisonValue(program.modality) || 'Modalidad por confirmar'}</span><span>{comparisonDuration(program) || 'Duración por confirmar'}</span></div>
-        {program.status && <p className="comparison-offer-status">Estado publicado: {program.status}</p>}
-        {program.comparisonState==='missing' && <p className="comparison-stale">No encontramos esta oferta al actualizar. Confirma con la institución si sigue disponible.</p>}
-        {['error','saved'].includes(program.comparisonState) && <p className="comparison-stale">Mostramos la información que guardaste. Intenta actualizarla de nuevo.</p>}
-        {programHref(program) ? <Link className="btn btn-secondary" to={programHref(program)}>Ver programa</Link> : <p className="subtle">Detalle por confirmar.</p>}
-      </article>)}</section>
-      <ComparisonTuitionChart programs={comparison} loading={current.loading} />
-      {comparison.length === 1 && <div className="comparison-single notice"><strong>Ya tienes una opción.</strong> Añade otra para descubrir qué cambia en ubicación, modalidad y formación.</div>}
-      <p className="comparison-favorite-help">Marca la opción que más te convence. Puedes cambiar tu favorita cuando quieras.</p>
-      <section className="comparison-priorities surface" aria-labelledby="comparison-priorities-title"><h2 id="comparison-priorities-title">Mis prioridades</h2><p>Elige lo que más te importa. Lo destacaremos en la comparación, aunque las opciones coincidan.</p>
-        <fieldset><legend className="sr-only">Qué es importante para ti</legend><div className="comparison-priority-choices">{comparisonPriorities.map(priority=><button key={priority.key} type="button" aria-pressed={workspace.priorities.includes(priority.key)} onClick={()=>workspace.togglePriority(priority.key)}>{workspace.priorities.includes(priority.key) && <span aria-hidden="true">✓ </span>}{priority.label}</button>)}</div></fieldset>
-        {workspace.priorities.length === 0 && <p className="subtle">Puedes elegir más de una prioridad o comparar sin seleccionar ninguna.</p>}
+      {comparison.some(program => program.provenance === 'demo') && <p className="notice">La selección incluye datos ficticios de demostración.</p>}
+      <section className="comparison-filters surface" aria-labelledby="comparison-filters-title">
+        <h2 id="comparison-filters-title">Filtrar programas seleccionados</h2>
+        <p>Busca dentro de tu comparación. Para buscar en todo el catálogo, <Link to="/programas">explora los programas</Link>.</p>
+        <div className="comparison-filter-grid"><div className="field"><label htmlFor="comparison-search">Buscar programa o institución</label><input id="comparison-search" type="search" placeholder="Ej. ingeniería o universidad" value={filters.query} onChange={event => setFilters({ ...filters, query:event.target.value })} /></div>
+          {filterFields.map(({ key, label }) => <div className="field" key={key}><label htmlFor={'comparison-filter-' + key}>{label}</label><select id={'comparison-filter-' + key} value={filters[key]} onChange={event => setFilters({ ...filters, [key]:event.target.value })}><option value="">Todas las opciones</option>{[...new Set(comparison.map(program => comparisonValue(program[key])).filter(Boolean))].sort((a,b) => a.localeCompare(b,'es')).map(value => <option key={value} value={value}>{value}</option>)}</select></div>)}
+        </div>
+        <div className="comparison-filter-footer"><label className="comparison-differences"><input type="checkbox" checked={onlyDifferences} disabled={visible.length < 2} onChange={event => setOnlyDifferences(event.target.checked)} />Ocultar coincidencias</label><button type="button" className="btn btn-secondary" disabled={!activeFilters} onClick={resetFilters}>Limpiar filtros</button><p role="status">Mostrando {visible.length} de {comparison.length} programas seleccionados.</p></div>
       </section>
-      <ComparisonSummary programs={comparison} priorities={workspace.priorities} loading={current.loading} />
+      <section className="comparison-details" aria-labelledby="comparison-details-title" style={{ '--comparison-count':Math.max(1,visible.length) }}>
+        <div className="comparison-section-heading"><div><h2 id="comparison-details-title">Información principal</h2><p>Los datos sin información publicada aparecen como «Por confirmar».</p></div></div>
+        {!visible.length ? <div className="empty-state surface"><h3>No hay programas que coincidan con los filtros</h3><p>Prueba otra búsqueda o limpia los filtros para ver toda tu selección.</p><button type="button" className="btn btn-primary" onClick={resetFilters}>Ver todos los seleccionados</button></div> : <>
+          <p className="subtle comparison-scroll-help">En pantallas pequeñas, desliza la tabla horizontalmente para ver todas las opciones.</p>
+          <div className="compare-wrap comparison-main-table" role="region" aria-label="Tabla comparativa de programas" tabIndex={0}><table className="compare-table"><caption className="sr-only">Información principal de los programas seleccionados</caption><thead><tr><th scope="col">Qué comparar</th>{visible.map(program => <th scope="col" key={program.id}>
+            <strong>{nameOf(program)}</strong><span className="comparison-cell-detail">{comparisonValue(program.institution) || 'Institución por confirmar'}</span>
+            <div className="comparison-table-actions"><button className="comparison-favorite-button" type="button" aria-pressed={workspace.favorite === program.id} aria-label={'Marcar como favorita: ' + nameOf(program) + ' en ' + program.institution} onClick={() => workspace.toggleFavorite(program.id)}>{workspace.favorite === program.id ? '★ Mi favorita' : '☆ Favorita'}</button><button className="plain-button text-link" type="button" aria-label={'Quitar ' + nameOf(program) + ' de comparación en ' + program.institution} onClick={() => { toggleCompare(program); if (workspace.favorite === program.id) workspace.clearFavorite(); }}>Quitar</button></div>
+            {program.provenance === 'demo' && <p className="subtle">Datos de demostración.</p>}
+            {program.comparisonState === 'missing' && <p className="comparison-stale">No encontramos esta oferta al actualizar. Confirma con la institución si sigue disponible.</p>}
+            {['error','saved'].includes(program.comparisonState) && <p className="comparison-stale">Mostramos la información que guardaste. Intenta actualizarla de nuevo.</p>}
+          </th>)}</tr></thead><tbody>
+            {rows.map(row => <tr key={row.key} className={row.differs ? 'comparison-row-different' : ''}><th scope="row">{row.label}{row.differs && <span className="comparison-difference-label">Diferente</span>}</th>{visible.map((program,index) => <td key={program.id}>{row.values[index] || <span className="comparison-unknown">Por confirmar</span>}</td>)}</tr>)}
+            <tr><th scope="row">Matrícula publicada (COP)</th>{visible.map(program => <td key={program.id}><TuitionValue program={program} loading={current.loading} /></td>)}</tr>
+            <tr><th scope="row">Detalle y fuentes</th>{visible.map(program => {
+              const official = links.data.find(link => link.sourceId === program.sourceId);
+              const institutional = websiteUrl(program.institutionWebsite);
+              return <td key={program.id}>{programHref(program) && <Link className="btn btn-secondary" to={programHref(program)}>Ver programa</Link>}{program.provenance === 'real' && <ProgramOfficialLink state={{ ...links, ...official }} onRetry={links.retry} />}{institutional && <a className="text-link comparison-cell-detail" href={institutional} target="_blank" rel="noopener noreferrer">Sitio de la institución ↗</a>}</td>;
+            })}</tr>
+          </tbody></table></div>
+          <p className="subtle">La matrícula corresponde a valores publicados para estudiantes nuevos. Confirma vigencia, periodo de cobro, requisitos de admisión y plan de estudios con la institución. Los montos de periodos distintos no son directamente comparables. <Link to="/becas">Ver becas y financiación →</Link></p>
+          {visible.length === 1 && <p className="notice">{comparison.length === 1 ? 'Ya tienes una opción. Añade otra para comparar.' : 'Solo una opción coincide con los filtros. Amplía la búsqueda para comparar más programas.'}</p>}
+        </>}
+      </section>
       <ComparisonShare programs={comparison} />
-      <section className="comparison-details" aria-labelledby="comparison-details-title">
-        <div className="comparison-section-heading"><div><p className="eyebrow">Los datos para decidir</p><h2 id="comparison-details-title">Compara lo que importa</h2><p>{comparison.length > 1 ? differenceCount + ' ' + (differenceCount===1 ? 'diferencia entre tus opciones' : 'diferencias entre tus opciones') + ' con la información disponible.' : 'Revisa la información publicada de esta opción.'}</p></div><label className="comparison-differences"><input type="checkbox" checked={onlyDifferences && comparison.length > 1} disabled={comparison.length < 2} onChange={event=>setOnlyDifferences(event.target.checked)} />Ocultar coincidencias</label></div>
-        <nav className="comparison-section-nav" aria-label="Secciones de la comparación">{groups.map(group=><a key={group.id} href={'#compare-' + group.id}>{group.title}</a>)}<a href="#compare-decisions">Costos y admisión</a><a href="#compare-notes">Mis notas</a></nav>
-        {groups.map(group=>{
-          const rows = group.rows.filter(row=>!onlyDifferences || comparison.length < 2 || !row.same || row.priority);
-          return <section key={group.id} className="comparison-group" id={'compare-' + group.id}><h3>{group.title}</h3><p className="subtle">{group.description}</p>
-            {!rows.length ? <p className="comparison-all-same">No hay diferencias en los datos disponibles de esta sección.</p> : <>
-              <div className="compare-wrap compare-desktop"><table className="compare-table"><caption className="sr-only">{group.title}: comparación entre las opciones seleccionadas</caption><thead><tr><th scope="col">Qué comparar</th>{comparison.map((program,index)=><th scope="col" key={program.id}><span className="comparison-option-label">{optionLabel(index)}</span><strong>{program.institution || nameOf(program)}</strong></th>)}</tr></thead><tbody>{rows.map(row=><tr key={row.key} className={(row.differs ? 'comparison-row-different ' : '') + (row.priority ? 'comparison-row-priority' : '')}><th scope="row">{row.label}{row.priority && <span className="comparison-priority-label">Tu prioridad</span>}{row.differs && <span className="comparison-difference-label">Diferente</span>}</th>{comparison.map((program,index)=><td key={program.id}><ComparedValue value={row.values[index]} /></td>)}</tr>)}</tbody></table></div>
-              <div className="compare-mobile">{rows.map(row=><section key={row.key} className={'comparison-criterion' + (row.differs ? ' comparison-row-different' : '') + (row.priority ? ' comparison-row-priority' : '')}><h4>{row.label}{row.priority && <span className="comparison-priority-label">Tu prioridad</span>}{row.differs && <span className="comparison-difference-label">Diferente</span>}</h4><dl>{comparison.map((program,index)=><div key={program.id}><dt><span className="comparison-option-label">{optionLabel(index)}</span> {program.institution || nameOf(program)}</dt><dd><ComparedValue value={row.values[index]} /></dd></div>)}</dl></section>)}</div>
-            </>}
-          </section>;
-        })}
-      </section>
-      <section className="comparison-decisions" id="compare-decisions"><p className="eyebrow">Antes de elegir</p><h2>Costos, admisión y plan de estudios</h2><p>Consulta con cada institución la matrícula, las fechas de ingreso y las asignaturas del programa. Aquí tienes qué preguntar.</p>
-        <div className="comparison-question-grid"><article className="surface"><h3>¿Cuánto costaría estudiar?</h3><ul><li>Matrícula por periodo y derechos de inscripción.</li><li>Materiales, transporte y vivienda, si debes trasladarte.</li><li>Becas, descuentos y financiación disponibles.</li></ul><Link className="text-link" to="/becas">Explorar becas →</Link></article><article className="surface"><h3>¿Cómo y cuándo ingresar?</h3><ul><li>Fechas de inscripción e inicio de clases.</li><li>Documentos, pruebas y requisitos de admisión.</li><li>Horarios y cupos del periodo que te interesa.</li></ul></article><article className="surface"><h3>¿Qué aprenderías?</h3><ul><li>Asignaturas y énfasis del plan vigente.</li><li>Prácticas, convenios y opciones de grado.</li><li>Perfil profesional y requisitos para graduarte.</li></ul></article></div>
-        <h3 className="comparison-sources-title">Consulta cada opción</h3>
-        {links.error && <p className="notice" role="status">No pudimos consultar los enlaces de los programas. Puedes abrir el sitio institucional.<button className="plain-button text-link" type="button" onClick={links.retry}>Reintentar enlaces</button></p>}
-        <div className="comparison-sources">{comparison.map((program,index)=>{
-          const institutional = websiteUrl(program.institutionWebsite), official = links.data.find(link=>link.sourceId===program.sourceId);
-          return <article key={program.id} className="surface"><span className="comparison-option-label">{optionLabel(index)}</span><h4>{program.institution || nameOf(program)}</h4>
-            {program.provenance==='real' && !links.error && <ProgramOfficialLink state={{...links,...official}} onRetry={links.retry} />}
-            {institutional && <a className="btn btn-secondary" href={institutional} target="_blank" rel="noopener noreferrer">Sitio de la institución ↗</a>}
-            {!institutional && !official?.url && <p className="subtle">{program.provenance==='demo' ? 'Esta opción es de demostración.' : 'Sitio institucional por confirmar. Consulta el detalle para ver las fuentes disponibles.'}</p>}
-            {programHref(program) && <Link className="text-link" to={programHref(program)}>Ver detalle y fuentes →</Link>}
-          </article>;
-        })}</div>
-      </section>
-      <section className="comparison-notes" id="compare-notes"><h2>Mis notas por programa</h2><p>Anota lo que confirmes con cada universidad y las preguntas que te faltan por resolver.</p>
-        <div className="comparison-note-grid">{comparison.map((program,index)=>{
+      <details className="comparison-notes comparison-notes-collapsible"><summary>Mis notas por programa</summary><p>Anota las preguntas y los datos que confirmes con cada institución. Las notas corresponden a toda tu selección.</p>
+        <div className="comparison-note-grid" style={{ '--comparison-count':comparison.length }}>{comparison.map((program,index) => {
           const key = comparisonNoteKey(program), text = workspace.notes[key] ?? workspace.notes[program.id] ?? '';
-          return <article key={program.id} className="surface"><span className="comparison-option-label">{optionLabel(index)}</span><h3>{program.institution || nameOf(program)}</h3>
-            <div className="field"><label htmlFor={'comparison-note-'+index}>Notas personales para {program.institution || nameOf(program)}</label><textarea id={'comparison-note-'+index} value={text} maxLength={2000} rows={5} onChange={event=>workspace.setNote(key,event.target.value,program.id)} placeholder="Matrícula confirmada, horarios, fechas, dudas…" /></div>
-            <div className="comparison-note-footer"><span>{text.length}/2000</span>{text && <button className="plain-button text-link" type="button" onClick={()=>workspace.setNote(key,'',program.id)}>Borrar esta nota</button>}</div>
-          </article>;
-        })}</div><p className="subtle" role="status">{workspace.persistent ? 'Tu favorita, tus prioridades y tus notas se guardan en este navegador, por separado para cada cuenta. Las notas son personales; no son información oficial del programa.' : 'No pudimos guardar en este navegador. Tu favorita, tus prioridades y tus notas estarán disponibles durante esta visita.'}</p>
-      </section>
-      <ProgramPersonalMatch sourceIds={sourceIds} comparison />
+          return <article key={program.id} className="surface"><h3>{nameOf(program)} · {program.institution}</h3><div className="field"><label htmlFor={'comparison-note-' + index}>Notas personales para {program.institution || nameOf(program)}</label><textarea id={'comparison-note-' + index} value={text} maxLength={2000} rows={5} onChange={event => workspace.setNote(key,event.target.value,program.id)} placeholder="Matrícula confirmada, horarios, fechas, dudas…" /></div><div className="comparison-note-footer"><span>{text.length}/2000</span>{text && <button className="plain-button text-link" type="button" onClick={() => workspace.setNote(key,'',program.id)}>Borrar esta nota</button>}</div></article>;
+        })}</div><p className="subtle">{workspace.persistent ? 'Tu favorita y tus notas personales se guardan en este navegador, por separado para cada cuenta.' : 'Tu favorita y tus notas estarán disponibles durante esta visita.'}</p>
+      </details>
     </>}
   </div></main>;
 }

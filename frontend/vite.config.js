@@ -16,6 +16,8 @@ export default defineConfig({
       '/api/program-links': process.env.EDUPLAN_BACKEND_URL || 'http://127.0.0.1:8080',
       '/api/auth': process.env.EDUPLAN_BACKEND_URL || 'http://127.0.0.1:8080',
       '/api/me': process.env.EDUPLAN_BACKEND_URL || 'http://127.0.0.1:8080',
+      '/api/assistant': process.env.EDUPLAN_BACKEND_URL || 'http://127.0.0.1:8080',
+      '/api/noticias': process.env.EDUPLAN_BACKEND_URL || 'http://127.0.0.1:8080',
     },
   },
 })

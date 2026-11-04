@@ -7,7 +7,7 @@ export default function NoticiasPage() {
     const [error, setError] = useState(false);
 
     useEffect(() => {
-        fetch("http://localhost:8080/api/noticias")
+        fetch("/api/noticias")
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("No se pudieron obtener las noticias");

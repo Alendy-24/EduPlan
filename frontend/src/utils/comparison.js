@@ -88,3 +88,13 @@ export function comparisonShareText(programs, origin) {
   lines.push('Confirma con cada institución la oferta vigente, la matrícula, los requisitos de admisión y el plan de estudios.');
   return lines.join('\n');
 }
+
+// Filters only affect the visible comparison; the saved selection stays intact.
+export function filterComparisonPrograms(programs, filters = {}) {
+  const words = normalize(filters.query).split(' ').filter(Boolean);
+  return programs.filter(program => {
+    const searchable = normalize([program.name, program.institution, program.city, program.department].join(' '));
+    return words.every(word => searchable.includes(word))
+      && ['city', 'modality', 'educationLevel'].every(key => !filters[key] || normalize(program[key]) === normalize(filters[key]));
+  });
+}

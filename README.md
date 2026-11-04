@@ -1,5 +1,36 @@
 # EduPlan
 
+## Arranque completo con Docker
+
+Con Docker Desktop activo, desde la raíz del repositorio:
+
+```bash
+docker compose up -d --build --wait
+```
+
+Abre **http://localhost:3005**. Este flujo ejecuta PostgreSQL, el catálogo,
+el backend y el frontend en contenedores; no requiere Node ni Java en el host.
+Inicia sesión para conversar con el asistente de IA. Sus mensajes se envían a
+Groq desde el backend; la clave nunca se incluye en el frontend ni en las imágenes.
+La IA ofrece orientación general y no consulta el catálogo en tiempo real.
+
+El archivo raíz `.env` debe contener `POSTGRES_PASSWORD`, `JWT_SECRET` (Base64
+de al menos 32 bytes aleatorios) y `GROQ_API_KEY`; `.env.example` documenta las
+opciones. Para una instalación nueva, copia el ejemplo y completa los valores.
+Si reutilizas una base existente,
+conserva su contraseña de `.tools/local-dev/docker-database.json`.
+No ejecutes simultáneamente `npm run dev`: ambos flujos usan 3005 y PostgreSQL.
+
+```bash
+docker compose logs -f
+docker compose down
+```
+
+`down` detiene el stack conservando la base. Los contenedores configurados con
+`restart: unless-stopped` vuelven a arrancar con Docker si no los detuviste.
+La primera construcción requiere Internet y puede tardar varios minutos.
+El catálogo y Groq requieren conexión a Internet durante su uso.
+
 ## Desarrollo local
 
 ### Requisitos
