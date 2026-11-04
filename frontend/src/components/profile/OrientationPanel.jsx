@@ -1,6 +1,6 @@
 import RefinementForm from './RefinementForm';
 import ProfileIcon from './ProfileIcon';
-import orientationStudent from '../../assets/Images/orientation-student.png';
+import orientationStudent from '../../assets/Images/orientation-professional.png';
 const benefits = [
   ['compass', 'Conocerte mejor', 'Elige los temas y actividades que te llaman la atención.'],
   ['star', 'Ampliar tus opciones', 'Descubre caminos académicos que quizá no habías considerado.'],

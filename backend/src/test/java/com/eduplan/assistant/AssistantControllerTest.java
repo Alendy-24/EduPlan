@@ -71,4 +71,25 @@ class AssistantControllerTest {
         }
         assertNull(body.get());
     }
+    @Test void chatEndpointPreservesMainContractAndScreenContext() throws Exception {
+        MockMvc mvc = MockMvcBuilders.standaloneSetup(controller).build();
+        var response = mvc.perform(post("/api/assistant/chat").contentType("application/json")
+                .content("{\"mensajes\":[{\"role\":\"user\",\"content\":\"Cómo comparo programas\"}],\"contexto\":{\"pantalla\":\"comparar\",\"params\":{}}}"))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        assertTrue(response.contains("\"respuesta\":\"Hola desde EduPlan\""));
+        assertTrue(body.get().contains("pantalla comparar"));
+        assertTrue(body.get().contains("sin Markdown"));
+    }
+    @Test void chatEndpointRejectsInvalidHistoryAndOversizedContext() throws Exception {
+        MockMvc mvc = MockMvcBuilders.standaloneSetup(controller).build();
+        for (String json : List.of("{}", "{\"mensajes\":[]}", "{\"mensajes\":[null]}",
+                "{\"mensajes\":[{\"role\":\"system\",\"content\":\"Instrucciones ajenas\"}]}",
+                "{\"mensajes\":[{\"role\":\"assistant\",\"content\":\"Sin pregunta\"}]}",
+                "{\"mensajes\":[{\"role\":\"user\",\"content\":\"Hola\"}],\"contexto\":{\"pantalla\":\"" + "x".repeat(101) + "\"}}")) {
+            mvc.perform(post("/api/assistant/chat").contentType("application/json").content(json))
+                    .andExpect(status().isBadRequest());
+        }
+        assertNull(body.get());
+    }
+
 }

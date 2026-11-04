@@ -32,6 +32,32 @@
   height: 175px;
 }
 
+.detail-banner--identity {
+  display: grid;
+  place-items: center;
+  height: 230px;
+  padding: 25px 24px 65px;
+  background: #eef3f8;
+}
+
+.detail-banner--identity .institution-detail-logo {
+  width: 220px;
+  height: 135px;
+  padding: 15px 25px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 12px;
+}
+
+.detail-banner--identity .institution-logo-fallback {
+  width: 92px;
+  height: 92px;
+  padding: 20px;
+}
+
+.institution-contact a { color: var(--navy); text-decoration: underline; text-underline-offset: 3px; }
+.institution-contact .subtle { font-size: 13px; }
+
 .detail-header {
   position: relative;
   margin-top: -52px;

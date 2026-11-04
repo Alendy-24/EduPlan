@@ -22,11 +22,15 @@ public class AssistantController {
     private final String key;
     private final String model;
     private final RestClient client;
+    private String manualText = "";
 
     @Autowired
     public AssistantController(@Value("${GROQ_API_KEY:}") String key,
-                               @Value("${GROQ_MODEL:openai/gpt-oss-20b}") String model) {
-        this(key, model, groqClient());
+                               @Value("${assistant.model:openai/gpt-oss-20b}") String model,
+                               @Value("${assistant.base-url:https://api.groq.com/openai/v1}") String baseUrl,
+                               ManualAsistente manual) {
+        this(key, model, groqClient(baseUrl));
+        this.manualText = manual.texto();
     }
 
     AssistantController(String key, String model, RestClient client) {
@@ -35,11 +39,11 @@ public class AssistantController {
         this.client = client;
     }
 
-    private static RestClient groqClient() {
+    private static RestClient groqClient(String baseUrl) {
         var factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(5000);
         factory.setReadTimeout(30000);
-        return RestClient.builder().baseUrl("https://api.groq.com/openai/v1")
+        return RestClient.builder().baseUrl(baseUrl)
                 .requestFactory(factory).build();
     }
 
@@ -49,12 +53,28 @@ public class AssistantController {
     public record Completion(List<Choice> choices) {}
     public record Choice(Message message) {}
 
+    public record Contexto(@Size(max = 100) String pantalla, Map<String, String> params) {}
+    public record PeticionChat(@jakarta.validation.constraints.NotNull @Size(min = 1, max = 12)
+                               List<@jakarta.validation.constraints.NotNull @Valid Message> mensajes,
+                               @Valid Contexto contexto) {}
+    public record RespuestaChat(String respuesta) {}
+
+    @PostMapping("/chat")
+    public RespuestaChat chat(@Valid @RequestBody PeticionChat peticion) {
+        String pantalla = peticion.contexto() == null ? "desconocida" : peticion.contexto().pantalla();
+        return new RespuestaChat(complete(new Question(peticion.mensajes()), pantalla).get("reply"));
+    }
+
     @PostMapping
     public Map<String, String> answer(@Valid @RequestBody Question question) {
+        return complete(question, "desconocida");
+    }
+
+    private Map<String, String> complete(Question question, String pantalla) {
         if (key.isBlank()) throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                 "El asistente no está configurado.");
         var messages = new ArrayList<Map<String, String>>();
-        messages.add(Map.of("role", "system", "content", """
+        messages.add(Map.of("role", "system", "content", manualText + "\n\n" + """
                 Eres el asistente de EduPlan. Responde en español, de forma breve y clara.
                 Ayuda a explorar estudios superiores en Colombia y a usar el catálogo,
                 los filtros, favoritos, el comparador y el perfil académico de EduPlan.
@@ -62,7 +82,11 @@ public class AssistantController {
                 No inventes programas, costos, becas, fechas, acreditaciones ni enlaces.
                 Para datos específicos, orienta a consultar el catálogo y la web oficial de la institución.
                 Haz preguntas sobre intereses, ubicación y modalidad para orientar sin decidir por la persona.
+                Responde en texto plano, sin Markdown ni tablas, en un máximo de 5 frases.
+                Si hay pasos, usa líneas numeradas. Menciona los botones y pantallas entre comillas.
                 """));
+        // Screen context stays separate from the system rules and is bounded by validation.
+        messages.add(Map.of("role", "user", "content", "Contexto de navegación: pantalla " + pantalla));
         for (var message : question.messages()) {
             if (!message.role().equals("user") && !message.role().equals("assistant"))
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rol de mensaje inválido.");

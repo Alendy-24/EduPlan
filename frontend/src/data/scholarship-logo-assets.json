@@ -1,0 +1,407 @@
+[
+  {
+    "id": "sapiencia",
+    "assetUrl": "https://sapiencia.gov.co/wp-content/uploads/2023/10/logo-sapiencia-alc.png",
+    "file": "sapiencia.webp",
+    "bytes": 6430,
+    "sha256": "c7a83fbed13b987f1bcf92fc8bc538d8fc8eb35f0886dc0b28603fa7a390da3f",
+    "originalSize": [
+      232,
+      84
+    ],
+    "name": "Agencia Sapiencia",
+    "src": "/logos/scholarships/sapiencia.webp",
+    "sourcePage": "https://sapiencia.gov.co/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  },
+  {
+    "id": "fulbright",
+    "assetUrl": "https://fulbright.edu.co/wp-content/uploads/2025/03/Fulbright-Colombia-Logo.png",
+    "file": "fulbright.webp",
+    "bytes": 9810,
+    "sha256": "59e36f228fb0acd7f239965687a428003e82c150b9a7df078b7cc5591bce69e2",
+    "originalSize": [
+      404,
+      156
+    ],
+    "name": "Comisión Fulbright Colombia",
+    "src": "/logos/scholarships/fulbright.webp",
+    "sourcePage": "https://fulbright.edu.co/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  },
+  {
+    "id": "rosario",
+    "assetUrl": "https://urosario.edu.co/themes/custom/urosario/images/logo.svg",
+    "file": "rosario.svg",
+    "bytes": 24210,
+    "sha256": "c90e9644d60e37a41d7b02a2e1420a8fcb14ed436deccf97e59a170c3c7a1603",
+    "originalSize": null,
+    "name": "Universidad del Rosario",
+    "src": "/logos/scholarships/rosario.svg",
+    "sourcePage": "https://urosario.edu.co/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "SVG institucional conservado sin alterar el diseño. Saltos de línea LF."
+  },
+  {
+    "id": "sabana",
+    "assetUrl": "https://usabana.widen.net/content/nj8poma5mw/web/LOGO_POSITIVO-HORIZONTAL-COLOR.webp?v=5663b75e-714e-470a-a301-f45e6981fe45",
+    "file": "sabana.webp",
+    "bytes": 18696,
+    "sha256": "6766bdf183a69b4bb07f771cd17ae9092b09ecbba94291006821bf5d231d9602",
+    "originalSize": [
+      2048,
+      541
+    ],
+    "name": "Universidad de La Sabana",
+    "src": "/logos/scholarships/sabana.webp",
+    "sourcePage": "https://www.unisabana.edu.co/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  },
+  {
+    "id": "icesi",
+    "assetUrl": "https://www.icesi.edu.co/wp-content/uploads/2024/09/cropped-favicon-icesi-192x192.png",
+    "file": "icesi.webp",
+    "bytes": 3332,
+    "sha256": "9d7e5d492ab6b27de067ebe148ded4d433d0cd67898a5f2379a1a08a75c9bb4e",
+    "originalSize": [
+      192,
+      192
+    ],
+    "name": "Universidad Icesi",
+    "src": "/logos/scholarships/icesi.webp",
+    "sourcePage": "https://www.icesi.edu.co/imagen-institucional/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  },
+  {
+    "id": "uninorte",
+    "assetUrl": "https://www.uninorte.edu.co/o/uninorte-theme/images/uninorte/header/uni-logo-symbol.svg",
+    "file": "uninorte.svg",
+    "bytes": 2452,
+    "sha256": "204dc3f56939c13052992f119e14ee5f5f782d314e91ea080479340eb9d3e067",
+    "originalSize": null,
+    "name": "Universidad del Norte",
+    "src": "/logos/scholarships/uninorte.svg",
+    "sourcePage": "https://uninorte.edu.co/7f7c01e221604f25/4d980d173dc7fb770db0b9bcdb415f02/?ssa=e4ee2526-91b8-4e26-9f26-b1492d70f9a4&ssb=12878222131&ssc=https%3A%2F%2Funinorte.edu.co%2F&ssi=51840d57-e7g6-41db-8370-7981d2141d1e&ssk=botmanager_support@radware.com&ssm=31285542246296072108505432404380&ssn=0e433373ab5cb1e3be8a2b63f73c8416d440016c86c9-324f-4a45-b415f6&sso=f4bda22a-914bc67582c466eb708fa3e48d78bbf51d05c618b664810c&ssp=73418937801793744047179379445015598&ssq=52808206595204691922665952401314747582523&ssr=MTgxLjYxLjI0Ni4yNDc=&sst=Mozilla/5.0%20EduPlan%20logo%20review&ssu=&ssv=&ssw=&ssx=eyJyZCI6InVuaW5vcnRlLmVkdS5jbyIsImNkb20iOiJodHRwczovL3VuaW5vcnRlLmVkdS5jbyIsIl9fdXptZiI6IjdmOTAwMDAxNmM4NmM5LTMyNGYtNGE0NS1iMjJhLTkxNGJjNjc1ODJjNDEtMTc5Mzc2NTk1MjU3NTAtMDAwNzQwZWViZjkwZGVjOWM2OTEwIiwidXpteCI6IjdmYzAwMGQ1ZDc3ODQxLTJhMWYtNDM5Ni05ZTVjLTMzZDAwMDljMTE4MjEtMTc5Mzc2NTk1MjU3NTAtMDBjNjI3ODZhNWUwZDVmMTcxNDEwIn0=",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "SVG institucional conservado sin alterar el diseño. Saltos de línea LF."
+  },
+  {
+    "id": "uis",
+    "assetUrl": "https://uis.edu.co/wp-content/uploads/2020/07/Logo-UIS-web.webp",
+    "file": "uis.webp",
+    "bytes": 5552,
+    "sha256": "59a37005791685ab73785010d456bd7c097ed5ef041d977e250d59073298aaa7",
+    "originalSize": [
+      120,
+      58
+    ],
+    "name": "Universidad Industrial de Santander",
+    "src": "/logos/scholarships/uis.webp",
+    "sourcePage": "https://uis.edu.co/es/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  },
+  {
+    "id": "univalle",
+    "assetUrl": "https://univalle.edu.co/images/logo.jpg",
+    "file": "univalle.webp",
+    "bytes": 14456,
+    "sha256": "3b090b7fa3f7e20cdd41e066c51464933bb0323f8203b58c9a0bdfcc306092a5",
+    "originalSize": [
+      424,
+      51
+    ],
+    "name": "Universidad del Valle",
+    "src": "/logos/scholarships/univalle.webp",
+    "sourcePage": "https://univalle.edu.co/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  },
+  {
+    "id": "daad",
+    "assetUrl": "https://www.daad.co/files/2022/06/DAAD_Logo_Mobile_Kolumbien_ES_RGB.svg",
+    "file": "daad.svg",
+    "bytes": 3930,
+    "sha256": "0a14d572a25563bfdbaf2158fab887678160f2db470d19ada9775b28300da9fa",
+    "originalSize": null,
+    "name": "Servicio Alemán de Intercambio Académico",
+    "src": "/logos/scholarships/daad.svg",
+    "sourcePage": "https://www.daad.co/es/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "SVG institucional conservado sin alterar el diseño. Saltos de línea LF."
+  },
+  {
+    "id": "carolina",
+    "assetUrl": "https://www.fundacioncarolina.es/wp-content/uploads/2026/04/logo_horizontal_2026-scaled.png",
+    "file": "carolina.webp",
+    "bytes": 10988,
+    "sha256": "3c72149f746abee5d5561fa5f903b5b1d46298b5f5f9fd0a6cf73f6096b6bb77",
+    "originalSize": [
+      2560,
+      910
+    ],
+    "name": "Fundación Carolina",
+    "src": "/logos/scholarships/carolina.webp",
+    "sourcePage": "https://www.fundacioncarolina.es/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  },
+  {
+    "id": "upb",
+    "assetUrl": "https://portal.upb.edu.co/wp-content/uploads/2025/09/Logo.png?w=167",
+    "file": "upb.webp",
+    "bytes": 862,
+    "sha256": "a1f95729def4071b9193907f3d75a0439294cebf178b806d7d105dbe8b4b3c2d",
+    "originalSize": [
+      167,
+      59
+    ],
+    "name": "Universidad Pontificia Bolivariana",
+    "src": "/logos/scholarships/upb.webp",
+    "sourcePage": "https://portal.upb.edu.co/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  },
+  {
+    "id": "unab",
+    "assetUrl": "https://unab.edu.co/wp-content/uploads/2023/09/logo-universidad-unab.png",
+    "file": "unab.webp",
+    "bytes": 9556,
+    "sha256": "851f8461620e89261543535280c1e989bae604496da894976116839a006f202c",
+    "originalSize": [
+      450,
+      142
+    ],
+    "name": "Universidad Autónoma de Bucaramanga",
+    "src": "/logos/scholarships/unab.webp",
+    "sourcePage": "https://unab.edu.co/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  },
+  {
+    "id": "sena",
+    "assetUrl": "https://www.sena.edu.co/sena.png",
+    "file": "sena.webp",
+    "bytes": 10802,
+    "sha256": "8b1cb3158b641863430db77e3006d2280d5ab73426dbdfe936e91f314f9edd7b",
+    "originalSize": [
+      512,
+      512
+    ],
+    "name": "Servicio Nacional de Aprendizaje",
+    "src": "/logos/scholarships/sena.webp",
+    "sourcePage": "https://www.sena.edu.co/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  },
+  {
+    "id": "prosperidad-social",
+    "assetUrl": "https://prosperidadsocial.gov.co/wp-content/uploads/2019/10/LOGO-PROSPERIDAD-SOCIAL-NEGRO-min-2048x1080.png",
+    "file": "prosperidad-social.webp",
+    "bytes": 9590,
+    "sha256": "9167b33b8b3b32be8d6ccd5150320b60baa348612a2df86ec519c5e1306ee928",
+    "originalSize": [
+      2048,
+      1080
+    ],
+    "name": "Prosperidad Social",
+    "src": "/logos/scholarships/prosperidad-social.webp",
+    "sourcePage": "https://prosperidadsocial.gov.co/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  },
+  {
+    "id": "poli",
+    "assetUrl": "https://www.poli.edu.co/themes/custom/ptecnico2023/logo-politecnico-grancolombiano-blue.svg",
+    "file": "poli.svg",
+    "bytes": 25992,
+    "sha256": "0b91118216e1cfe9abfd457b351d9bb5405b381fad04d1c6004ab7acf2acc4ec",
+    "originalSize": null,
+    "name": "Politécnico Grancolombiano",
+    "src": "/logos/scholarships/poli.svg",
+    "sourcePage": "https://www.poli.edu.co/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "SVG institucional conservado sin alterar el diseño. Saltos de línea LF."
+  },
+  {
+    "id": "umanizales",
+    "assetUrl": "https://umanizales.edu.co/themes/custom/classy_umanizales/dist/img/favicons/apple-touch-icon.png",
+    "file": "umanizales.webp",
+    "bytes": 11334,
+    "sha256": "acb81b7428c51a6210010625fd7792aafd6ef0b0b6777e9f4f39af2530d7874b",
+    "originalSize": [
+      180,
+      180
+    ],
+    "name": "Universidad de Manizales",
+    "src": "/logos/scholarships/umanizales.webp",
+    "sourcePage": "https://umanizales.edu.co/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  },
+  {
+    "id": "udea",
+    "assetUrl": "https://www.udea.edu.co/wps/wcm/connect/udea/2117e09c-7085-4410-b53b-c8dd24da3da7/logosimbolo-horizontal.png?MOD=AJPERES&CACHEID=ROOTWORKSPACE.Z18_L8L8H8C0LODDC0A6SSS2AD2GO4-2117e09c-7085-4410-b53b-c8dd24da3da7-plcMekT",
+    "file": "udea.webp",
+    "bytes": 15240,
+    "sha256": "30f1d062ada9dbe9d6b483fbcf7c4684ac5c4550fd97ebbdaec867bb533a6312",
+    "originalSize": [
+      1600,
+      402
+    ],
+    "name": "Universidad de Antioquia",
+    "src": "/logos/scholarships/udea.webp",
+    "sourcePage": "https://www.udea.edu.co/wps/portal/udea/web/inicio",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  },
+  {
+    "id": "uniandes",
+    "assetUrl": "https://www.uniandes.edu.co/",
+    "file": "uniandes.svg",
+    "bytes": 7521,
+    "sha256": "1b64670bcfa0bab6b60dccc8f05245237ec4126521bf9ba83799bb53619b0364",
+    "originalSize": null,
+    "name": "Universidad de los Andes",
+    "src": "/logos/scholarships/uniandes.svg",
+    "sourcePage": "https://www.uniandes.edu.co/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "SVG institucional conservado sin alterar el diseño. Saltos de línea LF."
+  },
+  {
+    "id": "colfuturo",
+    "assetUrl": "https://www.colfuturo.org/",
+    "file": "colfuturo.svg",
+    "bytes": 5815,
+    "sha256": "283b888318d54fb7494344912ea8d2263d92dc5ce1204056d170d568c499c8ef",
+    "originalSize": null,
+    "name": "Fundación COLFUTURO",
+    "src": "/logos/scholarships/colfuturo.svg",
+    "sourcePage": "https://www.colfuturo.org/",
+    "reviewedAt": "2026-11-03",
+    "tone": "dark",
+    "normalization": "Namespace SVG para archivo independiente; sin cambios de diseño. Saltos de línea LF."
+  },
+  {
+    "id": "atenea",
+    "assetUrl": "https://www.agenciaatenea.gov.co/sites/default/files/inline-images/ATENEA520.png",
+    "file": "atenea.webp",
+    "bytes": 16300,
+    "sha256": "7d5e304aad72549326010da741eb5f36ecbba54778d32db598914518983b74ac",
+    "originalSize": [
+      520,
+      157
+    ],
+    "name": "Agencia Atenea",
+    "src": "/logos/scholarships/atenea.webp",
+    "sourcePage": "https://www.agenciaatenea.gov.co/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  },
+  {
+    "id": "eafit",
+    "assetUrl": "https://www.eafit.edu.co/sites/default/files/logo_EAFIT_negro.svg",
+    "file": "eafit.svg",
+    "bytes": 18297,
+    "sha256": "39965accfea2e3df902ea90089d1913393e721ad42dc65b324d7042d77990c82",
+    "originalSize": null,
+    "name": "Universidad EAFIT",
+    "src": "/logos/scholarships/eafit.svg",
+    "sourcePage": "https://www.eafit.edu.co/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "SVG institucional conservado sin alterar el diseño. Saltos de línea LF."
+  },
+  {
+    "id": "icetex",
+    "assetUrl": "https://web.icetex.gov.co/documents/20122/0/Logo+ICETEX+definitivo.png/72d01383-0000-b5b1-ba10-074db16b3ed3",
+    "file": "icetex.webp",
+    "bytes": 11264,
+    "sha256": "67e1d4e62cda65d8ae42da61acbffe1ee983de96967e98a07ee3381f88892317",
+    "originalSize": [
+      2262,
+      508
+    ],
+    "name": "ICETEX",
+    "src": "/logos/scholarships/icetex.webp",
+    "sourcePage": "https://web.icetex.gov.co/portal",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  },
+  {
+    "id": "externado",
+    "assetUrl": "https://pattern-lab-externado-prod.web.app/images/logo-uec.svg",
+    "file": "externado.svg",
+    "bytes": 19014,
+    "sha256": "8ac48d80d70773558f21df8c3794f5943d7b71821fc1450161f92c944586ad9f",
+    "originalSize": null,
+    "name": "Universidad Externado de Colombia",
+    "src": "/logos/scholarships/externado.svg",
+    "sourcePage": "https://www.uexternado.edu.co/",
+    "reviewedAt": "2026-11-03",
+    "tone": "dark",
+    "normalization": "SVG institucional conservado sin alterar el diseño. Saltos de línea LF."
+  },
+  {
+    "id": "men",
+    "assetUrl": "https://www.mineducacion.gov.co/1780/channels-977_logo_MEN.png",
+    "file": "men.webp",
+    "bytes": 6934,
+    "sha256": "76e691e36aac07005f0d28323c28f4d5ad373c2ef4fa339e5212073f89398202",
+    "originalSize": [
+      299,
+      175
+    ],
+    "name": "Ministerio de Educación Nacional",
+    "src": "/logos/scholarships/men.webp",
+    "sourcePage": "https://www.mineducacion.gov.co/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  },
+  {
+    "id": "utb",
+    "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Universidad_Tecnol%C3%B3gica_de_Bol%C3%ADvar.png",
+    "file": "utb.webp",
+    "bytes": 7440,
+    "sha256": "4977c486569a08d20a4dd4165e744626711ce46ce38dc949d8a0fa25d068e937",
+    "originalSize": [
+      616,
+      301
+    ],
+    "license": "CC-BY-SA-4.0",
+    "author": "Utb digital",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "creditUrl": "https://commons.wikimedia.org/wiki/File:Universidad_Tecnol%C3%B3gica_de_Bol%C3%ADvar.png",
+    "name": "Universidad Tecnológica de Bolívar",
+    "src": "/logos/scholarships/utb.webp",
+    "sourcePage": "https://www.utb.edu.co/blog/noticias/la-utb-tiene-nueva-imagen/",
+    "reviewedAt": "2026-11-03",
+    "tone": "light",
+    "normalization": "WebP sin pérdida; reducción proporcional a un máximo de 320 × 192 px, sin recorte."
+  }
+]

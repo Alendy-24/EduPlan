@@ -1,0 +1,36 @@
+.financing-profile { margin-top:36px; border:1px solid var(--line); border-radius:12px; background:#fff; padding:28px; scroll-margin-top:110px; }
+.financing-profile header h2 { margin:8px 0 12px; font-size:26px; }
+.financing-profile header>p:last-child { color:var(--body); font-size:14px; line-height:1.7; max-width:650px; }
+.financing-question-grid { border:0; padding:0; margin:26px 0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; }
+.financing-question { display:block; font-size:13px; font-weight:600; }
+.financing-question select { width:100%; min-height:46px; display:block; margin:9px 0; padding:10px; border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--navy); font:inherit; font-weight:400; }
+.financing-question>span { display:block; font-size:12px; font-weight:400; color:var(--muted-strong); line-height:1.6; }
+.financing-save { display:flex; gap:24px; align-items:center; justify-content:space-between; border-top:1px solid var(--line-soft); padding-top:18px; }
+.financing-save p { font-size:12px; color:var(--muted-strong); max-width:330px; }
+.financing-save button { flex-shrink:0; min-height:44px; white-space:normal; }
+.scholarship-recommendation-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+.scholarship-recommendation { padding:22px; background:#fff; border:1px solid #ccd5e0; border-radius:9px; min-width:0; display:flex; flex-direction:column; }
+.scholarship-recommendation-provider { display:flex; gap:12px; align-items:center; font-size:11px; color:var(--muted-strong); }
+.scholarship-recommendation-provider .scholarship-brand { flex:0 0 48px; width:48px; height:44px; }
+.scholarship-recommendation-provider .scholarship-brand img { max-width:44px; max-height:40px; }
+.scholarship-recommendation h3 { font-size:19px; line-height:1.4; margin:8px 0 12px; }
+.scholarship-recommendation h3 a { color:var(--navy); }
+.scholarship-recommendation-state { font-size:11px; color:#3e5a72; margin:18px 0 0; }
+.scholarship-recommendation-coverage { font-size:13px; line-height:1.65; margin:0 0 12px; }
+.scholarship-recommendation-date { font-size:12px; color:var(--muted-strong); margin:0 0 14px; }
+.scholarship-recommendation-actions { display:flex; flex-wrap:wrap; gap:14px; justify-content:space-between; align-items:center; padding-top:18px; margin-top:auto; }
+.scholarship-recommendation-actions a { font-size:12px; text-decoration:underline; text-underline-offset:4px; }
+.scholarship-recommendation-actions .save-button { min-height:44px; }
+.scholarship-match { padding:14px 16px; border-left:2px solid #adc1d3; background:#f4f7f9; margin:16px 0; }
+.scholarship-match>strong { font-size:12px; color:var(--navy); }
+.scholarship-match>p,.scholarship-match li { font-size:12px; color:var(--body); line-height:1.7; margin:7px 0 0; }
+.scholarship-match .scholarship-match-condition { color:#526078; font-size:11px; }
+.scholarship-match ul { padding-left:17px; }
+.scholarship-match-incompatible { border-color:#b2796b; background:#faf4f1; }
+.scholarship-match-match { border-color:#688b76; }
+.scholarship-profile-prompt { padding:12px 16px; font-size:13px; background:#eff3f7; color:var(--body); line-height:1.7; border-radius:6px; margin-bottom:20px; }
+.scholarship-profile-prompt a { text-decoration:underline; text-underline-offset:3px; }
+.scholarship-recommendation-empty { padding:20px; background:white; border:1px solid var(--line-soft); }
+.financing-profile :is(select,button,a):focus-visible,.scholarship-recommendations :is(a,button):focus-visible { outline:3px solid var(--blue); outline-offset:3px; }
+@media(max-width:1024px) { .scholarship-recommendation-grid { grid-template-columns:1fr; }.scholarship-recommendation { display:block; }.financing-save { flex-wrap:wrap; }.financing-save button { width:100%; } }
+@media(max-width:540px) { .financing-question-grid { grid-template-columns:1fr; gap:20px; }.financing-profile { padding:20px; }.financing-profile header h2 { font-size:23px; }.scholarship-recommendations .section-heading { flex-wrap:wrap; gap:12px; } }

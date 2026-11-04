@@ -1,114 +1,90 @@
-# EduPlan
+# Cómo ejecutar EduPlan con el asistente virtual
 
-## Arranque completo con Docker
+Guía para levantar el proyecto en un computador nuevo (Windows / PowerShell) con el chatbot funcionando.
 
-Con Docker Desktop activo, desde la raíz del repositorio:
+## Requisitos
 
-```bash
-docker compose up -d --build --wait
-```
+- Git
+- Java 21 o superior
+- Node.js `^20.19` o `>=22.12`
+- PostgreSQL con una base de datos vacía llamada `eduplan_db`
+- Una API key propia de Groq (se crea en <https://console.groq.com/keys>)
 
-Abre **http://localhost:3005**. Este flujo ejecuta PostgreSQL, el catálogo,
-el backend y el frontend en contenedores; no requiere Node ni Java en el host.
-Inicia sesión para conversar con el asistente de IA. Sus mensajes se envían a
-Groq desde el backend; la clave nunca se incluye en el frontend ni en las imágenes.
-La IA ofrece orientación general y no consulta el catálogo en tiempo real.
+> Cada persona debe crear su propia API key. Nunca subas keys, contraseñas ni tokens al repositorio.
 
-El archivo raíz `.env` debe contener `POSTGRES_PASSWORD`, `JWT_SECRET` (Base64
-de al menos 32 bytes aleatorios) y `GROQ_API_KEY`; `.env.example` documenta las
-opciones. Para una instalación nueva, copia el ejemplo y completa los valores.
-Si reutilizas una base existente,
-conserva su contraseña de `.tools/local-dev/docker-database.json`.
-No ejecutes simultáneamente `npm run dev`: ambos flujos usan 3005 y PostgreSQL.
+## 1. Clonar el repositorio
 
-```bash
-docker compose logs -f
-docker compose down
-```
-
-`down` detiene el stack conservando la base. Los contenedores configurados con
-`restart: unless-stopped` vuelven a arrancar con Docker si no los detuviste.
-La primera construcción requiere Internet y puede tardar varios minutos.
-El catálogo y Groq requieren conexión a Internet durante su uso.
-
-## Desarrollo local
-
-### Requisitos
-
-- Node.js 20.19+ (20.x) o 22.12+; recomendado Node 24, como CI.
-  El mínimo sigue los [requisitos de Vite 8](https://v8.vite.dev/guide/).
-- JDK 21+ disponible mediante JAVA_HOME o PATH, incluyendo java y javac.
-- Docker Desktop o Docker Engine con Compose v2, activo y accesible sin sudo.
-- Conexión a Internet para descargar dependencias y consultar el catálogo MEN.
-
-### Primera ejecución
-
-```bash
-git clone https://github.com/Alendy-24/EduPlan.git
+```powershell
+git clone https://github.com/Alendy-24/EduPlan
 cd EduPlan
+git checkout <rama-del-asistente>
+```
+
+## 2. Terminal 1: backend (Spring Boot)
+
+```powershell
+cd backend\src
+$env:DB_URL = 'jdbc:postgresql://localhost:5432/eduplan_db'
+$env:DB_USER = 'postgres'
+$env:DB_PASSWORD = '<TU_CLAVE_DE_POSTGRES>'
+$env:DATA_SYNC_ADMIN_TOKEN = '<TOKEN_ADMIN_GENERADO>'
+$env:JWT_SECRET = [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')
+$env:GROQ_API_KEY = '<TU_API_KEY_DE_GROQ>'
+.\mvnw.cmd spring-boot:run
+```
+
+Notas:
+
+- `DATA_SYNC_ADMIN_TOKEN` se puede generar con `[guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')`.
+- `JWT_SECRET` se genera nuevo en cada arranque con el comando de arriba. Si cambia, hay que volver a iniciar sesión en la app.
+- Las tablas se crean solas al arrancar (Flyway).
+
+## 3. Terminal 2: catálogo (data-integration)
+
+```powershell
+cd data-integration
+npm install
+$env:PORT = '3001'
+npm run dev
+```
+
+El puerto `3001` debe coincidir con el proxy de `frontend/vite.config.js`. Para comprobar que responde: <http://127.0.0.1:3001/health>.
+
+## 4. Terminal 3: frontend
+
+```powershell
+cd frontend
 npm install
 npm run dev
 ```
 
-Abre **http://localhost:3005** cuando aparezca «EduPlan listo». La instalación
-raíz instala ambos workspaces; no necesitas instalar dentro de cada carpeta
-ni copiar archivos .env. Windows y Linux/WSL usan el mismo flujo. Instala y
-ejecuta Node en el mismo sistema: no compartas node_modules entre Windows y WSL.
+La app queda en <http://localhost:3005>.
 
-El arranque valida requisitos y puertos antes de lanzar servicios, levanta
-PostgreSQL con Docker y espera al backend y a data-integration antes de Vite.
-La primera ejecución puede tardar por las descargas de PostgreSQL y Maven.
-Los logs detallados quedan en .tools/local-dev/dev.log.
+## 5. Probar el asistente
 
-Ctrl+C detiene los tres servicios. PostgreSQL conserva el contenedor y sus datos;
-para detenerlo también: `npm run dev:db:stop`. Nunca se borran volúmenes automáticamente.
+1. Regístrate o inicia sesión (el asistente solo funciona con sesión iniciada).
+2. Abre la burbuja de chat.
+3. Pregunta algo, por ejemplo: "¿Cómo comparo dos programas?".
 
-### Credenciales y opciones avanzadas
+## Solución de problemas
 
-La contraseña aleatoria se conserva en .tools/local-dev/docker-database.json,
-y Compose recibe .tools/local-dev/postgres.env. Ambos están ignorados por Git.
-JWT_SECRET se genera en memoria en cada arranque: vuelve a iniciar sesión
-después de reiniciar el backend. No necesitas secretos administrativos para
-consultar el catálogo o usar cuentas. La sincronización administrativa sigue
-deshabilitada hasta que configures sus tokens explícitamente.
+| Síntoma | Causa probable | Solución |
+|---|---|---|
+| `Could not resolve placeholder 'JWT_SECRET'` (u otra variable) | La variable no está definida en esa terminal | Definirla antes de ejecutar `mvnw` |
+| `Could not resolve placeholder 'assistant.*'` | Faltan las líneas del asistente en `application.properties` | Agregar `assistant.base-url`, `assistant.api-key` y `assistant.model` |
+| 404 en `/api/assistant/chat` | Falta `/api/assistant` en el proxy de Vite | Agregarlo en `frontend/vite.config.js` y reiniciar el frontend |
+| 502 en `/api/institutions` | `data-integration` no está corriendo | Ejecutar la Terminal 2 con `PORT = 3001` |
+| "El asistente no está disponible" | Error de Groq (key, modelo o límite) | Revisar la consola del backend |
+| 401 en el chat | Sesión vencida o no iniciada | Volver a iniciar sesión |
 
-Para usar una base externa, exporta **DB_URL**, **DB_USER** y **DB_PASSWORD**
-juntas; DB_URL tiene formato jdbc:postgresql://host:puerto/base. Así no se usa
-Docker ni se comprueba el puerto local de PostgreSQL. La base debe ser accesible
-y permitir las migraciones Flyway; el backend informa los errores de conexión.
-Un **JWT_SECRET** opcional debe ser Base64 de al menos 32 bytes aleatorios.
+## Configuración del asistente
 
-Los ejemplos frontend/.env.example y data-integration/.env.example documentan
-overrides opcionales. docker/backend.env.example documenta configuración
-avanzada y de producción; npm run dev no carga docker/backend.env ni docker/.env.
-No cambies puertos internos con PORT o SERVER_PORT durante el arranque raíz: el
-orquestador fija integración en 3001 y backend en 8080, y Vite usa 3005 estricto.
+En `backend/src/main/resources/application.properties`:
 
-Para depurar Java, establece **EDUPLAN_DEBUG=1** en tu shell antes de
-npm run dev y selecciona «EduPlan Backend (adjuntar después de npm run dev)»
-en VS Code. El puerto JDWP 5005 se valida y escucha solo en loopback.
-Sin esta opción no se abre el depurador; VS Code no es un requisito.
-
-## Diagnóstico y troubleshooting
-
-```bash
-npm run doctor
-```
-
-Doctor no instala software, inicia servicios ni cambia permisos. Comprueba
-Node, java/javac, Docker/Compose cuando corresponde y puertos 3005, 3001, 8080 y
-5433. Acepta 5433 ocupado solo por el contenedor PostgreSQL válido de EduPlan.
-Si 3005 está ocupado, cierra la instancia anterior; Vite no elige otro puerto.
-
-### Problemas con Docker en WSL
-
-Si Docker falta, instala Docker Desktop con integración WSL o Docker Engine
-con Compose v2. Si el daemon está apagado, inícialo antes de npm run dev.
-Ante acceso denegado al socket, revisa la pertenencia de tu usuario al grupo
-docker. Normalmente un administrador lo resuelve con:
-
-```bash
-sudo usermod -aG docker $USER
+```properties
+assistant.base-url=https://api.groq.com/openai/v1
+assistant.api-key=${GROQ_API_KEY}
+assistant.model=openai/gpt-oss-20b
 ```
 
 Cierra la sesión y vuelve a entrar. Si usas WSL, puedes ejecutar
@@ -213,12 +189,26 @@ no inventa información académica ausente. Los enlaces específicos se muestran
 cuando han sido verificados en el registro independiente de enlaces oficiales.
 Consulta [el flujo de recopilación y revisión](docs/program-links.md).
 
-Becas contiene una selección editorial de ocho programas reales en
+Becas contiene una selección editorial de 37 oportunidades reales en
 `frontend/src/data/scholarships.js`, con requisitos, cobertura, fuente oficial,
 calendario y fecha de revisión. Su actualización es manual: deben revisarse las
-fuentes y `verifiedAt` al editar convocatorias. Las fechas pasadas se muestran
-cerradas y las fechas desconocidas exigen consultar vigencia. Las rutas
+fuentes y `verifiedAt` al editar convocatorias. La [relación auditable de fuentes](docs/scholarships-sources.md)
+documenta fechas, correcciones, límites y comandos de validación. Los filtros distinguen
+tipo financiero, nivel, ubicación, público y devolución; los guardados conservan sus IDs.
+Las fechas pasadas se muestran cerradas, las fechas desconocidas exigen consultar
+vigencia y los anuncios futuros no activan automáticamente inscripciones. Las rutas
 históricas de demostración mantienen datos ficticios aislados y avisos.
+
+«Apoyo para tus estudios» añade respuestas opcionales de financiación al perfil de
+cuenta mediante `/api/me/financing-preferences` (migración V9). Un motor de reglas
+compartido alimenta «Para ti» y «Becas que podrían interesarte» en Mi espacio,
+sin porcentajes ni inferencia de residencia o elegibilidad. Las respuestas no se
+guardan en localStorage ni se envían a las API públicas del catálogo. Consulta el
+[informe de fase 2](docs/scholarships-phase2.md) y las
+[procedencias de imágenes](docs/scholarship-images.md).
+
+Las oportunidades muestran logos locales para 28 entidades (35 de 37 fichas),
+con carga diferida, respaldo textual y [créditos de los recursos](frontend/public/logos/scholarships/credits.html).
 
 ## Pruebas
 

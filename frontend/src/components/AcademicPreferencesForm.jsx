@@ -10,6 +10,7 @@ import InterestSelector from './profile/InterestSelector';
 import ProfileCompletion from './profile/ProfileCompletion';
 import ProfileRecommendationsPreview from './profile/ProfileRecommendationsPreview';
 import ProfileIcon from './profile/ProfileIcon';
+import FinancingPreferencesForm from './FinancingPreferencesForm';
 
 const same = (a, b) => ['academicLevel', 'educationLevel', 'modality', 'mobility', 'department', 'municipality'].every(key => a[key] === b[key]);
 export default function AcademicPreferencesForm() {
@@ -83,6 +84,7 @@ export default function AcademicPreferencesForm() {
         {feedback && <p className={`academic-feedback ${feedback.error ? 'is-error' : ''}`} role={feedback.error ? 'alert' : 'status'}>{feedback.text}</p>}
         {!feedback && interests.syncState === 'error' && <p className="academic-feedback is-error" role="alert">{interests.message} <button className="plain-button text-link" type="button" onClick={interests.retrySync}>Volver a cargar intereses</button></p>}
       </form>
+      <FinancingPreferencesForm />
     </div>
     <aside className="academic-profile-aside"><ProfileCompletion preferences={draft} interests={interests.selections} dirty={dirty}/><ProfileRecommendationsPreview dirty={dirty}/></aside>
   </div>;

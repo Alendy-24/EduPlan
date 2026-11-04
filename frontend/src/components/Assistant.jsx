@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { askAssistant } from '../services/assistant';
+import { contextoDePantalla } from '../utils/assistantContext';
 export function ChatIcon() { return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-8 8H5l-3 2v-10a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8Z" /><path d="M7 9h10M7 13h7" /></svg>; }
 export default function Assistant({ open, onOpen, onClose }) {
   const panel = useRef(null), button = useRef(null), previousFocus = useRef(null);
@@ -22,15 +24,11 @@ export default function Assistant({ open, onOpen, onClose }) {
     const controller = new AbortController(); request.current = controller;
     setBusy(true); setError('');
     try {
-      const response = await fetch('/api/assistant', {
-        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ messages: next.map(message => ({ ...message, content: message.content.slice(0, 2000) })) }),
-        signal: AbortSignal.any([controller.signal, AbortSignal.timeout(40000)]),
-      });
-      if (!response.ok) throw new Error(response.status === 401 ? 'Inicia sesión de nuevo para usar el asistente.' : response.status === 429 ? 'El asistente está ocupado. Intenta en un momento.' : 'No pudimos consultar el asistente. Intenta de nuevo.');
-      const data = await response.json();
-      if (typeof data.reply !== 'string' || !data.reply.trim()) throw new Error('El asistente no devolvió una respuesta.');
-      if (!controller.signal.aborted) { setMessages([...next, { role: 'assistant', content: data.reply }]); setQuestion(''); }
+      const reply = await askAssistant({
+        mensajes: next.map(message => ({ ...message, content: message.content.slice(0, 2000) })),
+        contexto: contextoDePantalla(location.pathname),
+      }, token, controller.signal);
+      if (!controller.signal.aborted) { setMessages([...next, { role: 'assistant', content: reply }]); setQuestion(''); }
     } catch (failure) { if (!controller.signal.aborted) setError(failure.name === 'TimeoutError' ? 'La respuesta tardó demasiado. Intenta de nuevo.' : failure.message); }
     finally { if (!controller.signal.aborted) setBusy(false); }
   }
@@ -63,7 +61,7 @@ export default function Assistant({ open, onOpen, onClose }) {
   return <><button ref={button} className="assistant-launcher" type="button" aria-label="Abrir asistente EduPlan" aria-haspopup="dialog" aria-expanded={open} aria-controls="eduplan-assistant" onClick={onOpen}><ChatIcon /></button>
     <dialog ref={panel} id="eduplan-assistant" className="assistant-panel" aria-labelledby="assistant-title" aria-describedby="assistant-status" onCancel={event => { event.preventDefault(); onClose(); }}>
       <header className="assistant-header"><div><h2 id="assistant-title">Asistente EduPlan</h2><span id="assistant-status" className="subtle">{token ? 'Orientación con IA' : 'Inicia sesión para conversar'}</span></div><button className="assistant-close" type="button" autoFocus aria-label="Cerrar asistente EduPlan" onClick={onClose}>×</button></header>
-      <div ref={history} className="assistant-messages" role="log" aria-live="polite" aria-busy={busy}><span className="assistant-mark" aria-hidden="true"><ChatIcon /></span><p><strong>Hola.</strong><br />Puedo orientarte para explorar carreras e instituciones. ¿Qué te gustaría estudiar?</p><p className="subtle">Tus mensajes se envían al proveedor de IA. Confirma los datos en las fuentes oficiales.</p>{messages.map((message, index) => <p className="assistant-message" key={index}><strong>{message.role === 'user' ? 'Tú' : 'EduPlan'}</strong><br />{message.content}</p>)}{busy && <p className="subtle">Pensando…</p>}{error && <p role="alert">{error}</p>}</div>
+      <div ref={history} className="assistant-messages" role="log" aria-live="polite" aria-busy={busy}><span className="assistant-mark" aria-hidden="true"><ChatIcon /></span><p><strong>Hola.</strong><br />Puedo ayudarte a usar EduPlan y orientarte para explorar carreras e instituciones. ¿Qué necesitas?</p>{!token && <p className="subtle"><Link to="/login" onClick={onClose}>Inicia sesión</Link> para conversar con el asistente.</p>}<p className="subtle">Tus mensajes se envían al proveedor de IA. Confirma los datos en las fuentes oficiales.</p>{messages.map((message, index) => <p className={'assistant-msg assistant-msg-' + message.role} key={index}><strong>{message.role === 'user' ? 'Tú' : 'EduPlan'}</strong><br />{message.content}</p>)}{busy && <p className="subtle">Pensando…</p>}{error && <p role="alert">{error}</p>}</div>
       <form className="assistant-composer" onSubmit={send}><label className="sr-only" htmlFor="assistant-question">Escribe tu pregunta</label><input id="assistant-question" placeholder="Escribe tu pregunta…" value={question} onChange={event => setQuestion(event.target.value)} maxLength={2000} disabled={!token || busy} /><button className="btn btn-primary" type="submit" disabled={!token || busy || !question.trim()}>Enviar</button></form>
     </dialog></>;
 }

@@ -33,6 +33,11 @@ await context.route('**/api/institutions?**', route => {
   ] : fixtures, hasMore: false } });
 });
 const out = '.tools/qa/institution-logos';
+await context.route('**/api/institutions/*', route => {
+  const code = new URL(route.request().url()).pathname.split('/').at(-1);
+  const institution = fixtures.find(item => item.code === code);
+  return institution ? route.fulfill({ json: institution }) : route.fulfill({ status: 404, json: {} });
+});
 await mkdir(out, { recursive: true });
 try {
   await page.goto(base + '/instituciones');
@@ -46,8 +51,7 @@ try {
   const bogota = await images.nth(0).getAttribute('src');
   assert.equal(bogota, '/logos/javeriana.jpg');
   assert.equal(await images.nth(1).getAttribute('src'), bogota);
-  assert.match(await images.nth(2).getAttribute('src'), /^https:\/\/img\.logo\.dev\/unal\.edu\.co\?/,
-    'Start Vite with VITE_LOGO_DEV_TOKEN=pk_fixture_only for this test');
+  assert.equal(await images.nth(2).getAttribute('src'), '/logos/unal.png');
   for (let index = 3; index < fixtures.length; index++) {
     assert.match(await images.nth(index).getAttribute('class'), /fallback/);
     assert(!((await images.nth(index).getAttribute('src')).includes('logo.dev')));
@@ -68,6 +72,18 @@ try {
     const img = document.querySelector('.institution-card-cover img');
     return img?.src.includes('/corrected.edu.co?') && img.complete && img.naturalWidth > 0;
   });
+  await page.goto(base + '/instituciones/1101');
+  await page.getByRole('heading', { name: 'Universidad Nacional', exact: true }).waitFor();
+  await page.locator('.institution-detail-logo').evaluate(img => img.decode());
+  assert.equal(await page.locator('.institution-detail-logo').getAttribute('src'), '/logos/unal.png');
+  await page.goto(base + '/instituciones/900001');
+  await page.getByRole('heading', { name: 'Institución sin imagen', exact: true }).waitFor();
+  await page.waitForFunction(() => document.querySelector('.institution-detail-logo')?.classList.contains('institution-logo-fallback'));
+  assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
+  await page.goto(base + '/instituciones/1702');
+  await page.getByRole('heading', { name: 'Javeriana Cali', exact: true }).waitFor();
+  await page.locator('.institution-detail-logo').evaluate(img => img.decode());
+  assert.equal(await page.locator('.institution-detail-logo').getAttribute('src'), '/logos/javeriana.jpg');
   assert.deepEqual(errors, []);
   console.log('Institution logos: shared campus image, 404/429 fallback, invalid sites, disabled identities, changed filters and mobile layout passed.');
 } finally {
